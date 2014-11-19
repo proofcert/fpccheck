@@ -1,0 +1,8 @@
+An (interactive?) theorem prover for Bedwyr
+
+After experimenting with the PCMC implementation for model checking it is clear
+that its logic (muFa) is much too weak to assist in proving theorems. A stronger
+kernel is thus necessary, and here we attempt to furnish one such system.
+
+Here we will play the role of Culhwch to Bedwyr, which will assist us in
+completing the "impossible tasks" that lie ahead.
