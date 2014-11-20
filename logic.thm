@@ -4,31 +4,30 @@ Kind   bool, i   type.
 % No polymorphism, just i?
 % Remember we work from the intuitionistic fragment/muLJF, not LL
 
-%Type   tensor, oplus, with, par   bool -> bool -> bool.
-%Type   one,    zero,  top,  bot   bool.
-%Type   all, some                  (i -> bool) -> bool.
-%Type   eq, neq                    i -> i -> bool.
+Type   tt, ff         bool.
+Type   and, or, imp   bool -> bool -> bool.
+Type   all, some      (i -> bool) -> bool.
+Type   eq             i -> i -> bool.
+Type   mu, nu         ((i -> bool) -> i -> bool) -> i -> bool. % for now just mu1, nu1
 
-%Type tensor, aand, oplus, imp   bool -> bool -> bool.
-%Type top, bot, one, zero        bool.
-%Type all, some                  (i -> bool) -> bool.
-%Type eq, neq                    i -> i -> bool.
-%Type mu0, nu0                   (                bool  ->                bool) ->                bool.
-%Type mu1, nu1                   ((i ->           bool) -> i ->           bool) -> i ->           bool.
-%Type mu2, nu2                   ((i -> i ->      bool) -> i -> i ->      bool) -> i -> i      -> bool.
-%Type mu3, nu3                   ((i -> i -> i -> bool) -> i -> i -> i -> bool) -> i -> i -> i -> bool.
+Define negative : bool -> prop by
+  negative (imp _ _) ;
+  negative (all _) ;
+  negative (nu _ _).
 
-%Define negative : bool -> prop by
-%  negative top ; negative (aand A B) ;
-%  negative bot ; negative (imp A B) ;
-%  negative (all B) ; negative (neq T S) ;
-%  negative (nu0 B) ; negative (nu1 B T) ; negative (nu2 B T S) ; negative (nu3 B T S R).
+Define positive : bool -> prop by
+  positive tt ; positive ff ;
+  positive (and _ _) ; positive (or _ _) ;
+  positive (some _) ;
+  positive (eq _ _) ;
+  positive (mu _ _).
 
-%Define positive : bool -> prop by
-%  positive one ; positive (tensor A B) ;
-%  positive zero ; positive (oplus A B) ;
-%  positive (some B) ; positive (eq T S) ;
-%  positive (mu0 B) ; positive (mu1 B T) ; positive (mu2 B T S) ; positive (mu3 B T S R).
+% A unified fixed point implementation renders the following helpers obsolete
+% given that a single pattern will cover all possibilities, and furthermore each
+% will be used exactly once in the kernel.
+
+%Type mu3, nu3         ((i -> i -> i -> bool) -> i -> i -> i -> bool) -> i -> i -> i -> bool.
+%Type   mu, nu         ((list i -> bool) -> list i -> bool) -> list i -> bool. % and a NAT for the arity somewhere?
 
 %Define mu_atom : bool -> prop by
 %  mu_atom (mu0 B) ;
