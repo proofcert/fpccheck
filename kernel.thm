@@ -2,13 +2,21 @@
 % immediate induction TODO
 % rules follow the order found in BMS10, except init always goes before unfolding
 % (always just one goal/RHS formula? zero?)
-Kind   goal   type.
-Type   unk, sth   bool -> goal.
 
-% Zones:       Xi      Phi          Gamma        Delta        Goal
-Define async : cert -> list bool -> list bool -> list bool -> goal -> prop,
-       syncL : cert -> list bool -> list bool ->      bool -> bool -> prop,
-       syncR : cert -> list bool -> list bool              -> bool -> prop by
+% The one formula on the RHS may be "unknown" (yet to be processed, it could be
+% anything), demonstrably positive and therefore "stored," or already a "frozen"
+% greatest fixed point.
+% ("any" could be a good name for unk...)
+Kind   goal   type.
+Type   unk, sto, frz   bool -> goal.
+
+Kind   ctx   type.
+Type   kvp   idx -> bool -> ctx.
+
+% Zones:       Xi      Phi          Gamma       Delta        Goal
+Define async : cert -> list bool -> list ctx -> list bool -> goal -> prop,
+       syncL : cert -> list bool -> list ctx ->      bool -> goal -> prop,
+       syncR : cert -> list bool -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
@@ -25,9 +33,9 @@ async Xi Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
 	async Xi'  Phi Gamma (P :: Delta) G /\
 	async Xi'' Phi Gamma (Q :: Delta) G ;
 
-async Xi Phi Gamma Delta (sth (imp P Q)) := exists Xi',
+async Xi Phi Gamma Delta (unk (imp P Q)) := exists Xi',
 	impClerk Xi Xi' /\
-	async Xi' Phi Gamma (P :: Delta) (sth Q) ;
+	async Xi' Phi Gamma (P :: Delta) (unk Q) ;
 
 async Xi Phi Gamma (ff :: Delta) G :=
 	ffClerk Xi ;
@@ -36,11 +44,11 @@ async Xi Phi Gamma (tt :: Delta) G := exists Xi',
 	ttClerk Xi Xi' /\
 	async Xi' Phi Gamma Delta G ;
 
-async Xi Phi Gamma Delta (sth (all P)) := exists Xi',
+async Xi Phi Gamma Delta (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, async (Xi' x) Phi Gamma Delta (sth (P x)) ;
+	forall x, async (Xi' x) Phi Gamma Delta (unk (P x)) ;
 
-async Xi Phi Gamma ((some P) :: Delta) Goal := exists Xi',
+async Xi Phi Gamma ((some P) :: Delta) G := exists Xi',
 	someClerk Xi Xi' /\
 	forall x, async (Xi' x) Phi Gamma ((P x) :: Delta) G ;
 
@@ -51,27 +59,26 @@ async Xi Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
 	          async  Xi'     Phi Gamma ((S T) :: Delta) G /\
-	forall x, async (Xi'' x) Phi Gamma ((B S x) :: nil) (sth (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
+	forall x, async (Xi'' x) Phi Gamma ((B S x) :: nil) (unk (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
 
 async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
 	async Xi' ((mu B T) :: Phi) Gamma Delta G ;
 
-async Xi Phi Gamma Delta (sth (nu B T)) := exists Xi' Xi'' S,
+async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Phi Gamma Delta          (sth (S T)) /\
-	forall x, async (Xi'' x) Phi nil   ((S x) :: nil) (sth (B S x)) ; % should I discard Gamma/Delta? % a single freeze area works because each type of fixpoint can only come from one side
+	          async  Xi'     Phi Gamma Delta          (unk (S T)) /\
+	forall x, async (Xi'' x) Phi nil   ((S x) :: nil) (unk (B S x)) ; % should I discard Gamma/Delta? % a single freeze area works because each type of fixpoint can only come from one side
 
-async Xi Phi Gamma Delta (sth (nu B T)) := exists Xi',
+async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Xi' ((mu B T) :: Phi) Gamma Delta (unk tt) ; % !!! TODO how to represent an empty RHS? (and is this the Right Thing To Do?)
+	async Xi' ((mu B T) :: Phi) Gamma Delta (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %
 %%%%%%%%%%%%%%%%%%%%%
 
 % synchronous sequents: what to do with both variants of the RHS, when one changes (store/decide), for now I assume I'm operating on sth-style goals
-% probable need to signal somewhere in which side I'm focusing! C is nil perhaps (might be brittle, and/or seems superfluous; in this case it needs to be a 0-1 set)? two sequent definitions?
 % and given this distinction, unk is less necessary, or at least I'm pretty sure it doesn't need a formula and is instead simply a nil marker
 % would the 'goal' qualification even apply here? perhaps not
 
@@ -127,33 +134,36 @@ syncR Xi Phi Gamma (mu B T) := exists Xi',
 
 % Standard muLJF
 
-async Xi Phi Gamma nil (unk G) := exists Xi' C, % Idx C, % TODO code ctx, extend signatures, etc. % a very lazy, possibly wrong, initial implementation
-	member C Gamma /\
-	decideLClerk Xi Xi' /\ % Idx /\
+% Idx C, % TODO code ctx, extend signatures, etc. % a very lazy, possibly wrong, initial implementation
+% Maybe the encoding of G can be simplified having a top-level code that represents "not unk", that is to say, not "able to be processed"
+async Xi Phi Gamma nil G := exists Xi' Idx C,
+	(G = (sto _) \/ G = (frz _)) /\
+	decideLClerk Xi Xi' Idx /\
+	member (kvp Idx C) Gamma /\
 	syncL Xi' Phi Gamma C G ; % chosen formula remains in Gamma ("duplicated")
 
-async Xi Phi Gamma nil (unk G) := exists Xi',
+async Xi Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
 	syncR Xi' Phi Gamma G ;
 
 syncL Xi Phi Gamma C G := exists Xi',
 	positive C /\ % or atom?
 	releaseLExpert Xi Xi' /\
-	async Xi' Phi Gamma (C :: nil) (unk G) ; % always OK to return to unk?
+	async Xi' Phi Gamma (C :: nil) G ;
 
 syncR Xi Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Xi' Phi Gamma nil (sth G) ;
+	async Xi' Phi Gamma nil (unk G) ;
 
 % Store
 
-async Xi Phi Gamma (C :: Delta) G := exists Xi', % index?
+async Xi Phi Gamma (C :: Delta) G := exists Xi' Idx,
 	negative C /\ % or (positive) atoms? but if positive, they are mu's that belong in this phase
-	storeLClerk Xi Xi' /\
-	async Xi' Phi (C :: Gamma) Delta G ;
+	storeLClerk Xi Xi' Idx /\
+	async Xi' Phi ((kvp Idx C) :: Gamma) Delta G ;
 
-async Xi Phi Delta Gamma (sth G) := exists Xi',
+async Xi Phi Delta Gamma (unk G) := exists Xi',
 	positive G /\ % again, atoms? context/indexing?
 	storeRClerk Xi Xi' /\
-	async Xi' Phi Delta Gamma (unk G).
+	async Xi' Phi Delta Gamma (sto G).

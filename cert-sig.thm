@@ -1,7 +1,12 @@
+% Proof certificate
 Kind   cert          type.
 
+% Branching choice (closed type)
 Kind   choice        type.
 Type   left, right   choice.
+
+% Store index
+Kind   idx           type.
 
 % A signature of clerks and experts (can we enforce it?)
 % No polymorphism here, at least yet
@@ -31,9 +36,9 @@ Type   left, right   choice.
 %initRExpert   cert                   -> prop
 %unfoldRExpert cert -> cert           -> prop
 
-%decideLClerk   cert -> cert -> prop
-%decideRClerk   cert -> cert -> prop
-%releaseLExpert cert -> cert -> prop
-%releaseRExpert cert -> cert -> prop
-%storeLClerk    cert -> cert -> prop
-%storeRClerk    cert -> cert -> prop
+%decideLClerk   cert -> cert -> idx -> prop
+%decideRClerk   cert -> cert        -> prop
+%releaseLExpert cert -> cert        -> prop
+%releaseRExpert cert -> cert        -> prop
+%storeLClerk    cert -> cert -> idx -> prop
+%storeRClerk    cert -> cert        -> prop

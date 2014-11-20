@@ -2,7 +2,8 @@
 % Certificate constructors %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Type   dummy   cert.
+Type   dummy    cert.
+Type   bucket   idx.
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -33,9 +34,9 @@ Define unfoldLExpert : cert -> cert           -> prop by unfoldLExpert C C.
 Define initRExpert   : cert                   -> prop by initRExpert C.
 Define unfoldRExpert : cert -> cert           -> prop by unfoldRExpert C C.
 
-Define decideLClerk   : cert -> cert -> prop by decideLClerk C C.
-Define decideRClerk   : cert -> cert -> prop by decideRClerk C C.
-Define releaseLExpert : cert -> cert -> prop by releaseLExpert C C.
-Define releaseRExpert : cert -> cert -> prop by releaseRExpert C C.
-Define storeLClerk    : cert -> cert -> prop by storeLClerk C C.
-Define storeRClerk    : cert -> cert -> prop by storeRClerk C C.
+Define decideLClerk   : cert -> cert -> idx -> prop by decideLClerk C C bucket.
+Define decideRClerk   : cert -> cert        -> prop by decideRClerk C C.
+Define releaseLExpert : cert -> cert        -> prop by releaseLExpert C C.
+Define releaseRExpert : cert -> cert        -> prop by releaseRExpert C C.
+Define storeLClerk    : cert -> cert -> idx -> prop by storeLClerk C C bucket.
+Define storeRClerk    : cert -> cert        -> prop by storeRClerk C C.

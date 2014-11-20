@@ -11,4 +11,65 @@
 % To run/debug: bedwyr -t -I [-D] <file>
 % No external examples needed to test the framework
 
-#assert async dummy nil nil (ff :: nil) (unk tt).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Single-step inference rules % % Not really single step, better rephrase
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% No: I need to chain, but will do so trivially and base on cases I have (working) tests for
+% It's not entirely clear what I'm doing for G as (sto tt), other than trying to get it out of the way
+
+% ffL (ex falso quodlibet)
+#assert async dummy nil nil (ff :: nil) (sto tt).
+% ttR
+#assert async dummy nil nil nil (unk tt).
+% andL -> ffL (the and-RHS doesn't do anything)
+#assert async dummy nil nil ((and ff ff) :: nil) (sto tt).
+% andL -> ttL -> ffL
+#assert async dummy nil nil ((and tt ff) :: nil) (sto tt).
+% orL -> ffL | ffL
+#assert async dummy nil nil ((or ff ff) :: nil) (sto tt).
+% impR -> ffL (imp-RSH doesn't do anything, but it can't be proved anyway)
+#assert async dummy nil nil nil (unk (imp ff ff)).
+
+%left side before?
+
+% storeR -> decideR -> ttR
+#assert async dummy nil nil nil (unk tt).
+
+
+
+% allL -> #
+%%#assert_not async dummy nil nil nil (unk (all (x\ ff))).
+
+
+
+
+%%#assert async dummy nil nil nil (unk (all (x\ tt))).
+
+
+%% (works) Prove consumption of imp-RHS (more involved... later)
+%#assert async dummy nil nil nil (unk (imp tt tt)).
+
+
+
+% This will need the expert
+%#assert_not async dummy nil nil (tt :: nil) (sto tt).
+%#assert async dummy nil nil (tt :: nil) (sto tt).
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Fixed point encoding %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% For now, this is just a little diversion to get some confidence that arbitrary arity can be made into fixpoints
+
+%(mu1 I\L\ (oplus
+%	(eq L empty)
+%	(some N\ some L'\ (tensor
+%		(eq L (cons N L'))
+%		(I L')))))
+
+% Binding of args to vars shouldn't affect the purely positive aspect of the least fixpoint
+%(mu pred\args\ (or
+%	(eq [arg1] empty)
+%	(some n\ some l'\ (and
+%		(eq [arg1] (cons n l'))
+%		(pred l')))))
