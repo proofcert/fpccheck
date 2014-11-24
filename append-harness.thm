@@ -1,0 +1,21 @@
+#include "logic.thm".             % First-order logic syntax
+#include "cert-sig.thm".          % Certificate declarations
+#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
+#include "kernel.thm".            % Kernel
+#include "append-examples.thm".   % Concrete examples
+
+#assert appendable start empty empty empty.
+#assert appendable start (cons a empty) empty (cons a empty).
+#assert appendable start empty (cons a empty) (cons a empty).
+#assert appendable start (cons a empty) (cons b empty) (cons a (cons b empty)).
+
+#assert eigen_unify start.
+
+%#assert append_total
+%	(ind1
+%		(x\ all A\ all B\ imp
+%			(eq x A)
+%			(some C\
+%				(mu3 A\L1\L2\L3\ (oplus (tensor (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (tensor (tensor (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A L1' L2 L3')))))
+%				A B C))
+%		(dummy\ start)).

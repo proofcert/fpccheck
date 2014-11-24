@@ -1,0 +1,17 @@
+#include "append.thm".
+
+Define appendable : cert -> i -> i -> i -> prop by
+	appendable Cert L1 L2 L3 :=
+		append Append /\ async Cert nil nil nil (unk (Append (L1 ++ L2 ++ L3 ++ argv))).
+
+% Test predicates to pave the way for append_total
+Define eigen_unify : cert -> prop by
+	eigen_unify Cert :=
+	append Append /\ async Cert nil nil nil (unk
+		(all a\ all b\ all c\ (imp (Append (a ++ b ++ c ++ argv)) (some d\ some e\ some f\ Append (d ++ e ++ f ++ argv))))
+	).
+
+Define append_total : cert -> prop by
+	append_total Cert :=
+		append Append /\ is_list IsList /\
+		async Cert nil nil nil (unk (all L1\ all L2\ (imp (IsList (L1 ++ argv)) (some L3\ Append (L1 ++ L2 ++ L3 ++ argv))))).

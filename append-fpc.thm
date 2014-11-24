@@ -1,0 +1,143 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Certificate constructors %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Decision procedure start
+Type   start    cert.
+Type   induce   (i -> bool) -> (i -> cert) -> cert.
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Index constructors %
+%%%%%%%%%%%%%%%%%%%%%%
+Type   bucket   idx.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Used/defined clerks/experts %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Define impClerk : cert -> cert -> prop by
+	impClerk Cert Cert
+	:= println "impClerk"
+	.
+
+Define allClerk : cert -> (i -> cert) -> prop by
+	allClerk Cert (_\ Cert)
+	:= println "allClerk"
+	.
+
+Define someExpert : cert -> cert -> i -> prop by
+	someExpert Cert Cert _
+	:= println "someExpert"
+	.
+
+Define decideRClerk : cert -> cert -> prop by
+	decideRClerk Cert Cert
+	:= println "decideRClerk"
+	.
+
+Define freezeLClerk : cert -> cert -> prop by
+	freezeLClerk start start
+	:= println "freezeLClerk"
+	.
+
+Define initRExpert : cert -> prop by
+	initRExpert Cert
+	:= println "initRExpert"
+	.
+
+% (removed failing mu-unfoldings to the left and 1-place invariants)
+
+Define unfoldRExpert : cert -> cert -> prop by
+	unfoldRExpert Cert Cert
+	:= println "unfoldRExpert"
+	.
+
+% Simple search on trivial branch, rest as given by certificate
+Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
+	indClerk (induce S Cert') start Cert' S
+	:= println "indClerk"
+	.
+
+Define orClerk : cert -> cert -> cert -> prop by
+	orClerk Cert Cert Cert
+	:= println "orClerk"
+	.
+
+Define eqClerk : cert -> cert -> prop by
+	eqClerk Cert Cert
+	:= println "eqClerk"
+	.
+
+Define decideLClerk : cert -> cert -> idx -> prop by
+	decideLClerk Cert Cert bucket
+	:= println "decideLClerk"
+	.
+
+Define orExpert : cert -> cert -> choice -> prop by
+	orExpert Cert Cert left 
+	:= println "orExpert left"
+	;
+	orExpert Cert Cert right
+	:= println "orExpert right"
+	.
+
+Define andExpert : cert -> cert -> cert -> prop by
+	andExpert Cert Cert Cert
+	:= println "andExpert"
+	.
+
+% Should this be limited to initial certificates?
+Define eqExpert : cert -> prop by
+	eqExpert Cert
+	:= println "eqExpert"
+	.
+
+% Next branch
+Define someClerk : cert -> (i -> cert) -> prop by
+	someClerk Cert (_\ Cert)
+	:= println "someClerk"
+	.
+
+Define andClerk : cert -> cert -> prop by
+	andClerk Cert Cert
+	:= println "andClerk"
+	.
+
+% Adding more things while looking for the missing piece...
+Define impExpert : cert -> cert -> cert -> prop by
+	impExpert Cert Cert Cert
+	:= println "impExpert"
+	.
+
+Define allExpert : cert -> cert -> i -> prop by
+	allExpert Cert Cert _
+	:= println "allExpert"
+	.
+
+% More forbidden stuff, just in case... with these two, at least the assertion
+% of totality ends, basically (it would seem) because the logic cannot find a
+% way to focus on the left (or the right) when a situation all ... |- some ...
+% is encountered.
+Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := println "unfoldLExpert fail" /\ 1 = 2.
+
+% New kernel, new rules
+Define storeRClerk : cert -> cert -> prop by
+	storeRClerk Cert Cert
+	:= println "storeRClerk"
+	.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Unused/undefined clerks/experts %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Type ffClerk      cert                                              -> prop.
+Type ttClerk      cert ->       cert                                -> prop.
+Type coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop.
+Type freezeRClerk cert ->       cert                                -> prop.
+
+Type ttExpert      cert                   -> prop.
+Type initLExpert   cert                   -> prop.
+
+Type releaseLExpert cert -> cert        -> prop.
+Type releaseRExpert cert -> cert        -> prop.
+Type storeLClerk    cert -> cert -> idx -> prop.
