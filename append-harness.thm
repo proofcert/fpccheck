@@ -4,18 +4,21 @@
 #include "kernel.thm".            % Kernel
 #include "append-examples.thm".   % Concrete examples
 
-#assert appendable start empty empty empty.
-#assert appendable start (cons a empty) empty (cons a empty).
-#assert appendable start empty (cons a empty) (cons a empty).
-#assert appendable start (cons a empty) (cons b empty) (cons a (cons b empty)).
+#assert appendable (start z z) empty empty empty.
+#assert appendable (start z z) (cons a empty) empty (cons a empty).
+#assert appendable (start z z) empty (cons a empty) (cons a empty).
+#assert appendable (start z z) (cons a empty) (cons b empty) (cons a (cons b empty)).
 
-#assert eigen_unify start.
+#assert eigen_unify (start z z).
 
-%#assert append_total
-%	(ind1
-%		(x\ all A\ all B\ imp
+#assert append_total
+% are these (always) the right initial indexes? (yes, this is the initial certificate, don't be confused by the fact that it will allow an induction operation further down the line)
+	(induce z z
+		(x\ all A\ all B\ imp
 %			(eq x A)
-%			(some C\
-%				(mu3 A\L1\L2\L3\ (oplus (tensor (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (tensor (tensor (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A L1' L2 L3')))))
-%				A B C))
-%		(dummy\ start)).
+			(eq x (A ++ argv))
+			(some C\
+				(mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
+				(A ++ B ++ C ++ argv)))
+		(dummy\ start z z)). % why z? does _ play generic and much safer?
+% There might be some indexing problems left, e.g. for the case where I attempt to read N, which has not been pushed yet, but upon being so is no longer recalled because the next to (attempt to) read counter has been incremented
