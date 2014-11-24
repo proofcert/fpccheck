@@ -1,5 +1,9 @@
 Kind   bool, i   type.
 
+% Built-in fixed point argument lists
+Type   argv   i.
+Type   ++     i -> i -> i.
+
 % Generic arity fixpoints would be nice
 % No polymorphism, just i?
 % Remember we work from the intuitionistic fragment/muLJF, not LL
