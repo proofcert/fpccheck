@@ -19,8 +19,10 @@ Kind   idx           type.
 %allClerk     cert -> (i -> cert)                               -> prop
 %someClerk    cert -> (i -> cert)                               -> prop
 %eqClerk      cert ->       cert                                -> prop
+%unfoldLClerk cert ->       cert                                -> prop
 %indClerk     cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop
 %freezeLClerk cert ->       cert                                -> prop
+%unfoldRClerk cert ->       cert                                -> prop
 %coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop
 %freezeRClerk cert ->       cert                                -> prop
 

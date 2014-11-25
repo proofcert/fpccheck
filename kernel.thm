@@ -56,6 +56,12 @@ async Xi Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
 	((P = Q) -> async Xi Phi Gamma Delta G) ;
 
+% trivial induction before the other cases?
+% possibly clarify these names by adding mu/nu to clerks/experts, replacing or complementing side?
+async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi',
+	unfoldLClerk Xi Xi' /\
+	async Xi' Phi Gamma ((B (mu B) T) :: Delta) G ;
+
 async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
 	          async  Xi'     Phi Gamma ((S T) :: Delta) G /\
@@ -65,6 +71,10 @@ async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
 	async Xi' ((mu B T) :: Phi) Gamma Delta G ;
 
+async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
+	unfoldRClerk Xi Xi' /\
+	async Xi' Phi Gamma Delta (unk (B (nu B) T)) ;
+
 async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
 	          async  Xi'     Phi Gamma Delta          (unk (S T)) /\
@@ -72,7 +82,7 @@ async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 
 async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Xi' ((mu B T) :: Phi) Gamma Delta (frz (nu B T)) ;
+	async Xi' Phi Gamma Delta (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %

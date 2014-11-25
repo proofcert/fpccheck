@@ -153,12 +153,16 @@ Define releaseRExpert : cert -> cert -> prop by
 	:= println "releaseRExpert"
 	.
 
+% Just adding this for now for compatibility, we may have to reorder/redefine later...
+Define unfoldLClerk : cert -> cert -> prop by unfoldLClerk _ _ := println "unfoldLClerk fail" /\ 1 = 2.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Unused/undefined clerks/experts %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Type ffClerk      cert                                              -> prop.
 Type ttClerk      cert ->       cert                                -> prop.
+Type unfoldRClerk cert ->       cert                                -> prop.
 Type coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop.
 Type freezeRClerk cert ->       cert                                -> prop.
 
