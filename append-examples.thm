@@ -15,3 +15,23 @@ Define append_total : cert -> prop by
 	append_total Cert :=
 		append Append /\ is_list IsList /\
 		async Cert nil nil nil (unk (all L1\ all L2\ (imp (IsList (L1 ++ argv)) (some L3\ Append (L1 ++ L2 ++ L3 ++ argv))))).
+
+Define append_assoc : cert -> prop by
+	append_assoc Cert :=
+		append Append /\
+		async Cert nil nil nil (unk (
+			all A\ all B\ all C\ all AB\ all ABC\ (imp
+			(Append (A ++ B ++ AB ++ argv)) (imp
+			(Append (AB ++ C ++ ABC ++ argv))
+			(some BC\ (and (Append (B ++ C ++ BC ++ argv)) (Append (A ++ BC ++ ABC ++ argv)))))))
+		).
+
+Define append_det : cert -> prop by
+	append_det Cert :=
+		append Append /\
+		async Cert nil nil nil (unk (
+			all I\ all J\ all K\ all L\ (imp
+				(Append (I ++ J ++ K ++ argv)) (imp
+				(Append (I ++ J ++ L ++ argv))
+				(eq K L))))
+		).
