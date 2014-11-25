@@ -2,9 +2,15 @@
 % Certificate constructors %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-              % Next % Last % Invariant    % NewCert
-Type   start    idx -> idx                               -> cert.
-Type   induce   idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
+% Throughout, note that modularity in the form of shared attribute access and
+% refactoring, could be much improved
+% Note also that currently:
+%  - Induction has independent certificates with separate unfolding counters
+%  - Branching "duplicates" the unfolding allowance for each branch
+
+              % Next % Last % Unf  % Invariant    % NewCert
+Type   start    idx -> idx -> idx                               -> cert.
+Type   induce   idx -> idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Index constructors %
@@ -15,6 +21,8 @@ Type   induce   idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
 % than once and thus avoid looping behavior
 Type   z   idx.
 Type   s   idx -> idx.
+
+% (Reusing for now for unfolding counters, even though type reuse is evil.)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Used/defined clerks/experts %
@@ -41,7 +49,7 @@ Define decideRClerk : cert -> cert -> prop by
 	.
 
 Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk (start Next Last) (start Next Last)
+	freezeLClerk (start Next Last Unfold) (start Next Last Unfold)
 	:= println "freezeLClerk"
 	.
 
@@ -59,7 +67,7 @@ Define unfoldRExpert : cert -> cert -> prop by
 
 % Simple search on trivial branch, rest as given by certificate
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	indClerk (induce Next Last S Cert') (start Next Last) Cert' S
+	indClerk (induce Next Last Unfold S Cert') (start Next Last Unfold) Cert' S
 	:= println "indClerk"
 	.
 
@@ -75,10 +83,10 @@ Define eqClerk : cert -> cert -> prop by
 
 % new index check, possibly a comparison may be needed... ensure if not
 Define decideLClerk : cert -> cert -> idx -> prop by
-	decideLClerk (start  Next Last     ) (start  Next (s Last)     ) Last
+	decideLClerk (start  Next Last Unfold     ) (start  Next (s Last) Unfold     ) Last
 	:= print "decideLClerk" /\ println Last
 	;
-	decideLClerk (induce Next Last S Xi) (induce Next (s Last) S Xi) Last
+	decideLClerk (induce Next Last Unfold S Xi) (induce Next (s Last) Unfold S Xi) Last
 	:= print "decideLClerk" /\ println Last
 	.
 
@@ -136,10 +144,10 @@ Define storeRClerk : cert -> cert -> prop by
 	.
 
 Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk (start  Next Last     ) (start  (s Next) Last     ) Next
+	storeLClerk (start  Next Last Unfold     ) (start  (s Next) Last Unfold     ) Next
 	:= print "storeLClerk" /\ println Next
 	;
-	storeLClerk (induce Next Last S Xi) (induce (s Next) Last S Xi) Next
+	storeLClerk (induce Next Last Unfold S Xi) (induce (s Next) Last Unfold S Xi) Next
 	:= print "storeLClerk" /\ println Next
 	.
 
@@ -154,7 +162,13 @@ Define releaseRExpert : cert -> cert -> prop by
 	.
 
 % Just adding this for now for compatibility, we may have to reorder/redefine later...
-Define unfoldLClerk : cert -> cert -> prop by unfoldLClerk _ _ := println "unfoldLClerk fail" /\ 1 = 2.
+Define unfoldLClerk : cert -> cert -> prop by
+	unfoldLClerk (start  Next Last (s Unfold)     ) (start  Next Last Unfold     )
+	:= print "unfoldLClerk" /\ println (s Unfold)
+	;
+	unfoldLClerk (induce Next Last (s Unfold) S Xi) (induce Next Last Unfold S Xi)
+	:= print "unfoldLClerk" /\ println (s Unfold)
+	.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Unused/undefined clerks/experts %
