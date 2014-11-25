@@ -29,6 +29,7 @@ Kind   idx           type.
 %andExpert     cert -> cert -> cert   -> prop
 %orExpert      cert -> cert -> choice -> prop
 %impExpert     cert -> cert -> cert   -> prop
+%impExpert'    cert -> cert -> cert   -> prop
 %ttExpert      cert                   -> prop
 %allExpert     cert -> cert -> i      -> prop
 %someExpert    cert -> cert -> i      -> prop

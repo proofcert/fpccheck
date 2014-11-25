@@ -108,6 +108,12 @@ syncL Xi Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	syncL Xi Phi Gamma Q G /\
 	syncR Xi Phi Gamma   P ;
 
+% Specular left implication
+syncL Xi Phi Gamma (imp P Q) G := exists Xi' Xi'',
+	impExpert' Xi Xi' Xi'' /\
+	syncR Xi Phi Gamma   P /\
+	syncL Xi Phi Gamma Q G ;
+
 syncR Xi Phi Gamma tt :=
 	ttExpert Xi ;
 

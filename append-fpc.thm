@@ -121,10 +121,13 @@ Define andClerk : cert -> cert -> prop by
 	.
 
 % Adding more things while looking for the missing piece...
-Define impExpert : cert -> cert -> cert -> prop by
-	impExpert Cert Cert Cert
-	:= println "impExpert"
+Define impExpert' : cert -> cert -> cert -> prop by
+	impExpert' Cert Cert Cert
+	:= println "impExpert'"
 	.
+% Replaced with specular version and invalidated
+Define impExpert : cert -> cert -> cert -> prop by
+	impExpert _ _ _ := println "impExpert fail" /\ 1 = 2.
 
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
