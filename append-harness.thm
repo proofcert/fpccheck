@@ -32,20 +32,21 @@
 		))
 		(dummy\ start z z (s z))).
 
-%#assert append_assoc
-%	(induce z z
-%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
-%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
-%			((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
-%				(l6 ++ l1 ++ l7 ++ argv))
-%			(some l3\ and
-%				((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
-%					(l2 ++ l1 ++ l3 ++ argv))
-%				((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
-%					(l4 ++ l3 ++ l7 ++ argv))
-%			)
-%		))
-%		(dummy\ start z z)).
+#assert append_assoc
+	(induce z z z
+		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
+			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
+			((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
+				(l6 ++ l1 ++ l7 ++ argv))
+			(some l3\ and
+				((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
+					(l2 ++ l1 ++ l3 ++ argv))
+				((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
+					(l4 ++ l3 ++ l7 ++ argv))
+			)
+		))
+		(dummy\ start z z (s z))).
 
 % append:
 % (mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
+% Wishlist: a simple macro preprocessor (mostly for substitution and conditionals)
