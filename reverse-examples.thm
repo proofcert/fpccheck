@@ -1,0 +1,30 @@
+#include "reverse.thm".
+
+Define reverse_total : cert -> prop by
+	reverse_total Cert :=
+		reverse Reverse /\ is_list IsList /\
+		async Cert nil nil nil (unk (
+			all L\ (imp
+			(IsList (L ++ argv))
+			(some L'\ (Reverse (L ++ L' ++ argv)))
+		))).
+%
+%Define plus_det : cert -> prop by
+%	plus_det Cert :=
+%		plus Plus /\ 
+%		async Cert nil nil nil (unk (
+%			all A\ all B\ all C\ all D\ (imp
+%			(Plus (A ++ B ++ C ++ argv)) (imp
+%			(Plus (A ++ B ++ D ++ argv))
+%			(eq C D)
+%		)))).
+%
+%Define plus_assoc : cert -> prop by
+%	plus_assoc Cert :=
+%		plus Plus /\
+%		async Cert nil nil nil (unk (
+%			all A\ all B\ all C\ all AB\ all ABC\ (imp
+%			(Plus (A ++ B ++ AB ++ argv)) (imp
+%			(Plus (AB ++ C ++ ABC ++ argv))
+%			(some BC\ (and (Plus (B ++ C ++ BC ++ argv)) (Plus (A ++ BC ++ ABC ++ argv)))))))
+%		).

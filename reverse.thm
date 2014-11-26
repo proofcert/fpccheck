@@ -1,0 +1,34 @@
+% Elements
+Type   a, b, c, d, e, f   i.
+% Lists of elements
+Type   empty              i.
+Type   cons               i -> i -> i.
+
+% Predicate embedding as fixed points is unreadable and VERY suboptimal
+Define reverse : (i -> bool) -> prop by
+	reverse (mu Pred\Args\
+		(some L1\ some L2\ (and (eq Args (L1 ++ L2 ++ argv))
+		(or
+			(and
+				(eq L1 empty)
+				(eq L2 empty))
+			(some H\ some L1'\ (and
+				(eq L1 (cons H L1'))
+				(some L3\ and
+					(Pred (L1' ++ L3 ++ argv))
+					((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
+						(L3 ++ (cons H empty) ++ L2 ++ argv)))
+	)))))).
+
+% List type, module, elements... to be refactored from append and here
+Define is_list : (i -> bool) -> prop by
+	is_list (mu I\Args\
+		(some L\ (and (eq Args (L ++ argv))
+		(or
+			(eq L empty)
+			(some N\ some L'\ (and
+				(eq L (cons N L'))
+				(I (L' ++ argv)))))))).
+
+% append:
+% (mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))
