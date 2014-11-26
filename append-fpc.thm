@@ -11,6 +11,7 @@
               % Next % Last % Unf  % Invariant    % NewCert
 Type   start    idx -> idx -> idx                               -> cert.
 Type   induce   idx -> idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
+% May need a 'freeze' nesting to select the appropriate clause sometimes?
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Index constructors %

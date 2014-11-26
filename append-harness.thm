@@ -13,7 +13,7 @@
 
 #assert append_total
 % are these (always) the right initial indexes? (yes, this is the initial certificate, don't be confused by the fact that it will allow an induction operation further down the line)
-	(induce z z z
+	(induce z z z % No unfolding before the induction (counter by stages makes sense, or induction certificates inhibit use of the counter...)
 		(x\ all A\ all B\ imp
 			(eq x (A ++ argv))
 			(some C\

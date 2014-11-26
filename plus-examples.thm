@@ -1,0 +1,56 @@
+#include "plus.thm".
+
+Define plus_zero : cert -> prop by
+	plus_zero Cert :=
+		plus Plus /\ is_nat IsNat /\
+		async Cert nil nil nil (unk (
+			all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))
+		)).
+
+Define plus_succ : cert -> prop by
+	plus_succ Cert :=
+		plus Plus /\
+		async Cert nil nil nil (unk (
+			all K\ all M\ all N\ (imp
+			(Plus (K ++       M  ++       N  ++ argv))
+			(Plus (K ++ (succ M) ++ (succ N) ++ argv))
+		))).
+
+Define plus_comm : cert -> prop by
+	plus_comm Cert :=
+		plus Plus /\ is_nat IsNat /\
+		async Cert nil nil nil (unk (
+			all M\ all N\ all K\ (imp
+			(IsNat (K ++ argv)) (imp
+			(Plus (M ++ N ++ K ++ argv))
+			(Plus (N ++ M ++ K ++ argv))
+		)))).
+
+Define plus_total : cert -> prop by
+	plus_total Cert :=
+		plus Plus /\ is_nat IsNat /\
+		async Cert nil nil nil (unk (
+			all A\ all B\ (imp
+			(IsNat (A ++ argv))
+			(some C\ (Plus (A ++ B ++ C ++ argv)))
+		))).
+
+Define plus_det : cert -> prop by
+	plus_det Cert :=
+		plus Plus /\ 
+		async Cert nil nil nil (unk (
+			all A\ all B\ all C\ all D\ (imp
+			(Plus (A ++ B ++ C ++ argv)) (imp
+			(Plus (A ++ B ++ D ++ argv))
+			(eq C D)
+		)))).
+
+Define plus_assoc : cert -> prop by
+	plus_assoc Cert :=
+		plus Plus /\
+		async Cert nil nil nil (unk (
+			all A\ all B\ all C\ all AB\ all ABC\ (imp
+			(Plus (A ++ B ++ AB ++ argv)) (imp
+			(Plus (AB ++ C ++ ABC ++ argv))
+			(some BC\ (and (Plus (B ++ C ++ BC ++ argv)) (Plus (A ++ BC ++ ABC ++ argv)))))))
+		).
