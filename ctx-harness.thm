@@ -18,7 +18,20 @@
 				(N ++ argv))))
 		(dummy\ start z z (s z))).
 
+#assert ctx1_length
+	(induce z z z
+		(Args\ all L1\ all L2\ imp
+			(eq Args (L1 ++ L2 ++ argv))
+			(some N\ (and
+				((mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))
+					(L1 ++ N ++ argv))
+				((mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))
+					(L2 ++ N ++ argv)))))
+		(dummy\ start z z (s z))).
+
 % member:
 % (mu Pred\Args\ (some E\ some L\ (and (eq Args (E ++ L ++ argv)) (or (some L'\ (eq L (cons E L'))) (some F\ some L'\ (and (eq L (cons F L')) (Pred (E ++ L' ++ argv))))))))
 % is_nat:
 % (mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
+% length:
+% (mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))

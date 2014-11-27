@@ -9,7 +9,10 @@ Type   pair   i -> i -> i.
 Type   null   i.
 Type   cons   i -> i -> i.
 
-% Auxiliary predicates, also used to refactor our main properties below
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Auxiliary/refactoring predicates
+
 % Natural number type: to be refactored (same for others as well)
 Define is_nat : (i -> bool) -> prop by
 	is_nat (mu Pred\Args\
@@ -27,6 +30,28 @@ Define is_bool : (i -> bool) -> prop by
 			(eq B truth)
 			(eq B falsehood))))).
 
+% Suboptimal in the sense that it may be the case that E = F
+Define memb : (i -> bool) -> prop by
+	memb (mu Pred\Args\
+		(some E\ some L\ (and (eq Args (E ++ L ++ argv))
+		(or
+			(some L'\ (eq L (cons E L')))
+			(some F\ some L'\ (and
+				(eq L (cons F L'))
+				(Pred (E ++ L' ++ argv)))))))).
+
+Define length : (i -> bool) -> prop by
+	length (mu Pred\Args\
+		(some L\ some N\ (and (eq Args (L ++ N ++ argv))
+		(or
+			(and (eq L null) (eq N zero))
+			(some E\ some L'\ some N'\ (and
+				(eq L (cons E L')) (and
+				(eq N (succ N'))
+				(Pred (L' ++ N' ++ argv))))))))).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % A simple context
 Define ctx1 : (i -> bool) -> prop by
 	ctx1 (mu Pred\Args\
@@ -37,16 +62,16 @@ Define ctx1 : (i -> bool) -> prop by
 				(eq Gamma (cons N Gamma')) (and
 				(IsNat (N ++ argv))
 				(Pred (Gamma' ++ argv)))))))))
-	% I hope this works to keep external fixed points simple!
 	:=
 	is_nat IsNat.
 
-% Suboptimal in the sense that it may be the case that E = F
-Define memb : (i -> bool) -> prop by
-	memb (mu Pred\Args\
-		(some E\ some L\ (and (eq Args (E ++ L ++ argv))
+% A relation between simple contexts
+Define ctx1_equal : (i -> bool) -> prop by
+	ctx1_equal (mu Pred\Args\
+		(some Gamma\ some Delta\ (and (eq Args (Gamma ++ Delta ++ argv))
 		(or
-			(some L'\ (eq L (cons E L')))
-			(some F\ some L'\ (and
-				(eq L (cons F L'))
-				(Pred (E ++ L' ++ argv)))))))).
+			(and (eq Gamma null) (eq Delta null))
+			(some X\ some Gamma'\ some Delta'\ (and
+				(eq Gamma (cons X Gamma')) (and
+				(eq Delta (cons X Delta'))
+				(Pred (Gamma' ++ Delta' ++ argv))))))))).

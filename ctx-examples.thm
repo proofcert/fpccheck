@@ -9,3 +9,14 @@ Define ctx1_struct : cert -> prop by
 			(Member (N ++ L ++ argv))
 			(IsNat (N ++ argv))))
 		)).
+
+Define ctx1_length : cert -> prop by
+	ctx1_length Cert :=
+		ctx1_equal CtxEq /\ length Length /\
+		async Cert nil nil nil (unk (
+			all L1\ all L2\ (imp
+			(CtxEq (L1 ++ L2 ++ argv))
+			(some N\ (and
+				(Length (L1 ++ N ++ argv))
+				(Length (L2 ++ N ++ argv)))))
+		)).
