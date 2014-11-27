@@ -1,0 +1,24 @@
+#include "logic.thm".             % First-order logic syntax
+#include "cert-sig.thm".          % Certificate declarations
+#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
+#include "kernel.thm".            % Kernel
+#include "ctx-examples.thm".      % Concrete examples
+
+% Note we are trying to reuse the FPC for append verbatim!
+
+% Some simple operational tests of the predicate are desirable
+
+#assert ctx1_struct
+	(induce z z z
+		(Args\ all N\ all L\ imp
+			(eq Args (L ++ argv)) (imp
+			((mu Pred\Args\ (some E\ some L\ (and (eq Args (E ++ L ++ argv)) (or (some L'\ (eq L (cons E L'))) (some F\ some L'\ (and (eq L (cons F L')) (Pred (E ++ L' ++ argv))))))))
+				(N ++ L ++ argv))
+			((mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
+				(N ++ argv))))
+		(dummy\ start z z (s z))).
+
+% member:
+% (mu Pred\Args\ (some E\ some L\ (and (eq Args (E ++ L ++ argv)) (or (some L'\ (eq L (cons E L'))) (some F\ some L'\ (and (eq L (cons F L')) (Pred (E ++ L' ++ argv))))))))
+% is_nat:
+% (mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))

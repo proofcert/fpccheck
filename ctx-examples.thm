@@ -1,0 +1,11 @@
+#include "ctx.thm".
+
+Define ctx1_struct : cert -> prop by
+	ctx1_struct Cert :=
+		ctx1 Ctx /\ memb Member /\ is_nat IsNat /\
+		async Cert nil nil nil (unk (
+			all N\ all L\ (imp
+			(Ctx (L ++ argv)) (imp
+			(Member (N ++ L ++ argv))
+			(IsNat (N ++ argv))))
+		)).
