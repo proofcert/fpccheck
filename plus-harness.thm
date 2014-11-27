@@ -16,6 +16,9 @@
 				(N ++ zero ++ N ++ argv)))
 		(dummy\ start z z z)).
 
+#assert plus_zero
+	(autoinduce z z z (dummy\ start z z z)).
+
 #assert plus_succ
 	(induce z z z
 		(Args\ all K\ all M\ all N\ imp

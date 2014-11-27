@@ -67,6 +67,13 @@ async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	          async  Xi'     Phi Gamma ((S T) :: Delta) G /\
 	forall x, async (Xi'' x) Phi Gamma ((B S x) :: nil) (unk (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
 
+% add some prints to inspect the produced invariant
+% add Phi?, Gamma
+async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
+	indClerk' Xi Xi' /\
+%	autoinv T Delta G S /\
+	forall x, async (Xi' x) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+
 async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
 	async Xi' ((mu B T) :: Phi) Gamma Delta G ;

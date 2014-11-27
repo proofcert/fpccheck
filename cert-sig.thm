@@ -21,6 +21,7 @@ Kind   idx           type.
 %eqClerk      cert ->       cert                                -> prop
 %unfoldLClerk cert ->       cert                                -> prop
 %indClerk     cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop
+%indClerk'    cert -> (i -> cert)                               -> prop
 %freezeLClerk cert ->       cert                                -> prop
 %unfoldRClerk cert ->       cert                                -> prop
 %coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop
