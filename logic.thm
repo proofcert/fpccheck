@@ -1,19 +1,30 @@
+%%%%%%%%%
+% Logic %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A logic system based on the intuitionistic fragment, i.e. muLJF with (for now)
+% relatively minor additions (unfolding on both sides) and a unified fixed point
+% implementation that maximizes reuse and minimizes repetition with minimal
+% syntactic rococo.
+% Consistently with said dictum, terms are single-typed and no explicit
+% polymorphism is currently supported. This encompasses the encoding of argument
+% lists for fixed points (which is not yet fully fossilized).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Base types
 Kind   bool, i   type.
 
-% Built-in fixed point argument lists
+% Fixed point argument lists
 Type   argv   i.
 Type   ++     i -> i -> i.
 
-% Generic arity fixpoints would be nice
-% No polymorphism, just i?
-% Remember we work from the intuitionistic fragment/muLJF, not LL
-
+% Logical constants
 Type   tt, ff         bool.
 Type   and, or, imp   bool -> bool -> bool.
 Type   all, some      (i -> bool) -> bool.
 Type   eq             i -> i -> bool.
-Type   mu, nu         ((i -> bool) -> i -> bool) -> i -> bool. % for now just mu1, nu1
+Type   mu, nu         ((i -> bool) -> i -> bool) -> i -> bool.
 
+% Polarities
 Define negative : bool -> prop by
   negative (imp _ _) ;
   negative (all _) ;
@@ -25,34 +36,3 @@ Define positive : bool -> prop by
   positive (some _) ;
   positive (eq _ _) ;
   positive (mu _ _).
-
-% A unified fixed point implementation renders the following helpers obsolete
-% given that a single pattern will cover all possibilities, and furthermore each
-% will be used exactly once in the kernel.
-
-%Type mu3, nu3         ((i -> i -> i -> bool) -> i -> i -> i -> bool) -> i -> i -> i -> bool.
-%Type   mu, nu         ((list i -> bool) -> list i -> bool) -> list i -> bool. % and a NAT for the arity somewhere?
-
-%Define mu_atom : bool -> prop by
-%  mu_atom (mu0 B) ;
-%  mu_atom (mu1 B T) ;
-%  mu_atom (mu2 B T S) ;
-%  mu_atom (mu3 B T S R ).
-
-%Define mu_unfold : bool -> bool -> prop by
-%  mu_unfold (mu0 B)       (B (mu0 B)) ;
-%  mu_unfold (mu1 B T)     (B (mu1 B) T) ;
-%  mu_unfold (mu2 B T S)   (B (mu2 B) T S) ;
-%  mu_unfold (mu3 B T S R) (B (mu3 B) T S R).
-
-%Define nu_atom : bool -> prop by
-%  nu_atom (nu0 B) ;
-%  nu_atom (nu1 B T) ;
-%  nu_atom (nu2 B T S) ;
-%  nu_atom (nu3 B T S R ).
-
-%Define nu_unfold : bool -> bool -> prop by
-%  nu_unfold (nu0 B)       (B (nu0 B)) ;
-%  nu_unfold (nu1 B T)     (B (nu1 B) T) ;
-%  nu_unfold (nu2 B T S)   (B (nu2 B) T S) ;
-%  nu_unfold (nu3 B T S R) (B (nu3 B) T S R).

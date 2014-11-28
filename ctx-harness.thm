@@ -1,37 +1,22 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-#include "ctx-examples.thm".      % Concrete examples
+#include "logic.thm".          % First-order logic syntax
+#include "cert-sig.thm".       % Certificate declarations
+#include "admin-fpc.thm".      % Concrete FPC (needed before kernel!)
+#include "kernel.thm".         % Kernel
+#include "ctx-examples.thm".   % Concrete examples
 
-% Note we are trying to reuse the FPC for append verbatim!
-
-% Some simple operational tests of the predicate are desirable
-
-#assert ctx1_struct
+#assert ctx1_struct Member IsNat
 	(induce z z z
 		(Args\ all N\ all L\ imp
 			(eq Args (L ++ argv)) (imp
-			((mu Pred\Args\ (some E\ some L\ (and (eq Args (E ++ L ++ argv)) (or (some L'\ (eq L (cons E L'))) (some F\ some L'\ (and (eq L (cons F L')) (Pred (E ++ L' ++ argv))))))))
-				(N ++ L ++ argv))
-			((mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
-				(N ++ argv))))
+			(Member (N ++ L ++ argv))
+			(IsNat (N ++ argv))))
 		(dummy\ start z z (s z))).
 
-#assert ctx1_length
+#assert ctx1_length Length
 	(induce z z z
 		(Args\ all L1\ all L2\ imp
 			(eq Args (L1 ++ L2 ++ argv))
 			(some N\ (and
-				((mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))
-					(L1 ++ N ++ argv))
-				((mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))
-					(L2 ++ N ++ argv)))))
+				(Length (L1 ++ N ++ argv))
+				(Length (L2 ++ N ++ argv)))))
 		(dummy\ start z z (s z))).
-
-% member:
-% (mu Pred\Args\ (some E\ some L\ (and (eq Args (E ++ L ++ argv)) (or (some L'\ (eq L (cons E L'))) (some F\ some L'\ (and (eq L (cons F L')) (Pred (E ++ L' ++ argv))))))))
-% is_nat:
-% (mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
-% length:
-% (mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))

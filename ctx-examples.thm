@@ -1,7 +1,7 @@
 #include "ctx.thm".
 
-Define ctx1_struct : cert -> prop by
-	ctx1_struct Cert :=
+Define ctx1_struct : (i -> bool) -> (i -> bool) -> cert -> prop by
+	ctx1_struct Member IsNat Cert :=
 		ctx1 Ctx /\ memb Member /\ is_nat IsNat /\
 		async Cert nil nil nil (unk (
 			all N\ all L\ (imp
@@ -10,8 +10,8 @@ Define ctx1_struct : cert -> prop by
 			(IsNat (N ++ argv))))
 		)).
 
-Define ctx1_length : cert -> prop by
-	ctx1_length Cert :=
+Define ctx1_length : (i -> bool) -> cert -> prop by
+	ctx1_length Length Cert :=
 		ctx1_equal CtxEq /\ length Length /\
 		async Cert nil nil nil (unk (
 			all L1\ all L2\ (imp

@@ -1,56 +1,5 @@
-% Natural numbers
-Type   zero   i.
-Type   succ   i -> i.
-% Booleans
-Type   truth, falsehood   i.
-% Pairs
-Type   pair   i -> i -> i.
-% Lists
-Type   null   i.
-Type   cons   i -> i -> i.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Auxiliary/refactoring predicates
-
-% Natural number type: to be refactored (same for others as well)
-Define is_nat : (i -> bool) -> prop by
-	is_nat (mu Pred\Args\
-		(some N\ (and (eq Args (N ++ argv))
-		(or
-			(eq N zero)
-			(some N'\ (and
-				(eq N (succ N'))
-				(Pred (N' ++ argv)))))))).
-
-Define is_bool : (i -> bool) -> prop by
-	is_bool (mu Pred\Args\
-		(some B\ (and (eq Args (B ++ argv))
-		(or
-			(eq B truth)
-			(eq B falsehood))))).
-
-% Suboptimal in the sense that it may be the case that E = F
-Define memb : (i -> bool) -> prop by
-	memb (mu Pred\Args\
-		(some E\ some L\ (and (eq Args (E ++ L ++ argv))
-		(or
-			(some L'\ (eq L (cons E L')))
-			(some F\ some L'\ (and
-				(eq L (cons F L'))
-				(Pred (E ++ L' ++ argv)))))))).
-
-Define length : (i -> bool) -> prop by
-	length (mu Pred\Args\
-		(some L\ some N\ (and (eq Args (L ++ N ++ argv))
-		(or
-			(and (eq L null) (eq N zero))
-			(some E\ some L'\ some N'\ (and
-				(eq L (cons E L')) (and
-				(eq N (succ N'))
-				(Pred (L' ++ N' ++ argv))))))))).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#include "nat.thm".
+#include "list.thm".
 
 % A simple context
 Define ctx1 : (i -> bool) -> prop by

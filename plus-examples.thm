@@ -1,14 +1,14 @@
 #include "plus.thm".
 
-Define plus_zero : cert -> prop by
-	plus_zero Cert :=
+Define plus_zero : (i -> bool) -> cert -> prop by
+	plus_zero Plus Cert :=
 		plus Plus /\ is_nat IsNat /\
 		async Cert nil nil nil (unk (
 			all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))
 		)).
 
-Define plus_succ : cert -> prop by
-	plus_succ Cert :=
+Define plus_succ : (i -> bool) -> cert -> prop by
+	plus_succ Plus Cert :=
 		plus Plus /\
 		async Cert nil nil nil (unk (
 			all K\ all M\ all N\ (imp
@@ -16,8 +16,8 @@ Define plus_succ : cert -> prop by
 			(Plus (K ++ (succ M) ++ (succ N) ++ argv))
 		))).
 
-Define plus_comm : cert -> prop by
-	plus_comm Cert :=
+Define plus_comm : (i -> bool) -> (i -> bool) -> cert -> prop by
+	plus_comm Plus IsNat Cert :=
 		plus Plus /\ is_nat IsNat /\
 		async Cert nil nil nil (unk (
 			all M\ all N\ all K\ (imp
@@ -26,8 +26,8 @@ Define plus_comm : cert -> prop by
 			(Plus (N ++ M ++ K ++ argv))
 		)))).
 
-Define plus_total : cert -> prop by
-	plus_total Cert :=
+Define plus_total : (i -> bool) -> cert -> prop by
+	plus_total Plus Cert :=
 		plus Plus /\ is_nat IsNat /\
 		async Cert nil nil nil (unk (
 			all A\ all B\ (imp
@@ -35,8 +35,8 @@ Define plus_total : cert -> prop by
 			(some C\ (Plus (A ++ B ++ C ++ argv)))
 		))).
 
-Define plus_det : cert -> prop by
-	plus_det Cert :=
+Define plus_det : (i -> bool) -> cert -> prop by
+	plus_det Plus Cert :=
 		plus Plus /\ 
 		async Cert nil nil nil (unk (
 			all A\ all B\ all C\ all D\ (imp
@@ -45,12 +45,14 @@ Define plus_det : cert -> prop by
 			(eq C D)
 		)))).
 
-Define plus_assoc : cert -> prop by
-	plus_assoc Cert :=
+Define plus_assoc : (i -> bool) -> cert -> prop by
+	plus_assoc Plus Cert :=
 		plus Plus /\
 		async Cert nil nil nil (unk (
 			all A\ all B\ all C\ all AB\ all ABC\ (imp
 			(Plus (A ++ B ++ AB ++ argv)) (imp
 			(Plus (AB ++ C ++ ABC ++ argv))
-			(some BC\ (and (Plus (B ++ C ++ BC ++ argv)) (Plus (A ++ BC ++ ABC ++ argv)))))))
-		).
+			(some BC\ (and
+				(Plus (B ++ C ++ BC ++ argv))
+				(Plus (A ++ BC ++ ABC ++ argv))))
+		)))).

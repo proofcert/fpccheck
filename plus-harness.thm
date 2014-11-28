@@ -1,77 +1,56 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-#include "plus-examples.thm".     % Concrete examples
+#include "logic.thm".           % First-order logic syntax
+#include "cert-sig.thm".        % Certificate declarations
+#include "admin-fpc.thm".       % Concrete FPC (needed before kernel!)
+#include "kernel.thm".          % Kernel
+#include "plus-examples.thm".   % Concrete examples
 
-% Note we are trying to reuse the FPC for append verbatim!
-
-% Some simple operational tests of the predicate are desirable
-
-#assert plus_zero
+#assert plus_zero Plus
 	(induce z z z
 		(Args\ all N\ imp
 			(eq Args (N ++ argv))
-			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-				(N ++ zero ++ N ++ argv)))
+			(Plus (N ++ zero ++ N ++ argv)))
 		(dummy\ start z z z)).
 
-#assert plus_succ
+#assert plus_succ Plus
 	(induce z z z
 		(Args\ all K\ all M\ all N\ imp
 			(eq Args (K ++ M ++ N ++ argv))
-			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-				(K ++ (succ M) ++ (succ N) ++ argv)))
+			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))
 		(dummy\ start z z z)).
 
-% Uses plus_zero as a lemma/embedded induction
-%#assert plus_comm
+% Requires plus_zero as a lemma/embedded induction
+%#assert plus_comm Plus IsNat
 %	(induce z z z
 %		(Args\ all M\ all N\ all K\ imp
 %			(eq Args (M ++ N ++ K ++ argv)) (imp
-%			((mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
-%				(K ++ argv))
-%			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%				(N ++ M ++ K ++ argv))
-%		))
+%			(IsNat (K ++ argv))
+%			(Plus (N ++ M ++ K ++ argv))))
 %		(dummy\ start z z z)).
 
-#assert plus_total
+#assert plus_total Plus
 	(induce z z z
 		(Args\ all A\ all B\ imp
 			(eq Args (A ++ argv))
-			(some C\ (mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-				(A ++ B ++ C ++ argv)))
+			(some C\ Plus (A ++ B ++ C ++ argv)))
 		(dummy\ start z z z)).
 
-#assert plus_det
+#assert plus_det Plus
 	(induce z z z
 		(Args\ all A\ all B\ all C\ all D\ imp
 			(eq Args (A ++ B ++ C ++ argv)) (imp
-			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-				(A ++ B ++ D ++ argv))
+			(Plus (A ++ B ++ D ++ argv))
 			(eq C D)))
 		(dummy\ start z z (s z))).
 
-#assert plus_assoc
+#assert plus_assoc Plus
 	(induce z z z
 		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
 			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
-			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-				(l6 ++ l1 ++ l7 ++ argv))
+			(Plus (l6 ++ l1 ++ l7 ++ argv))
 			(some l3\ and
-				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-					(l2 ++ l1 ++ l3 ++ argv))
-				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-					(l4 ++ l3 ++ l7 ++ argv))
-			)
-		))
+				(Plus (l2 ++ l1 ++ l3 ++ argv))
+				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
 		(dummy\ start z z (s z))).
-
-% plus:
-% (mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-% is_nat:
-% (mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
 
 % A template for associativity invariants
 %	(induce z z z
