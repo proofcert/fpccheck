@@ -13,10 +13,160 @@ Type   unk, sto, frz   bool -> goal.
 Kind   ctx   type.
 Type   kvp   idx -> bool -> ctx.
 
-% Zones:       Xi      Phi          Gamma       Delta        Goal
-Define async : cert -> list bool -> list ctx -> list bool -> goal -> prop,
-       syncL : cert -> list bool -> list ctx ->      bool -> goal -> prop,
-       syncR : cert -> list bool -> list ctx              -> bool -> prop by
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Immediate invariants %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% I'm not convinced that the goal will always be unk, but for now I'm assuming it is and using goal variants for treatment flags % redoing this, may not be needed... but then check variants to ensure correct treatment! (i.e. does it make sense for frz? for sto?)
+%%Define autoinv : list i -> (i -> bool) -> prop by
+Kind   assoc   type.
+Type   lassoc, rassoc   assoc.
+
+% Inefficient but quick way to get this out of the way for now
+% But at least we get a single solution, without backtracking, which is important
+Define join : (bool -> bool -> bool) -> bool -> assoc -> list bool -> bool -> prop by
+	join Conn Unit Assoc nil Unit ;
+	join Conn Unit Assoc (P :: nil) P ;
+	join Conn Unit Assoc (P :: Q :: nil) (Conn P Q) ;
+%	join Conn Unit lassoc (P :: Q :: R :: Forms) J := exists P' Forms' K,
+%		lastrest (P :: Q :: R :: Forms) P' Forms' /\
+%		join Conn Unit rassoc Forms' K /\ J = (Conn K P').
+	join Conn Unit rassoc (P :: Q :: R :: Forms) J := exists K,
+		join Conn Unit rassoc (Q :: R :: Forms) K /\ J = (Conn P K).
+
+% join imp tt rassoc (tt :: ff :: tt :: ff :: tt :: nil) S.
+% join imp tt rassoc (ff :: tt :: ff :: tt :: nil) S.
+% join imp tt rassoc (tt :: ff :: tt :: nil) S.
+% join imp tt rassoc (ff :: tt :: nil) S.
+% join imp tt rassoc (tt :: nil) S.
+% join imp tt rassoc nil S.
+
+Kind   imap   type.
+Type   imap   i -> i -> imap.
+
+% This works (v.1)
+%Define autoinv : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+%	autoinv (X :: Sigma) Delta Goal T S := exists S', forall X',
+%		S X = all X'\ S' /\ S' = (eq X X).
+
+% This also seems to work, with a final, seemingly innocuous universal that I should get rid of (v.2)
+%Define autoinv_wrapper : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+%	autoinv_wrapper (X :: Sigma) Delta Goal T S := exists S', forall X',
+%		S X = all X'\ S' X' /\
+%		autoinv_wrapper Sigma Delta Goal T S' ;
+%	%autoinv_wrapper nil Delta Goal T S.
+%	autoinv_wrapper nil Delta (unk Goal) T (_\ Goal).
+%Define autoinv : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+%	autoinv Sigma Delta Goal T S := forall Args,
+%		autoinv_wrapper (Args :: Sigma) Delta Goal T S.
+%% forall x, autoinv (x :: nil) nil (unk tt) x S.
+%% forall x, autoinv (x :: nil) nil (unk (eq x x)) x S.
+
+% (v.3) This almost works, only the equality and superfluous argument seem to get in the way
+% what am I using sigma for?
+% not sure of Args is the way to go in goal, but I'm close
+
+%Type dummy i.
+%Define autoinv_goal : list i -> list bool -> goal -> i -> bool -> prop by
+%	autoinv_goal (Args :: Sigma) Delta (unk Goal) T S := exists S',
+%		join and tt rassoc Delta S' /\
+%		S = (imp (eq Args T) (imp S' Goal)).
+%Define autoinv_wrapper : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+%	autoinv_wrapper (X :: Sigma) Delta Goal T S := exists S', forall X',
+%		S X = all X'\ S' X' /\
+%		autoinv_wrapper Sigma Delta Goal T S' ;
+%	autoinv_wrapper nil Delta Goal T S := exists S',
+%		autoinv_goal Sigma Delta Goal T S' /\
+%		S = x\ S'.
+%Define autoinv : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+%	autoinv Sigma Delta Goal T S := forall Args,
+%		autoinv_wrapper (Args :: Sigma) Delta Goal T S.
+
+% forall x, autoinv (x :: nil) nil (unk tt) x S.
+% forall x, autoinv (x :: nil) nil (unk (eq x x)) x S.
+% forall x, autoinv (x :: nil) nil (unk (eq x x)) (dummy ++ argv) S.
+
+% Do I even need to keep track of Sigma in the sequents? It would seem not!!
+
+Type dummy i.
+Define autoinv_goal : i -> list bool -> goal -> i -> bool -> prop by
+	autoinv_goal Args Delta (unk Goal) T S := exists S' Args',
+		join and tt rassoc Delta S' /\
+		%autoinv_norm Args Args' /\
+		S = (imp (eq Args T) (imp S' Goal)).
+Define autoinv_wrapper : list i -> i -> list bool -> goal -> i -> (i -> bool) -> prop by
+	autoinv_wrapper (X :: Sigma) Args Delta Goal T S := exists S', forall X',
+		S X = all X'\ S' X' /\
+		autoinv_wrapper Sigma Args Delta Goal T S' ;
+	autoinv_wrapper nil Args Delta Goal T S := exists S',
+		autoinv_goal Args Delta Goal T S' /\
+		S = x\ S'.
+Define autoinv : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+	autoinv Sigma Delta Goal T S := forall Args,
+		autoinv_wrapper (Args :: Sigma) Args Delta Goal T S.
+
+% forall x, autoinv (x :: nil) nil (unk tt) x S.
+% forall x, autoinv (x :: nil) nil (unk (eq x x)) x S.
+% forall x, autoinv (x :: nil) nil (unk (eq x x)) (dummy ++ argv) S.
+% forall x y, autoinv (x :: y :: nil) nil (unk (eq y x)) (dummy ++ argv) S.
+
+
+
+%Define autoinv : list bool -> goal -> bool -> prop by
+%	autoinv Delta (unk Gamma) S := exists T,
+%		join and tt rassoc Delta T /\ % should be lassoc, but...
+%		join imp tt rassoc (T :: Gamma :: nil) S.
+
+%%	autoinv nil (unk Gamma) Gamma ;
+%%	autoinv (P :: nil) Gamma S := exists Q,
+%%		autoinv nil Gamma Q /\ S = (imp P Q) ;
+%%	autoinv (P :: P' :: Delta) Gamma S := exists Q,
+%%		autoinv (P' :: Delta) Gamma Q /\ S = (and P S).
+%	autoinv (Var :: Sigma) S :=
+%		exists T, (T Var) = (all x\ (S x)) /\
+%		autoinv Sigma T.
+
+% Tests
+% autoinv nil (unk (and tt ff)) S.
+% autoinv (ff :: nil) (unk tt) S.
+% autoinv (ff :: tt :: nil) (unk ff) S.
+
+
+Define autoinv_rec : list i -> list imap -> list bool -> goal -> i -> bool -> prop by
+	autoinv_rec (Var :: Sigma) Map Delta Goal T S := forall x,
+		autoinv_rec Sigma ((imap Var x) :: Map) Delta Gamma T S.
+
+Define autoinv_rec2 : list i -> list imap -> prop by
+	autoinv_rec2 (Var :: Sigma) Map := forall x,
+		autoinv_rec2 Sigma ((imap Var x) :: Map).
+
+%Define autoinv : list i -> list bool -> goal -> i -> bool -> prop by
+%	autoinv Sigma Delta Gamma T S := exists D,
+%		autoinv_rec Sigma nil Delta Gamma T S.
+
+
+Define add_var : (i -> bool) -> i -> (i -> bool) -> prop by
+	add_var S Var T :=
+		(S Var) = (all x\ (T x)).
+
+
+% ?= forall u v, S u = (all x\ (T x)) /\ T v = (all x\ (U x)).
+% U = U
+% T = x1\ all (x2\ U x2)
+% S = x1\ all (x2\ all (x3\ U x3))
+
+
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+%% Proof system %%
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+
+% Zones:       Xi      Sigma     Phi          Gamma       Delta        Goal
+Define async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
+       syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
+       syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
@@ -24,72 +174,76 @@ Define async : cert -> list bool -> list ctx -> list bool -> goal -> prop,
 
 % Standard muLJF
 
-async Xi Phi Gamma ((and P Q) :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
 	andClerk Xi Xi' /\
-	async Xi' Phi Gamma (P :: Q :: Delta) G ;
+	async Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
 
-async Xi Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
+async Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
 	orClerk Xi Xi' Xi'' /\
-	async Xi'  Phi Gamma (P :: Delta) G /\
-	async Xi'' Phi Gamma (Q :: Delta) G ;
+	async Xi'  Sigma Phi Gamma (P :: Delta) G /\
+	async Xi'' Sigma Phi Gamma (Q :: Delta) G ;
 
-async Xi Phi Gamma Delta (unk (imp P Q)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
 	impClerk Xi Xi' /\
-	async Xi' Phi Gamma (P :: Delta) (unk Q) ;
+	async Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
 
-async Xi Phi Gamma (ff :: Delta) G :=
+async Xi Sigma Phi Gamma (ff :: Delta) G :=
 	ffClerk Xi ;
 
-async Xi Phi Gamma (tt :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
 	ttClerk Xi Xi' /\
-	async Xi' Phi Gamma Delta G ;
+	async Xi' Sigma Phi Gamma Delta G ;
 
-async Xi Phi Gamma Delta (unk (all P)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, async (Xi' x) Phi Gamma Delta (unk (P x)) ;
+	forall x, async (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
 
-async Xi Phi Gamma ((some P) :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
 	someClerk Xi Xi' /\
-	forall x, async (Xi' x) Phi Gamma ((P x) :: Delta) G ;
+	forall x, async (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
 
-async Xi Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
+% can Sigma contain duplicates due to this? likely, and to be dealt with
+async Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
-	((P = Q) -> async Xi Phi Gamma Delta G) ;
+	((P = Q) -> async Xi Sigma Phi Gamma Delta G) ;
 
 % trivial induction before the other cases?
 % possibly clarify these names by adding mu/nu to clerks/experts, replacing or complementing side?
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	unfoldLClerk Xi Xi' /\
-	async Xi' Phi Gamma ((B (mu B) T) :: Delta) G ;
+	async Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
 
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
+% what will become of Sigma, esp. in the inductive branch?
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Phi Gamma ((S T) :: Delta) G /\
-	forall x, async (Xi'' x) Phi Gamma ((B S x) :: nil) (unk (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
+	          async  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
+	forall x, async (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
 
 % add some prints to inspect the produced invariant
 % add Phi?, Gamma
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
+% note that sigma may contain argv lists of i!!
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk' Xi Xi' /\
-%	autoinv T Delta G S /\
-	forall x, async (Xi' x) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	autoinv Sigma Delta G T S /\
+	forall x, async (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
-	async Xi' ((mu B T) :: Phi) Gamma Delta G ;
+	async Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
 
-async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	unfoldRClerk Xi Xi' /\
-	async Xi' Phi Gamma Delta (unk (B (nu B) T)) ;
+	async Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
 
-async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
+% same as for induction re: Sigma
+async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Phi Gamma Delta          (unk (S T)) /\
-	forall x, async (Xi'' x) Phi nil   ((S x) :: nil) (unk (B S x)) ; % should I discard Gamma/Delta? % a single freeze area works because each type of fixpoint can only come from one side
+	          async  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
+	forall x, async (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ; % should I discard Gamma/Delta? % a single freeze area works because each type of fixpoint can only come from one side
 
-async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Xi' Phi Gamma Delta (frz (nu B T)) ;
+	async Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %
@@ -101,55 +255,55 @@ async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
 
 % Standard muLJF
 
-syncR Xi Phi Gamma (and P Q) := exists Xi' Xi'',
+syncR Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-	syncR Xi Phi Gamma P /\
-	syncR Xi Phi Gamma Q ;
+	syncR Xi Sigma Phi Gamma P /\
+	syncR Xi Sigma Phi Gamma Q ;
 
-syncR Xi Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ syncR Xi Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ syncR Xi Phi Gamma Q) ;
+syncR Xi Sigma Phi Gamma (or P Q) := exists Xi',
+	(orExpert Xi Xi' left  /\ syncR Xi Sigma Phi Gamma P) \/
+	(orExpert Xi Xi' right /\ syncR Xi Sigma Phi Gamma Q) ;
 
-syncL Xi Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
-	syncL Xi Phi Gamma Q G /\
-	syncR Xi Phi Gamma   P ;
+	syncL Xi Sigma Phi Gamma Q G /\
+	syncR Xi Sigma Phi Gamma   P ;
 
 % Specular left implication
-syncL Xi Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert' Xi Xi' Xi'' /\
-	syncR Xi Phi Gamma   P /\
-	syncL Xi Phi Gamma Q G ;
+	syncR Xi Sigma Phi Gamma   P /\
+	syncL Xi Sigma Phi Gamma Q G ;
 
-syncR Xi Phi Gamma tt :=
+syncR Xi Sigma Phi Gamma tt :=
 	ttExpert Xi ;
 
-syncL Xi Phi Gamma (all P) G := exists Xi' T,
+syncL Xi Sigma Phi Gamma (all P) G := exists Xi' T,
 	allExpert Xi Xi' T /\
-	syncL Xi' Phi Gamma (P T) G ;
+	syncL Xi' Sigma Phi Gamma (P T) G ;
 
-syncR Xi Phi Gamma (some P) := exists Xi' T,
+syncR Xi Sigma Phi Gamma (some P) := exists Xi' T,
 	someExpert Xi Xi' T /\
-	syncR Xi' Phi Gamma (P T) ;
+	syncR Xi' Sigma Phi Gamma (P T) ;
 
-syncR Xi Phi Gamma (eq T T) :=
+syncR Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
-syncL Xi Phi Gamma (nu B T) G :=
+syncL Xi Sigma Phi Gamma (nu B T) G :=
 	member (nu B T) Phi /\
 	initLExpert Xi ;
 
-syncL Xi Phi Gamma (nu B T) G := exists Xi',
+syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
-	syncL Xi' Phi Gamma (B (nu B) T) G ;
+	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
-syncR Xi Phi Gamma (mu B T) :=
+syncR Xi Sigma Phi Gamma (mu B T) :=
 	member (mu B T) Phi /\
 	initRExpert Xi ;
 
-syncR Xi Phi Gamma (mu B T) := exists Xi',
+syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
-	syncR Xi' Phi Gamma (B (mu B) T) ;
+	syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
 
 %%%%%%%%%%%%%%%%%%%%
 % Structural rules %
@@ -159,34 +313,34 @@ syncR Xi Phi Gamma (mu B T) := exists Xi',
 
 % Idx C, % TODO code ctx, extend signatures, etc. % a very lazy, possibly wrong, initial implementation
 % Maybe the encoding of G can be simplified having a top-level code that represents "not unk", that is to say, not "able to be processed"
-async Xi Phi Gamma nil G := exists Xi' Idx C,
+async Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
 	member (kvp Idx C) Gamma /\
-	syncL Xi' Phi Gamma C G ; % chosen formula remains in Gamma ("duplicated")
+	syncL Xi' Sigma Phi Gamma C G ; % chosen formula remains in Gamma ("duplicated")
 
-async Xi Phi Gamma nil (sto G) := exists Xi',
+async Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
-	syncR Xi' Phi Gamma G ;
+	syncR Xi' Sigma Phi Gamma G ;
 
-syncL Xi Phi Gamma C G := exists Xi',
+syncL Xi Sigma Phi Gamma C G := exists Xi',
 	positive C /\ % or atom?
 	releaseLExpert Xi Xi' /\
-	async Xi' Phi Gamma (C :: nil) G ;
+	async Xi' Sigma Phi Gamma (C :: nil) G ;
 
-syncR Xi Phi Gamma G := exists Xi',
+syncR Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Xi' Phi Gamma nil (unk G) ;
+	async Xi' Sigma Phi Gamma nil (unk G) ;
 
 % Store
 
-async Xi Phi Gamma (C :: Delta) G := exists Xi' Idx,
+async Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
 	negative C /\ % or (positive) atoms? but if positive, they are mu's that belong in this phase
 	storeLClerk Xi Xi' Idx /\
-	async Xi' Phi ((kvp Idx C) :: Gamma) Delta G ;
+	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
 
-async Xi Phi Delta Gamma (unk G) := exists Xi',
+async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 	positive G /\ % again, atoms? context/indexing?
 	storeRClerk Xi Xi' /\
-	async Xi' Phi Delta Gamma (sto G).
+	async Xi' Sigma Phi Delta Gamma (sto G).

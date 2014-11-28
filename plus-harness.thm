@@ -18,6 +18,10 @@
 
 #assert plus_zero
 	(autoinduce z z z (dummy\ start z z z)).
+% This works in bedwyr:
+% $ forall x, autoinv (x :: nil) nil (unk (mu (x1\x2\ some (x3\ some (x4\ some (x5\ and (eq x2 ((++) x3 ((++) x4 ((++) x5 argv)))) (or (and (eq x3 zero) (eq x4 x5)) (some (x6\ some (x7\ and (and (eq x3 (succ x6)) (eq x5 (succ x7))) (x1 ((++) x6 ((++) x4 ((++) x7 argv)))))))))))) ((++) x ((++) zero ((++) x argv))))) (x ++ argv) S.
+% Yet by itself, there is something it cannot unify: Sigma seems to be the key
+% $ autoinv (X :: nil) nil (unk (mu (x1\x2\ some (x3\ some (x4\ some (x5\ and (eq x2 ((++) x3 ((++) x4 ((++) x5 argv)))) (or (and (eq x3 zero) (eq x4 x5)) (some (x6\ some (x7\ and (and (eq x3 (succ x6)) (eq x5 (succ x7))) (x1 ((++) x6 ((++) x4 ((++) x7 argv)))))))))))) ((++) X ((++) zero ((++) X argv))))) (X ++ argv) S.
 
 #assert plus_succ
 	(induce z z z
