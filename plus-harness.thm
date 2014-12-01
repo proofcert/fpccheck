@@ -1,8 +1,54 @@
 #include "logic.thm".             % First-order logic syntax
 #include "cert-sig.thm".          % Certificate declarations
 #include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Kind   imap   type.
+Type   imap   i -> i -> imap.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 #include "kernel.thm".            % Kernel
 #include "plus-examples.thm".     % Concrete examples
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This has unbounded backtracking if we use 'i' like this
+Define copy_i : list imap -> i -> i -> prop by
+	copy_i Theta X U := member (imap X U) Theta ;
+	copy_i Theta argv argv ;
+	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	copy_i Theta zero zero ;
+	copy_i Theta (succ X) (succ U) := copy_i Theta X U.
+
+Define copy_bool : list imap -> bool -> bool -> prop by
+	copy_bool Theta tt tt ;
+	copy_bool Theta ff ff ;
+	copy_bool Theta (and X Y) (and U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (or X Y) (or U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (imp X Y) (imp U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (all X) (all U) := forall z, copy_bool Theta (X z) (U z) ;
+	copy_bool Theta (some X) (some U) := forall z, copy_bool Theta (X z) (U z) ;
+	copy_bool Theta (eq X Y) (eq U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	copy_bool Theta (mu B X) (mu B U) := copy_i Theta X U.
+
+Define abst : list i -> list imap -> bool -> bool -> prop by
+	abst (X :: Sigma) Theta S (all R) := forall x,
+		abst Sigma ((imap X x) :: Theta) S (R x) ;
+	abst nil Theta S R :=
+		copy_bool Theta S R.
+%forall x y, abst (x :: y :: nil) nil (eq x y) R.
+
+%%%
+
+% S should be i -> bool
+Define base : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+	base Sigma Delta (unk Goal) T S := forall x, exists Q R,
+		join and tt rassoc Delta Q /\
+		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
+		R = (all S).
+%forall x y, base (x :: y :: nil) nil (unk (eq x y)) x S.
+%forall x y z, abst (z :: x :: y :: nil) nil (imp (eq x z) (eq x y)) S.
+% These work; now, before refactoring, make sure that they work as invariants too
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Note we are trying to reuse the FPC for append verbatim!
 
