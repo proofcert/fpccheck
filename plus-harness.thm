@@ -5,50 +5,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Kind   imap   type.
 Type   imap   i -> i -> imap.
+#include "plus-examples-sig.thm".
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #include "kernel.thm".            % Kernel
 #include "plus-examples.thm".     % Concrete examples
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This has unbounded backtracking if we use 'i' like this
-Define copy_i : list imap -> i -> i -> prop by
-	copy_i Theta X U := member (imap X U) Theta ;
-	copy_i Theta argv argv ;
-	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
-	copy_i Theta zero zero ;
-	copy_i Theta (succ X) (succ U) := copy_i Theta X U.
-
-Define copy_bool : list imap -> bool -> bool -> prop by
-	copy_bool Theta tt tt ;
-	copy_bool Theta ff ff ;
-	copy_bool Theta (and X Y) (and U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
-	copy_bool Theta (or X Y) (or U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
-	copy_bool Theta (imp X Y) (imp U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
-	copy_bool Theta (all X) (all U) := forall z, copy_bool Theta (X z) (U z) ;
-	copy_bool Theta (some X) (some U) := forall z, copy_bool Theta (X z) (U z) ;
-	copy_bool Theta (eq X Y) (eq U V) := copy_i Theta X U /\ copy_i Theta Y V ;
-	copy_bool Theta (mu B X) (mu B U) := copy_i Theta X U.
-
-Define abst : list i -> list imap -> bool -> bool -> prop by
-	abst (X :: Sigma) Theta S (all R) := forall x,
-		abst Sigma ((imap X x) :: Theta) S (R x) ;
-	abst nil Theta S R :=
-		copy_bool Theta S R.
-%forall x y, abst (x :: y :: nil) nil (eq x y) R.
-
-%%%
-
-% S should be i -> bool
-Define base : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
-	base Sigma Delta (unk Goal) T S := forall x, exists Q R,
-		join and tt rassoc Delta Q /\
-		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
-		R = (all S).
-%forall x y, base (x :: y :: nil) nil (unk (eq x y)) x S.
-%forall x y z, abst (z :: x :: y :: nil) nil (imp (eq x z) (eq x y)) S.
-% These work; now, before refactoring, make sure that they work as invariants too
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Note we are trying to reuse the FPC for append verbatim!
 
@@ -77,6 +38,9 @@ Define base : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
 				(K ++ (succ M) ++ (succ N) ++ argv)))
 		(dummy\ start z z z)).
 
+#assert plus_succ
+	(autoinduce z z z (dummy\ start z z z)).
+
 % Uses plus_zero as a lemma/embedded induction
 %#assert plus_comm
 %	(induce z z z
@@ -97,6 +61,11 @@ Define base : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
 				(A ++ B ++ C ++ argv)))
 		(dummy\ start z z z)).
 
+#assert plus_total
+	(autoinduce z z z (dummy\ start z z z)).
+%forall a b c d e f, copy_bool ((imap a f) :: (imap b e) :: imap c d :: nil) (imp (eq c ((++) a argv)) (some (x1\ mu (x2\x3\ some (x4\ some (x5\ some (x6\ and (eq x3 ((++) x4 ((++) x5 ((++) x6 argv)))) (or (and (eq x4 zero) (eq x5 x6)) (some (x7\ some (x8\ and (and  (eq x4 (succ x7)) (eq x6 (succ x8))) (x2  ((++) x7 ((++) x5 ((++) x8 argv)))))))))))) ((++) a ((++) b ((++) x1 argv)))))) (X d e f).
+% plus_total (autoinduce z z z (dummy\ start z z z)).
+
 #assert plus_det
 	(induce z z z
 		(Args\ all A\ all B\ all C\ all D\ imp
@@ -105,6 +74,9 @@ Define base : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
 				(A ++ B ++ D ++ argv))
 			(eq C D)))
 		(dummy\ start z z (s z))).
+
+#assert plus_det
+	(autoinduce z z z (dummy\ start z z (s z))).
 
 #assert plus_assoc
 	(induce z z z
@@ -120,6 +92,56 @@ Define base : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
 			)
 		))
 		(dummy\ start z z (s z))).
+
+%#assert testInvariant.
+
+#assert plus_assoc
+	(autoinduce z z z (dummy\ start z z (s z))).
+
+%#assert plus_assoc Plus
+%	(induce z z z
+%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
+%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
+%			(Plus (l6 ++ l1 ++ l7 ++ argv))
+%			(some l3\ and
+%				(Plus (l2 ++ l1 ++ l3 ++ argv))
+%				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
+%		(dummy\ start z z (s z))).
+
+%% Manual:
+%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
+%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
+%			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
+%				(l6 ++ l1 ++ l7 ++ argv))
+%			(some l3\ and
+%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
+%					(l2 ++ l1 ++ l3 ++ argv))
+%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
+%					(l4 ++ l3 ++ l7 ++ argv))
+%			)
+%		))
+%% Manual, post-application:
+%		(all l1\ all l2\ all l4\ all l6\ all l7\ imp
+%			(eq h12 (l4 ++ l2 ++ l6 ++ argv)) (imp
+%			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
+%				(l6 ++ l1 ++ l7 ++ argv))
+%			(some l3\ and
+%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
+%					(l2 ++ l1 ++ l3 ++ argv))
+%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
+%					(l4 ++ l3 ++ l7 ++ argv))
+%			)
+%		))
+%% Auto:
+%		(all (x1\ all (x2\ all (x3\ all (x4\ all (x5\ imp
+%			(eq h12 (x2 ++ x3 ++ x1 ++ argv)) (imp
+%			(mu (x6\x7\ some (x8\ some (x9\ some (x10\ and  (eq x7 (x8 ++ x9 ++ x10 ++ argv)) (or (and (eq x8 zero) (eq x9 x10)) (some (x11\ some (x12\ and (and (eq x8 (succ x11)) (eq x10 (succ x12))) (x6  (x11 ++ x9 ++ x12 ++ argv))))))))))
+%				(x5 ++ x4 ++ x2 ++ argv))
+%			(some (x6\ and
+%				(mu (x7\x8\ some (x9\ some (x10\ some (x11\ and  (eq x8 (x9 ++ x10 ++ x11 ++ argv)) (or (and (eq x9 zero) (eq x10 x11)) (some (x12\ some (x13\ and (and (eq x9 (succ x12)) (eq x11 (succ x13))) (x7 (x12 ++ x10 ++ x13 ++ argv))))))))))
+%					(x4 ++ x3 ++ x6 ++ argv))
+%				(mu (x7\x8\ some (x9\ some (x10\ some (x11\ and (eq x8 (x9 ++ x10 ++ x11 ++ argv)) (or (and (eq x9 zero) (eq x10 x11)) (some (x12\ some (x13\ and  (and (eq x9 (succ x12)) (eq x11 (succ x13))) (x7 (x12 ++ x10 ++ x13 ++ argv))))))))))
+%					(x5 ++ x6 ++ x1 argv)))))))))))
 
 % plus:
 % (mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))

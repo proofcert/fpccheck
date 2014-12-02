@@ -18,25 +18,6 @@ Type   kvp   idx -> bool -> ctx.
 % Immediate invariants %
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-% Working assumption: fixed point bodies are always closed
-% To test: will this work for arbitrary i, e.g. argument lists?
-%Define copy_bool : list imap -> bool -> bool -> prop by
-%	copy_bool Theta tt tt ;
-%	copy_bool Theta ff ff ;
-%	copy_bool Theta (and X Y) (and U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
-%	copy_bool Theta (or X Y) (or U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
-%	copy_bool Theta (imp X Y) (imp U V) := copy_bool Theta X U /\ copy_bool Theta Y V ;
-%	copy_bool Theta (all X) (all U) := forall z, copy_bool Theta (X z) (U z) ;
-%	copy_bool Theta (some X) (some U) := forall z, copy_bool Theta (X z) (U z) ;
-%	copy_bool Theta (eq X Y) (eq U V) := copy_i Theta X U /\ copy_i Y V ;
-%	copy_bool Theta (mu B X) (mu B U) := copy_i Theta X U.
-
-%Define abst : list i -> list imap -> bool -> bool by
-%	abst nil          Theta S R :=
-%		copy Theta S R ;
-%	abst (X :: Sigma) Theta S R :=
-%		(all x\ copy X x -->
-
 % I'm not convinced that the goal will always be unk, but for now I'm assuming it is and using goal variants for treatment flags % redoing this, may not be needed... but then check variants to ensure correct treatment! (i.e. does it make sense for frz? for sto?)
 %%Define autoinv : list i -> (i -> bool) -> prop by
 Kind   assoc   type.
@@ -74,6 +55,97 @@ Define autoinv : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
 % forall x, autoinv (x :: nil) nil (unk (eq x x)) x S.
 % forall x, autoinv (x :: nil) nil (unk (eq x x)) (dummy ++ argv) S.
 % forall x y, autoinv (x :: y :: nil) nil (unk (eq y x)) (dummy ++ argv) S.
+
+% Working assumption: fixed point bodies are always closed
+% To test: will this work for arbitrary i, e.g. argument lists?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This may belong in logic.thm
+Define copy_bool : list imap -> bool -> bool -> prop by
+	copy_bool Theta tt tt ;
+	copy_bool Theta ff ff ;
+	copy_bool Theta (and X Y) (and U V) :=
+		copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (or X Y) (or U V) :=
+		copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (imp X Y) (imp U V) :=
+		copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (all X) (all U) := forall z,
+		copy_bool ((imap z z) :: Theta) (X z) (U z) ;
+	copy_bool Theta (some X) (some U) := forall z,
+		copy_bool ((imap z z) :: Theta) (X z) (U z) ;
+	copy_bool Theta (eq X Y) (eq U V) :=
+		copy_i Theta X U /\ copy_i Theta Y V ;
+	copy_bool Theta (mu B X) (mu B U) :=
+		copy_i Theta X U ;
+	copy_bool Theta (nu B X) (nu B U) :=
+		copy_i Theta X U.
+
+Define abst : list i -> list imap -> bool -> bool -> prop by
+	abst (X :: Sigma) Theta S (all R) := forall x,
+		abst Sigma ((imap X x) :: Theta) S (R x) ;
+	abst nil Theta S R :=
+		copy_bool Theta S R.
+%forall x y, abst (x :: y :: nil) nil (eq x y) R.
+
+%%%
+
+% S should be i -> bool
+Define indInvariant' : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
+	indInvariant' Sigma nil (unk Goal) T S := forall x, exists R,
+		abst (x :: Sigma) nil (imp (eq x T) Goal) R /\
+		R = (all S) ;
+	indInvariant' Sigma Delta (unk Goal) T S := forall x, exists R,
+		Delta = (_ :: _) /\
+		join and tt rassoc Delta Q /\
+		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
+		R = (all S) ;
+% refactor unk/sto
+	indInvariant' Sigma nil (sto Goal) T S := forall x, exists R,
+		abst (x :: Sigma) nil (imp (eq x T) Goal) R /\
+		R = (all S) ;
+	indInvariant' Sigma Delta (sto Goal) T S := forall x, exists R,
+		Delta = (_ :: _) /\
+		join and tt rassoc Delta Q /\
+		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
+		R = (all S).
+%forall x y, base (x :: y :: nil) nil (unk (eq x y)) x S.
+%forall x y z, abst (z :: x :: y :: nil) nil (imp (eq x z) (eq x y)) S.
+% These work; now, before refactoring, make sure that they work as invariants too
+
+Define testInvariant : prop by
+	testInvariant := forall a b c ab abc,
+		plus Plus /\
+		indInvariant'
+			(a :: b :: c :: ab :: abc :: nil)
+			((Plus (ab ++ c ++ abc ++ argv)) :: nil)
+			(sto (some bc\ (and (Plus (b ++ c ++ bc ++ argv)) (Plus (a ++ bc ++ abc ++ argv)))))
+			(a ++ b ++ ab ++ argv)
+			% My target invariant
+			(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
+			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
+			(Plus (l6 ++ l1 ++ l7 ++ argv))
+			(some l3\ and
+				(Plus (l2 ++ l1 ++ l3 ++ argv))
+				(Plus (l4 ++ l3 ++ l7 ++ argv))))).
+
+Define testInvariant2 : (i -> bool) -> prop by
+	testInvariant2 S := forall a b c ab abc,
+		plus Plus /\
+		indInvariant'
+			(a :: b :: c :: ab :: abc :: nil)
+			((Plus (ab ++ c ++ abc ++ argv)) :: nil)
+			(sto (some bc\ (and (Plus (b ++ c ++ bc ++ argv)) (Plus (a ++ bc ++ abc ++ argv)))))
+			(a ++ b ++ ab ++ argv)
+			% My target invariant
+			S.
+% The invariant I get...
+% S = x1\ all x2\ all x3\ all x4\ all x5\ all x6\ imp
+% (eq x1 (x2 ++ x3 ++ x5 ++ argv)) (imp
+%	(Fixpoint1 (x5 ++ x4 ++ x6 ++ argv))
+%	(some (x7\ and\
+%		(Fixpoint2 ((++) x3 ((++) x4 ((++) x7 argv))))
+%		Fixpoint3 ((++) x2 ((++) x7 ((++) x6 argv))))))
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%
@@ -136,13 +208,15 @@ async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
 	          async  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
 	forall x, async (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
+%% I'd like to add a test here (and similar cases) to ensure that Sigma consists exclusively of eigenvariables, i.e. no argument vectors, no repeated variables, no unified eigenvariables which cease to be such...
+%% maintaining this information seems a bit of a mess; so a question: if I have the formulas, do I ever need an explicit signature? assuming I have no logic variables
 
 % add some prints to inspect the produced invariant
 % add Phi?, Gamma
 % note that sigma may contain argv lists of i!!
 async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
-	autoinv Sigma Delta G T S /\
+	indInvariant' Sigma Delta G T S /\
 	forall x, async (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?

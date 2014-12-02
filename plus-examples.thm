@@ -1,5 +1,3 @@
-#include "plus.thm".
-
 Define plus_zero : cert -> prop by
 	plus_zero Cert :=
 		plus Plus /\ is_nat IsNat /\
