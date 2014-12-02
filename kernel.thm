@@ -29,32 +29,10 @@ Define join : (bool -> bool -> bool) -> bool -> assoc -> list bool -> bool -> pr
 	join Conn Unit Assoc nil Unit ;
 	join Conn Unit Assoc (P :: nil) P ;
 	join Conn Unit Assoc (P :: Q :: nil) (Conn P Q) ;
-	% lassoc case missing
+	join Conn Unit lassoc (P :: Q :: Forms) J :=
+		join Conn Unit lassoc ((Conn P Q) :: Forms) J ;
 	join Conn Unit rassoc (P :: Q :: R :: Forms) J := exists K,
 		join Conn Unit rassoc (Q :: R :: Forms) K /\ J = (Conn P K).
-
-Type dummy i.
-Define autoinv_goal : i -> list bool -> goal -> i -> bool -> prop by
-	autoinv_goal Args Delta (unk Goal) T S := exists S' Args',
-		join and tt rassoc Delta S' /\
-		%autoinv_norm Args Args' /\
-		S = (imp (eq Args T) (imp S' Goal)).
-Define equals : bool -> bool -> prop by
-	equals X Y := X = Y.
-Define autoinv_wrapper : list i -> i -> list bool -> goal -> i -> (i -> bool) -> prop by
-	autoinv_wrapper (X :: Sigma) Args Delta Goal T S := exists S',
-		equals (S X) (all S') /\
-		autoinv_wrapper Sigma Args Delta Goal T S' ;
-	autoinv_wrapper nil Args Delta Goal T (x\ S) :=
-		autoinv_goal Args Delta Goal T S.
-Define autoinv : list i -> list bool -> goal -> i -> (i -> bool) -> prop by
-	autoinv Sigma Delta Goal T S := forall Args,
-		autoinv_wrapper (Args :: Sigma) Args Delta Goal T S.
-
-% forall x, autoinv (x :: nil) nil (unk tt) x S.
-% forall x, autoinv (x :: nil) nil (unk (eq x x)) x S.
-% forall x, autoinv (x :: nil) nil (unk (eq x x)) (dummy ++ argv) S.
-% forall x y, autoinv (x :: y :: nil) nil (unk (eq y x)) (dummy ++ argv) S.
 
 % Working assumption: fixed point bodies are always closed
 % To test: will this work for arbitrary i, e.g. argument lists?
