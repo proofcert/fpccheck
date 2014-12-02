@@ -48,7 +48,7 @@ Define plus_assoc : cert -> prop by
 		plus Plus /\
 		async Cert nil nil nil nil (unk (
 			all A\ all B\ all C\ all AB\ all ABC\ (imp
-			(Plus (A ++ B ++ AB ++ argv)) (imp
-			(Plus (AB ++ C ++ ABC ++ argv))
+			(Plus (AB ++ C ++ ABC ++ argv)) (imp
+			(Plus (A ++ B ++ AB ++ argv))
 			(some BC\ (and (Plus (B ++ C ++ BC ++ argv)) (Plus (A ++ BC ++ ABC ++ argv)))))))
 		).
