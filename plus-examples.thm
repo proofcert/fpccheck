@@ -1,56 +1,30 @@
+#include "template.thm".
+
 Define plus_zero : (i -> bool) -> cert -> prop by
 	plus_zero Plus Cert :=
 		plus Plus /\ is_nat IsNat /\
-		async Cert nil nil nil nil (unk (
-			all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))
-		)).
+		prove Cert
+			(all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))).
 
 Define plus_succ : (i -> bool) -> cert -> prop by
 	plus_succ Plus Cert :=
 		plus Plus /\
-		async Cert nil nil nil nil (unk (
-			all K\ all M\ all N\ (imp
+		prove Cert (all K\ all M\ all N\ (imp
 			(Plus (K ++       M  ++       N  ++ argv))
-			(Plus (K ++ (succ M) ++ (succ N) ++ argv))
-		))).
+			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))).
 
 Define plus_comm : (i -> bool) -> (i -> bool) -> cert -> prop by
 	plus_comm Plus IsNat Cert :=
-		plus Plus /\ is_nat IsNat /\
-		async Cert nil nil nil nil (unk (
-			all M\ all N\ all K\ (imp
-			(IsNat (K ++ argv)) (imp
-			(Plus (M ++ N ++ K ++ argv))
-			(Plus (N ++ M ++ K ++ argv))
-		)))).
+		plus Plus /\ is_nat IsNat /\ is_commutative Cert Plus IsNat.
 
 Define plus_total : (i -> bool) -> cert -> prop by
 	plus_total Plus Cert :=
-		plus Plus /\ is_nat IsNat /\
-		async Cert nil nil nil nil (unk (
-			all A\ all B\ (imp
-			(IsNat (A ++ argv))
-			(some C\ (Plus (A ++ B ++ C ++ argv)))
-		))).
+		plus Plus /\ is_nat IsNat /\ is_total Cert Plus IsNat.
 
 Define plus_det : (i -> bool) -> cert -> prop by
 	plus_det Plus Cert :=
-		plus Plus /\ 
-		async Cert nil nil nil nil (unk (
-			all A\ all B\ all C\ all D\ (imp
-			(Plus (A ++ B ++ C ++ argv)) (imp
-			(Plus (A ++ B ++ D ++ argv))
-			(eq C D)
-		)))).
+		plus Plus /\ is_deterministic Cert Plus.
 
 Define plus_assoc : (i -> bool) -> cert -> prop by
 	plus_assoc Plus Cert :=
-		plus Plus /\
-		async Cert nil nil nil nil (unk (
-			all A\ all B\ all C\ all AB\ all ABC\ (imp
-			(Plus (AB ++ C ++ ABC ++ argv)) (imp
-			(Plus (A ++ B ++ AB ++ argv))
-			(some BC\ (and
-				(Plus (B ++ C ++ BC ++ argv))
-				(Plus (A ++ BC ++ ABC ++ argv))))
-		)))).
+		plus Plus /\ is_associative Cert Plus.

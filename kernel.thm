@@ -297,3 +297,13 @@ async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 	positive G /\
 	storeRClerk Xi Xi' /\
 	async Xi' Sigma Phi Delta Gamma (sto G).
+
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+%% Interface %%
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+
+Define prove : cert -> bool -> prop by
+	prove Cert Form :=
+		async Cert nil nil nil nil (unk Form).

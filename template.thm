@@ -1,0 +1,56 @@
+%%%%%%%%%%%%%%%%%%%%%%
+% Property templates %
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Determinacy
+Define deterministic : (i -> bool) -> bool -> prop by
+	deterministic Op
+		(all A\ all B\ all C\ all D\ (imp
+			(Op (A ++ B ++ C ++ argv)) (imp
+			(Op (A ++ B ++ D ++ argv))
+			(eq C D)))).
+
+Define is_deterministic : cert -> (i -> bool) -> prop by
+	is_deterministic Cert Op := exists F,
+		deterministic Op F /\
+		prove Cert F.
+
+% Totality
+Define total : (i -> bool) -> (i -> bool) -> bool -> prop by
+	total Op Memb
+		(all A\ all B\ (imp
+			(Memb (A ++ argv))
+			(some C\ (Op (A ++ B ++ C ++ argv))))).
+
+Define is_total : cert -> (i -> bool) -> (i -> bool) -> prop by
+	is_total Cert Op Memb := exists F,
+		total Op Memb F /\
+		prove Cert F.
+
+% Associativity
+Define associative : (i -> bool) -> bool -> prop by
+	associative Op
+		(all A\ all B\ all C\ all AB\ all ABC\ (imp
+			(Op (AB ++ C ++ ABC ++ argv)) (imp
+			(Op (A ++ B ++ AB ++ argv))
+			(some BC\ (and
+				(Op (B ++ C ++ BC ++ argv))
+				(Op (A ++ BC ++ ABC ++ argv))))))).
+
+Define is_associative : cert -> (i -> bool) -> prop by
+	is_associative Cert Op := exists F,
+		associative Op F /\
+		prove Cert F.
+
+% Commutativity
+Define commutative : (i -> bool) -> (i -> bool) -> bool -> prop by
+	commutative Op Memb
+		(all A\ all B\ all C\ (imp
+			(Memb (C ++ argv)) (imp
+			(Op (A ++ B ++ C ++ argv))
+			(Op (B ++ A ++ C ++ argv))))).
+
+Define is_commutative : cert -> (i -> bool) -> (i -> bool) -> prop by
+	is_commutative Cert Op Memb := exists F,
+		commutative Op Memb F /\
+		prove Cert F.
