@@ -1,8 +1,9 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-#include "append-examples.thm".   % Concrete examples
+#include "logic.thm".               % First-order logic syntax
+#include "cert-sig.thm".            % Certificate declarations
+#include "append-fpc.thm".          % Concrete FPC (needed before kernel!)
+#include "append-examples-sig.thm". % Concrete signature (needed before kernel!)
+#include "kernel.thm".              % Kernel
+#include "append-examples.thm".     % Concrete examples
 
 #assert appendable (start z z z) empty empty empty.
 #assert appendable (start z z z) (cons a empty) empty (cons a empty).
@@ -22,6 +23,9 @@
 		(dummy\ start z z z)). % why z? does _ play generic and much safer?
 % There might be some indexing problems left, e.g. for the case where I attempt to read N, which has not been pushed yet, but upon being so is no longer recalled because the next to (attempt to) read counter has been incremented
 
+#assert append_total
+	(autoinduce z z z (dummy\ start z z z)).
+
 #assert append_det
 	(induce z z z
 		(x\ all I\ all J\ all K\ all L\ imp
@@ -31,6 +35,9 @@
 			(eq K L)
 		))
 		(dummy\ start z z (s z))).
+
+#assert append_det
+	(autoinduce z z z (dummy\ start z z (s z))).
 
 #assert append_assoc
 	(induce z z z
@@ -46,6 +53,9 @@
 			)
 		))
 		(dummy\ start z z (s z))).
+
+#assert append_assoc
+	(autoinduce z z z (dummy\ start z z (s z))).
 
 % append:
 % (mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv))))))))

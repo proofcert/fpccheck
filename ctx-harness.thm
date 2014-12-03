@@ -1,8 +1,9 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-#include "ctx-examples.thm".      % Concrete examples
+#include "logic.thm".              % First-order logic syntax
+#include "cert-sig.thm".           % Certificate declarations
+#include "append-fpc.thm".         % Concrete FPC (needed before kernel!)
+#include "ctx-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".             % Kernel
+#include "ctx-examples.thm".       % Concrete examples
 
 % Note we are trying to reuse the FPC for append verbatim!
 
@@ -18,6 +19,9 @@
 				(N ++ argv))))
 		(dummy\ start z z (s z))).
 
+#assert ctx1_struct
+	(autoinduce z z z (dummy\ start z z (s z))).
+
 #assert ctx1_length
 	(induce z z z
 		(Args\ all L1\ all L2\ imp
@@ -28,6 +32,9 @@
 				((mu Pred\Args\ (some L\ some N\ (and (eq Args (L ++ N ++ argv)) (or (and (eq L null) (eq N zero)) (some E\ some L'\ some N'\ (and (eq L (cons E L')) (and (eq N (succ N')) (Pred (L' ++ N' ++ argv)))))))))
 					(L2 ++ N ++ argv)))))
 		(dummy\ start z z (s z))).
+
+#assert ctx1_length
+	(autoinduce z z z (dummy\ start z z (s z))).
 
 % member:
 % (mu Pred\Args\ (some E\ some L\ (and (eq Args (E ++ L ++ argv)) (or (some L'\ (eq L (cons E L'))) (some F\ some L'\ (and (eq L (cons F L')) (Pred (E ++ L' ++ argv))))))))

@@ -1,11 +1,12 @@
-#include "plus.thm".
+#include "ctx.thm".
 
-% Evaluate risk of unbounded backtracking
-% Refactor common fragment to logic.thm
-% Each module should probably have its definition (if only it were cumulative!)
 Define copy_i : list imap -> i -> i -> prop by
 	copy_i Theta argv argv ;
 	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	% Along with some stuff that isn't being used...
 	copy_i Theta zero zero ;
 	copy_i Theta (succ X) (succ U) := copy_i Theta X U ;
+	copy_i Theta null null ;
+	copy_i Theta (cons X Y) (cons U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
 	copy_i Theta X U := member (imap X U) Theta.
