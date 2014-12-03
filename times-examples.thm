@@ -1,0 +1,6 @@
+Define times_zero : cert -> prop by
+	times_zero Cert :=
+		times Times /\ is_nat IsNat /\
+		async Cert nil nil nil nil (unk (
+			all N\ (imp (IsNat (N ++ argv)) (Times (N ++ zero ++ zero ++ argv)))
+		)).
