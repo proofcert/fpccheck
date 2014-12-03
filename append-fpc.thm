@@ -7,6 +7,10 @@
 % Note also that currently:
 %  - Induction has independent certificates with separate unfolding counters
 %  - Branching "duplicates" the unfolding allowance for each branch
+%   Guided induction operates, at least for now, blindly on the first hypothesis
+% it comes across. If needed, reorder these clauses to bring the target clause
+% to the front of the list (i.e. it should be listed last, immediately before
+% the goal formula).
 
                   % Next % Last % Unf  % Invariant    % NewCert
 Type   start        idx -> idx -> idx                               -> cert.
