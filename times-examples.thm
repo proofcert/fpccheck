@@ -4,3 +4,31 @@ Define times_zero : cert -> prop by
 		async Cert nil nil nil nil (unk (
 			all N\ (imp (IsNat (N ++ argv)) (Times (N ++ zero ++ zero ++ argv)))
 		)).
+
+Define times_succ : cert -> prop by
+	times_succ Cert :=
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		async Cert nil nil nil nil (unk (
+			all K\ all M\ all N\ (imp
+				(IsNat (K ++ argv)) (imp
+				(Times (K ++ (succ M) ++ N ++ argv))
+				(some KM\ (and
+					(Times (K ++ M ++ KM ++ argv))
+					(Plus (K ++ KM ++ N))))))
+		)).
+
+%times_comm
+
+%times_total
+
+Define times_det : (i -> bool) -> cert -> prop by
+	times_det Times Cert :=
+		times Times /\ 
+		async Cert nil nil nil nil (unk (
+			all A\ all B\ all C\ all D\ (imp
+			(Times (A ++ B ++ C ++ argv)) (imp
+			(Times (A ++ B ++ D ++ argv))
+			(eq C D)
+		)))).
+
+%times_assoc

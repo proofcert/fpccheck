@@ -7,3 +7,9 @@
 
 #assert times_zero
 	(autoinduce z z z (dummy\ start z z z)).
+
+% Needs something else to work
+%#assert times_succ
+%	(autoinduce z z z (dummy\ start z z (s z))).
+
+% times_total needs determinacy of plus
