@@ -1,15 +1,9 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Kind   imap   type.
-Type   imap   i -> i -> imap.
-#include "plus-examples-sig.thm".
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#include "kernel.thm".            % Kernel
-#include "plus-examples.thm".     % Concrete examples
+#include "logic.thm".               % First-order logic syntax
+#include "cert-sig.thm".            % Certificate declarations
+#include "append-fpc.thm".          % Concrete FPC (needed before kernel!)
+#include "plus-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".              % Kernel
+#include "plus-examples.thm".       % Concrete examples
 
 % Note we are trying to reuse the FPC for append verbatim!
 
@@ -25,10 +19,6 @@ Type   imap   i -> i -> imap.
 
 #assert plus_zero
 	(autoinduce z z z (dummy\ start z z z)).
-% This works in bedwyr:
-% $ forall x, autoinv (x :: nil) nil (unk (mu (x1\x2\ some (x3\ some (x4\ some (x5\ and (eq x2 ((++) x3 ((++) x4 ((++) x5 argv)))) (or (and (eq x3 zero) (eq x4 x5)) (some (x6\ some (x7\ and (and (eq x3 (succ x6)) (eq x5 (succ x7))) (x1 ((++) x6 ((++) x4 ((++) x7 argv)))))))))))) ((++) x ((++) zero ((++) x argv))))) (x ++ argv) S.
-% Yet by itself, there is something it cannot unify: Sigma seems to be the key
-% $ autoinv (X :: nil) nil (unk (mu (x1\x2\ some (x3\ some (x4\ some (x5\ and (eq x2 ((++) x3 ((++) x4 ((++) x5 argv)))) (or (and (eq x3 zero) (eq x4 x5)) (some (x6\ some (x7\ and (and (eq x3 (succ x6)) (eq x5 (succ x7))) (x1 ((++) x6 ((++) x4 ((++) x7 argv)))))))))))) ((++) X ((++) zero ((++) X argv))))) (X ++ argv) S.
 
 #assert plus_succ
 	(induce z z z
@@ -63,8 +53,6 @@ Type   imap   i -> i -> imap.
 
 #assert plus_total
 	(autoinduce z z z (dummy\ start z z z)).
-%forall a b c d e f, copy_bool ((imap a f) :: (imap b e) :: imap c d :: nil) (imp (eq c ((++) a argv)) (some (x1\ mu (x2\x3\ some (x4\ some (x5\ some (x6\ and (eq x3 ((++) x4 ((++) x5 ((++) x6 argv)))) (or (and (eq x4 zero) (eq x5 x6)) (some (x7\ some (x8\ and (and  (eq x4 (succ x7)) (eq x6 (succ x8))) (x2  ((++) x7 ((++) x5 ((++) x8 argv)))))))))))) ((++) a ((++) b ((++) x1 argv)))))) (X d e f).
-% plus_total (autoinduce z z z (dummy\ start z z z)).
 
 #assert plus_det
 	(induce z z z
@@ -93,72 +81,5 @@ Type   imap   i -> i -> imap.
 		))
 		(dummy\ start z z (s z))).
 
-%#assert testInvariant.
-
 #assert plus_assoc
 	(autoinduce z z z (dummy\ start z z (s z))).
-
-%#assert plus_assoc Plus
-%	(induce z z z
-%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
-%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
-%			(Plus (l6 ++ l1 ++ l7 ++ argv))
-%			(some l3\ and
-%				(Plus (l2 ++ l1 ++ l3 ++ argv))
-%				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
-%		(dummy\ start z z (s z))).
-
-%% Manual:
-%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
-%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
-%			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%				(l6 ++ l1 ++ l7 ++ argv))
-%			(some l3\ and
-%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%					(l2 ++ l1 ++ l3 ++ argv))
-%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%					(l4 ++ l3 ++ l7 ++ argv))
-%			)
-%		))
-%% Manual, post-application:
-%		(all l1\ all l2\ all l4\ all l6\ all l7\ imp
-%			(eq h12 (l4 ++ l2 ++ l6 ++ argv)) (imp
-%			((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%				(l6 ++ l1 ++ l7 ++ argv))
-%			(some l3\ and
-%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%					(l2 ++ l1 ++ l3 ++ argv))
-%				((mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-%					(l4 ++ l3 ++ l7 ++ argv))
-%			)
-%		))
-%% Auto:
-%		(all (x1\ all (x2\ all (x3\ all (x4\ all (x5\ imp
-%			(eq h12 (x2 ++ x3 ++ x1 ++ argv)) (imp
-%			(mu (x6\x7\ some (x8\ some (x9\ some (x10\ and  (eq x7 (x8 ++ x9 ++ x10 ++ argv)) (or (and (eq x8 zero) (eq x9 x10)) (some (x11\ some (x12\ and (and (eq x8 (succ x11)) (eq x10 (succ x12))) (x6  (x11 ++ x9 ++ x12 ++ argv))))))))))
-%				(x5 ++ x4 ++ x2 ++ argv))
-%			(some (x6\ and
-%				(mu (x7\x8\ some (x9\ some (x10\ some (x11\ and  (eq x8 (x9 ++ x10 ++ x11 ++ argv)) (or (and (eq x9 zero) (eq x10 x11)) (some (x12\ some (x13\ and (and (eq x9 (succ x12)) (eq x11 (succ x13))) (x7 (x12 ++ x10 ++ x13 ++ argv))))))))))
-%					(x4 ++ x3 ++ x6 ++ argv))
-%				(mu (x7\x8\ some (x9\ some (x10\ some (x11\ and (eq x8 (x9 ++ x10 ++ x11 ++ argv)) (or (and (eq x9 zero) (eq x10 x11)) (some (x12\ some (x13\ and  (and (eq x9 (succ x12)) (eq x11 (succ x13))) (x7 (x12 ++ x10 ++ x13 ++ argv))))))))))
-%					(x5 ++ x6 ++ x1 argv)))))))))))
-
-% plus:
-% (mu Pred\Args\ (some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv)) (or (and (eq K zero) (eq M N)) (some K'\ some N'\ (and (and (eq K (succ K')) (eq N (succ N'))) (Pred (K' ++ M ++ N' ++ argv))))))))
-% is_nat:
-% (mu Pred\Args\ (some N\ (and (eq Args (N ++ argv)) (or (eq N zero) (some N'\ (and (eq N (succ N')) (Pred (N' ++ argv))))))))
-
-% A template for associativity invariants
-%	(induce z z z
-%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
-%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
-%			(FixedPoint
-%				(l6 ++ l1 ++ l7 ++ argv))
-%			(some l3\ and
-%				(FixedPoint
-%					(l2 ++ l1 ++ l3 ++ argv))
-%				(FixedPoint
-%					(l4 ++ l3 ++ l7 ++ argv))
-%			)
-%		))
-%		(dummy\ start z z (s z))).

@@ -1,5 +1,9 @@
 Kind   bool, i   type.
 
+% Variable maps for term rewriting (optimal location?)
+Kind   imap   type.
+Type   imap   i -> i -> imap.
+
 % Built-in fixed point argument lists
 Type   argv   i.
 Type   ++     i -> i -> i.
