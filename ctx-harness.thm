@@ -1,8 +1,9 @@
-#include "logic.thm".          % First-order logic syntax
-#include "cert-sig.thm".       % Certificate declarations
-#include "admin-fpc.thm".      % Concrete FPC (needed before kernel!)
-#include "kernel.thm".         % Kernel
-#include "ctx-examples.thm".   % Concrete examples
+#include "logic.thm".              % First-order logic syntax
+#include "cert-sig.thm".           % Certificate declarations
+#include "admin-fpc.thm".          % Concrete FPC (needed before kernel!)
+#include "ctx-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".             % Kernel
+#include "ctx-examples.thm".       % Concrete examples
 
 #assert ctx1_struct Member IsNat
 	(induce z z z
@@ -12,6 +13,9 @@
 			(IsNat (N ++ argv))))
 		(dummy\ start z z (s z))).
 
+#assert ctx1_struct _ _
+	(autoinduce z z z (dummy\ start z z (s z))).
+
 #assert ctx1_length Length
 	(induce z z z
 		(Args\ all L1\ all L2\ imp
@@ -20,3 +24,6 @@
 				(Length (L1 ++ N ++ argv))
 				(Length (L2 ++ N ++ argv)))))
 		(dummy\ start z z (s z))).
+
+#assert ctx1_length _
+	(autoinduce z z z (dummy\ start z z (s z))).

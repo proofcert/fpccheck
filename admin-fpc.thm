@@ -45,11 +45,16 @@
 % Note also that currently:
 %  - Induction has independent certificates with separate unfolding counters
 %  - Branching "duplicates" the unfolding allowance for each branch
+%   Guided induction operates, at least for now, blindly on the first hypothesis
+% it comes across. If needed, reorder these clauses to bring the target clause
+% to the front of the list (i.e. it should be listed last, immediately before
+% the goal formula).
 
-              % Next % Last % Unf  % Invariant    % NewCert
-Type   start    idx -> idx -> idx                               -> cert.
-Type   induce   idx -> idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
+                  % Next % Last % Unf  % Invariant    % NewCert
+Type   start        idx -> idx -> idx                               -> cert.
+Type   induce       idx -> idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
 % May need a 'freeze' nesting to select the appropriate clause sometimes?
+Type   autoinduce   idx -> idx -> idx                -> (i -> cert) -> cert.
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Index constructors %
@@ -108,6 +113,11 @@ Define unfoldRExpert : cert -> cert -> prop by
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk (induce Next Last Unfold S Cert') (start Next Last Unfold) Cert' S
 	:= println "indClerk"
+	.
+
+Define indClerk' : cert -> (i -> cert) -> prop by
+	indClerk' (autoinduce Next Last Unfold Cert') Cert'
+	:= println "indClerk'"
 	.
 
 Define orClerk : cert -> cert -> cert -> prop by

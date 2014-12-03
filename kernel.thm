@@ -1,185 +1,299 @@
-% 'goal' isn't the best name... (and review the way role each type plays, that the encoding and makes make sense for them, and that everything is correct)
-% immediate induction TODO
-% rules follow the order found in BMS10, except init always goes before unfolding
-% (always just one goal/RHS formula? zero?)
+% Notes:
+%  - A friendly reminder: Sigma is just asking for trouble, mind your step!
+%   (This should be tested thoroughly to ensure a list of unique eigenvariables,
+%   or maybe a radically different approach, e.g. dynamic retrieval, attempted.
+%   Rule out if possible the involvement of logic variables.)
+%  - The other point of contention: list i vs. i for fixed points.
+%  - Naming conventions for (co)induction clerks/experts may be improved.
 
 % The one formula on the RHS may be "unknown" (yet to be processed, it could be
 % anything), demonstrably positive and therefore "stored," or already a "frozen"
 % greatest fixed point.
-% ("any" could be a good name for unk...)
 Kind   goal   type.
 Type   unk, sto, frz   bool -> goal.
 
+% An indexed context of formulas (key-value pair) for Gamma
 Kind   ctx   type.
 Type   kvp   idx -> bool -> ctx.
 
-% Zones:       Xi      Phi          Gamma       Delta        Goal
-Define async : cert -> list bool -> list ctx -> list bool -> goal -> prop,
-       syncL : cert -> list bool -> list ctx ->      bool -> goal -> prop,
-       syncR : cert -> list bool -> list ctx              -> bool -> prop by
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Immediate invariants %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Join a list of formulas using a given connective associating to the left, with
+% a trivial unit supplied. Probably should be part of logic.thm or associated
+% utilities.
+%   Interestingly nontrivial to test using Bedwyr eigenvariables, but the
+% solution is unique, which is rather important.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Define joinL : (bool -> bool -> bool) -> bool -> list bool -> bool -> prop by
+	joinL Conn Unit nil Unit ;
+	joinL Conn Unit (P :: nil) Q := P = Q ;
+	joinL Conn Unit (P :: Q :: Forms) R :=
+		joinL Conn Unit ((Conn P Q) :: Forms) R.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Given a complete map between pairs of (old and new) eigenvariables, copy a
+% formula over the first set to a formula over the second. Proceeds by recursion
+% on the structure of the logic and relies on a second induction on i-terms,
+% which animates the split of test suits in signature and body. A more pleasant
+% solution likely exists.
+%   This may belong in logic.thm (but if it does, copy_i needs to be defined in
+% advance, and for that logic.thm's very type i is needed through a signature.
+%   Two points of interest:
+%  1. A trivial mapping is added for completeness when treating quantifiers.
+%  2. Fixed point bodies are assumed to be fixed and only their arguments are
+%    treated. A single eigenvariable representing the list of arguments is
+%    introduced (some thought must be given to possible consequences of our
+%    audacity).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Define copy_bool : list imap -> bool -> bool -> prop by
+	copy_bool Theta tt tt ;
+	copy_bool Theta ff ff ;
+	copy_bool Theta (and X Y) (and U V) :=
+		copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (or X Y) (or U V) :=
+		copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (imp X Y) (imp U V) :=
+		copy_bool Theta X U /\ copy_bool Theta Y V ;
+	copy_bool Theta (all X) (all U) := forall z,
+		copy_bool ((imap z z) :: Theta) (X z) (U z) ;
+	copy_bool Theta (some X) (some U) := forall z,
+		copy_bool ((imap z z) :: Theta) (X z) (U z) ;
+	copy_bool Theta (eq X Y) (eq U V) :=
+		copy_i Theta X U /\ copy_i Theta Y V ;
+	copy_bool Theta (mu B X) (mu B U) :=
+		copy_i Theta X U ;
+	copy_bool Theta (nu B X) (nu B U) :=
+		copy_i Theta X U.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abstract the invariant formula over the context (i.e. its eigenvariables). In
+% essence, map the eigenvariables to fresh ones and copy the formula using the
+% latter.
+%   It must be noted that Sigma is much hairier than the current code might lead
+% to believe. Eigenvariable unification introduces duplicates, or worse, generic
+% i-terms in the context. If used once at the beginning (Tac), it works; for
+% general use further testing is in order.
+%   One saving grace might be that, on the target branch of guided induction,
+% the context is reinitialized. However, not that the single eigenvariable
+% corresponds to a list of arguments according to the arity of the fixed point
+% in question.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Define abst : list i -> list imap -> bool -> bool -> prop by
+	abst (X :: Sigma) Theta S (all R) := forall x,
+		abst Sigma ((imap X x) :: Theta) S (R x) ;
+	abst nil Theta S R :=
+		copy_bool Theta S R.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compute a trivial invariant for immediate application of induction. For
+% brevity (of the invariant) we add a special case to deal with empty Deltas on
+% the left, though this is not strictly needed. A new eigenvariable is added to
+% the context to form the abstraction at the top of the invariant.
+%   Current limitations: stored formulas (Gamma, (sto Goal)) are not used by the
+% predicate.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Define indInvariant' : list i -> list bool -> goal -> i -> (i -> bool) -> prop
+by
+	indInvariant' Sigma nil   (unk Goal) T S := forall x, exists R,
+		abst (x :: Sigma) nil (imp (eq x T)        Goal ) R /\
+		R = (all S) ;
+	indInvariant' Sigma Delta (unk Goal) T S := forall x, exists R,
+		Delta = (_ :: _) /\
+		joinL and tt Delta Q /\
+		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
+		R = (all S).
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+%% Proof system %%
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Proof system based on [BMS10] augmented with signature and frozen area, as
+% well as explicit encoding of stored formulas on both sides. The rules follow
+% the order found in the paper, except init, which is always attempted before
+% unfolding. The encoding is straightforward and only departures and additions
+% to muLJF are noted.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Zones:       Xi      Sigma     Phi          Gamma       Delta        Goal
+Define async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
+       syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
+       syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
 %%%%%%%%%%%%%%%%%%%%%%
 
-% Standard muLJF
-
-async Xi Phi Gamma ((and P Q) :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
 	andClerk Xi Xi' /\
-	async Xi' Phi Gamma (P :: Q :: Delta) G ;
+	async Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
 
-async Xi Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
+async Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
 	orClerk Xi Xi' Xi'' /\
-	async Xi'  Phi Gamma (P :: Delta) G /\
-	async Xi'' Phi Gamma (Q :: Delta) G ;
+	async Xi'  Sigma Phi Gamma (P :: Delta) G /\
+	async Xi'' Sigma Phi Gamma (Q :: Delta) G ;
 
-async Xi Phi Gamma Delta (unk (imp P Q)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
 	impClerk Xi Xi' /\
-	async Xi' Phi Gamma (P :: Delta) (unk Q) ;
+	async Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
 
-async Xi Phi Gamma (ff :: Delta) G :=
+async Xi Sigma Phi Gamma (ff :: Delta) G :=
 	ffClerk Xi ;
 
-async Xi Phi Gamma (tt :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
 	ttClerk Xi Xi' /\
-	async Xi' Phi Gamma Delta G ;
+	async Xi' Sigma Phi Gamma Delta G ;
 
-async Xi Phi Gamma Delta (unk (all P)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, async (Xi' x) Phi Gamma Delta (unk (P x)) ;
+	forall x, async (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
 
-async Xi Phi Gamma ((some P) :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
 	someClerk Xi Xi' /\
-	forall x, async (Xi' x) Phi Gamma ((P x) :: Delta) G ;
+	forall x, async (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
 
-async Xi Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
+% This can wreak all kinds of havoc in the structure of Sigma: beware!
+async Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
-	((P = Q) -> async Xi Phi Gamma Delta G) ;
+	((P = Q) -> async Xi Sigma Phi Gamma Delta G) ;
 
-% trivial induction before the other cases?
-% possibly clarify these names by adding mu/nu to clerks/experts, replacing or complementing side?
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi',
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	unfoldLClerk Xi Xi' /\
-	async Xi' Phi Gamma ((B (mu B) T) :: Delta) G ;
+	async Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
 
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
+% As for coinduction, pay extra attention to what is preserved and modified in
+% the context and the different buckets of formulas, as this is likely to be
+% sensitive to extensions in the kernel.
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Phi Gamma ((S T) :: Delta) G /\
-	forall x, async (Xi'' x) Phi Gamma ((B S x) :: nil) (unk (S x)) ; % Gamma preserved? as in muFa % forall may be too weak to infer the correct cardinality in the general case
+	          async  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
+	forall x, async (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
-async Xi Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
+% Guided induction. The main issues are the treatment of Sigma and missing sets
+% of formulas for the invariant. Critically, this addition to the trusted kernel
+% (and the computed invariants) must be provably correct.
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
+	indClerk' Xi Xi' /\
+	indInvariant' Sigma Delta G T S /\
+	forall x, async (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+
+async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
-	async Xi' ((mu B T) :: Phi) Gamma Delta G ;
+	async Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
 
-async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	unfoldRClerk Xi Xi' /\
-	async Xi' Phi Gamma Delta (unk (B (nu B) T)) ;
+	async Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
 
-async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
+% Same open questions as indClerk re: Sigma. Also note and test those sets of
+% formulas that are discarded and kept, respectively.
+async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Phi Gamma Delta          (unk (S T)) /\
-	forall x, async (Xi'' x) Phi nil   ((S x) :: nil) (unk (B S x)) ; % should I discard Gamma/Delta? % a single freeze area works because each type of fixpoint can only come from one side
+	          async  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
+	forall x, async (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
-async Xi Phi Gamma Delta (unk (nu B T)) := exists Xi',
+% Guided coinduction: not implemented
+
+async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Xi' Phi Gamma Delta (frz (nu B T)) ;
+	async Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %
 %%%%%%%%%%%%%%%%%%%%%
 
-% synchronous sequents: what to do with both variants of the RHS, when one changes (store/decide), for now I assume I'm operating on sth-style goals
-% and given this distinction, unk is less necessary, or at least I'm pretty sure it doesn't need a formula and is instead simply a nil marker
-% would the 'goal' qualification even apply here? perhaps not
-
-% Standard muLJF
-
-syncR Xi Phi Gamma (and P Q) := exists Xi' Xi'',
+syncR Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-	syncR Xi Phi Gamma P /\
-	syncR Xi Phi Gamma Q ;
+	syncR Xi Sigma Phi Gamma P /\
+	syncR Xi Sigma Phi Gamma Q ;
 
-syncR Xi Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ syncR Xi Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ syncR Xi Phi Gamma Q) ;
+syncR Xi Sigma Phi Gamma (or P Q) := exists Xi',
+	(orExpert Xi Xi' left  /\ syncR Xi Sigma Phi Gamma P) \/
+	(orExpert Xi Xi' right /\ syncR Xi Sigma Phi Gamma Q) ;
 
-syncL Xi Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
-	syncL Xi Phi Gamma Q G /\
-	syncR Xi Phi Gamma   P ;
+	syncL Xi Sigma Phi Gamma Q G /\
+	syncR Xi Sigma Phi Gamma   P ;
 
 % Specular left implication
-syncL Xi Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert' Xi Xi' Xi'' /\
-	syncR Xi Phi Gamma   P /\
-	syncL Xi Phi Gamma Q G ;
+	syncR Xi Sigma Phi Gamma   P /\
+	syncL Xi Sigma Phi Gamma Q G ;
 
-syncR Xi Phi Gamma tt :=
+syncR Xi Sigma Phi Gamma tt :=
 	ttExpert Xi ;
 
-syncL Xi Phi Gamma (all P) G := exists Xi' T,
+syncL Xi Sigma Phi Gamma (all P) G := exists Xi' T,
 	allExpert Xi Xi' T /\
-	syncL Xi' Phi Gamma (P T) G ;
+	syncL Xi' Sigma Phi Gamma (P T) G ;
 
-syncR Xi Phi Gamma (some P) := exists Xi' T,
+syncR Xi Sigma Phi Gamma (some P) := exists Xi' T,
 	someExpert Xi Xi' T /\
-	syncR Xi' Phi Gamma (P T) ;
+	syncR Xi' Sigma Phi Gamma (P T) ;
 
-syncR Xi Phi Gamma (eq T T) :=
+syncR Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
-syncL Xi Phi Gamma (nu B T) G :=
+syncL Xi Sigma Phi Gamma (nu B T) G :=
 	member (nu B T) Phi /\
 	initLExpert Xi ;
 
-syncL Xi Phi Gamma (nu B T) G := exists Xi',
+syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
-	syncL Xi' Phi Gamma (B (nu B) T) G ;
+	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
-syncR Xi Phi Gamma (mu B T) :=
+syncR Xi Sigma Phi Gamma (mu B T) :=
 	member (mu B T) Phi /\
 	initRExpert Xi ;
 
-syncR Xi Phi Gamma (mu B T) := exists Xi',
+syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
-	syncR Xi' Phi Gamma (B (mu B) T) ;
+	syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
 
 %%%%%%%%%%%%%%%%%%%%
 % Structural rules %
 %%%%%%%%%%%%%%%%%%%%
 
-% Standard muLJF
+% Throughout the structural block, traditional notions of atom correspond to
+% fixed points, which are treated separately.
+%   Affected rules: releaseL, storeL, storeR.
 
-% Idx C, % TODO code ctx, extend signatures, etc. % a very lazy, possibly wrong, initial implementation
-% Maybe the encoding of G can be simplified having a top-level code that represents "not unk", that is to say, not "able to be processed"
-async Xi Phi Gamma nil G := exists Xi' Idx C,
+% Important: the chosen formula never leaves Gamma, i.e. it merely is duplicated
+async Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
 	member (kvp Idx C) Gamma /\
-	syncL Xi' Phi Gamma C G ; % chosen formula remains in Gamma ("duplicated")
+	syncL Xi' Sigma Phi Gamma C G ;
 
-async Xi Phi Gamma nil (sto G) := exists Xi',
+async Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
-	syncR Xi' Phi Gamma G ;
+	syncR Xi' Sigma Phi Gamma G ;
 
-syncL Xi Phi Gamma C G := exists Xi',
-	positive C /\ % or atom?
+syncL Xi Sigma Phi Gamma C G := exists Xi',
+	positive C /\
 	releaseLExpert Xi Xi' /\
-	async Xi' Phi Gamma (C :: nil) G ;
+	async Xi' Sigma Phi Gamma (C :: nil) G ;
 
-syncR Xi Phi Gamma G := exists Xi',
+syncR Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Xi' Phi Gamma nil (unk G) ;
+	async Xi' Sigma Phi Gamma nil (unk G) ;
 
 % Store
 
-async Xi Phi Gamma (C :: Delta) G := exists Xi' Idx,
-	negative C /\ % or (positive) atoms? but if positive, they are mu's that belong in this phase
+async Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
+	negative C /\
 	storeLClerk Xi Xi' Idx /\
-	async Xi' Phi ((kvp Idx C) :: Gamma) Delta G ;
+	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
 
-async Xi Phi Delta Gamma (unk G) := exists Xi',
-	positive G /\ % again, atoms? context/indexing?
+async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
+	positive G /\
 	storeRClerk Xi Xi' /\
-	async Xi' Phi Delta Gamma (sto G).
+	async Xi' Sigma Phi Delta Gamma (sto G).

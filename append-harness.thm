@@ -1,8 +1,9 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "admin-fpc.thm".         % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-#include "append-examples.thm".   % Concrete examples
+#include "logic.thm".               % First-order logic syntax
+#include "cert-sig.thm".            % Certificate declarations
+#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
+#include "append-examples-sig.thm". % Concrete signature (needed before kernel!)
+#include "kernel.thm".              % Kernel
+#include "append-examples.thm".     % Concrete examples
 
 #assert appendable (start z z z)
 	null null null.
@@ -19,11 +20,14 @@
 #assert eigen_unify (start z z z).
 
 #assert append_total Append
-	(induce z z z % No unfolding before the induction (counter by stages makes sense, or induction certificates inhibit use of the counter...)
+	(induce z z z
 		(x\ all A\ all B\ imp
 			(eq x (A ++ argv))
 			(some C\ Append (A ++ B ++ C ++ argv)))
 		(dummy\ start z z z)).
+
+#assert append_total _
+	(autoinduce z z z (dummy\ start z z z)).
 
 #assert append_det Append
 	(induce z z z
@@ -33,6 +37,9 @@
 			(eq K L)
 		))
 		(dummy\ start z z (s z))).
+
+#assert append_det _
+	(autoinduce z z z (dummy\ start z z (s z))).
 
 #assert append_assoc Append
 	(induce z z z
@@ -45,3 +52,6 @@
 			)
 		))
 		(dummy\ start z z (s z))).
+
+#assert append_assoc _
+	(autoinduce z z z (dummy\ start z z (s z))).

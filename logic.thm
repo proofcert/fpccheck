@@ -13,6 +13,10 @@
 % Base types
 Kind   bool, i   type.
 
+% Variable maps for term rewriting (optimal location?)
+Kind   imap   type.
+Type   imap   i -> i -> imap.
+
 % Fixed point argument lists
 Type   argv   i.
 Type   ++     i -> i -> i.

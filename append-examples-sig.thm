@@ -1,0 +1,16 @@
+#include "append.thm".
+
+Define copy_i : list imap -> i -> i -> prop by
+	copy_i Theta argv argv ;
+	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	copy_i Theta a a ;
+	copy_i Theta b b ;
+	copy_i Theta c c ;
+	copy_i Theta d d ;
+	copy_i Theta e e ;
+	copy_i Theta f f ;
+	copy_i Theta null null ;
+	copy_i Theta (cons X Y) (cons U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	copy_i Theta X U := member (imap X U) Theta.
