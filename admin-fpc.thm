@@ -68,56 +68,41 @@ Type   s   idx -> idx.
 
 % (Reusing for now for unfolding counters, even though type reuse is evil.)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Used/defined clerks/experts %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+% Helper predicates %
+%%%%%%%%%%%%%%%%%%%%%
 
-Define impClerk : cert -> cert -> prop by
-	impClerk Cert Cert
-	:= println "impClerk"
-	.
+% TODO: indexing structure to simplify and refactor everything throughout
 
-Define allClerk : cert -> (i -> cert) -> prop by
-	allClerk Cert (_\ Cert)
-	:= println "allClerk"
-	.
+Define getIndexes : cert -> idx -> idx -> idx -> prop by
+	getIndexes (start      N L U    ) N L U ;
+	getIndexes (induce     N L U _ _) N L U ;
+	getIndexes (autoinduce N L U   _) N L U.
 
-Define someExpert : cert -> cert -> i -> prop by
-	someExpert Cert Cert _
-	:= println "someExpert"
-	.
+Define setIndexes : cert -> idx -> idx -> idx -> cert -> prop by
+	setIndexes (start      _ _ _     ) N L U (start      N L U     ) ;
+	setIndexes (induce     _ _ _ S Xi) N L U (induce     N L U S Xi) ;
+	setIndexes (autoinduce _ _ _   Xi) N L U (autoinduce N L U   Xi).
 
-Define decideRClerk : cert -> cert -> prop by
-	decideRClerk Cert Cert
-	:= println "decideRClerk"
-	.
+Define gt : idx -> idx -> prop by
+	gt (s _) z ;
+	gt (s A) (s B) := gt A B.
 
-Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk (start Next Last Unfold) (start Next Last Unfold)
-	:= println "freezeLClerk"
-	.
+%%%%%%%%%%%%%%%%%%%%%%
+% Clerks and experts %
+%%%%%%%%%%%%%%%%%%%%%%
 
-Define initRExpert : cert -> prop by
-	initRExpert Cert
-	:= println "initRExpert"
-	.
+%----------------------------------%
+% Propositional asynchronous phase %
+%----------------------------------%
 
-% (removed failing mu-unfoldings to the left and 1-place invariants)
+% [Added]
+Define ffClerk : cert -> prop by ffClerk _ := 1 = 2.
+Define ttClerk : cert -> cert -> prop by ttClerk _ _ := 1 = 2.
 
-Define unfoldRExpert : cert -> cert -> prop by
-	unfoldRExpert Cert Cert
-	:= println "unfoldRExpert"
-	.
-
-% Simple search on trivial branch, rest as given by certificate
-Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	indClerk (induce Next Last Unfold S Cert') (start Next Last Unfold) Cert' S
-	:= println "indClerk"
-	.
-
-Define indClerk' : cert -> (i -> cert) -> prop by
-	indClerk' (autoinduce Next Last Unfold Cert') Cert'
-	:= println "indClerk'"
+Define andClerk : cert -> cert -> prop by
+	andClerk Cert Cert
+	:= println "andClerk"
 	.
 
 Define orClerk : cert -> cert -> cert -> prop by
@@ -125,20 +110,31 @@ Define orClerk : cert -> cert -> cert -> prop by
 	:= println "orClerk"
 	.
 
+Define impClerk : cert -> cert -> prop by
+	impClerk Cert Cert
+	:= println "impClerk"
+	.
+
 Define eqClerk : cert -> cert -> prop by
 	eqClerk Cert Cert
 	:= println "eqClerk"
 	.
 
-% new index check, possibly a comparison may be needed... ensure if not
-Define decideLClerk : cert -> cert -> idx -> prop by
-	decideLClerk (start  Next Last Unfold     ) (start  Next (s Last) Unfold     ) Last
-	:= print "decideLClerk" /\ println Last
-	;
-	decideLClerk (induce Next Last Unfold S Xi) (induce Next (s Last) Unfold S Xi) Last
-	:= print "decideLClerk" /\ println Last
+%---------------------------------%
+% Propositional synchronous phase %
+%---------------------------------%
+
+% [Added]
+Define ttExpert : cert -> prop by ttExpert _ := 1 = 2.
+
+Define andExpert : cert -> cert -> cert -> prop by
+	andExpert Cert Cert Cert
+	:= println "andExpert"
 	.
 
+% Assuming that in a fixed point the base cases are given first, we prioritize
+% these before successive unfoldings: therefore, first try on the left and, if
+% this fails, on the right.
 Define orExpert : cert -> cert -> choice -> prop by
 	orExpert Cert Cert left 
 	:= println "orExpert left"
@@ -147,63 +143,146 @@ Define orExpert : cert -> cert -> choice -> prop by
 	:= println "orExpert right"
 	.
 
-Define andExpert : cert -> cert -> cert -> prop by
-	andExpert Cert Cert Cert
-	:= println "andExpert"
+% "Standard-order" implication is forbidden
+Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := 1 = 2.
+
+% Instead, we will always evaluate the antecedent first, looking to fill some of
+% the holes in the proof and declutter before moving on with the more
+% interesting consequent.
+Define impExpert' : cert -> cert -> cert -> prop by
+	impExpert' Cert Cert Cert
+	:= println "impExpert'"
 	.
 
-% Should this be limited to initial certificates?
+% [Random: should this be limited to initial certificates?]
 Define eqExpert : cert -> prop by
 	eqExpert Cert
 	:= println "eqExpert"
 	.
 
-% Next branch
+%-------------%
+% Quantifiers %
+%-------------%
+
+% Clerks: new eigenvariables
+Define allClerk : cert -> (i -> cert) -> prop by
+	allClerk Cert (_\ Cert)
+	:= println "allClerk"
+	.
+
 Define someClerk : cert -> (i -> cert) -> prop by
 	someClerk Cert (_\ Cert)
 	:= println "someClerk"
 	.
 
-Define andClerk : cert -> cert -> prop by
-	andClerk Cert Cert
-	:= println "andClerk"
-	.
-
-% Adding more things while looking for the missing piece...
-Define impExpert' : cert -> cert -> cert -> prop by
-	impExpert' Cert Cert Cert
-	:= println "impExpert'"
-	.
-% Replaced with specular version and invalidated
-Define impExpert : cert -> cert -> cert -> prop by
-	impExpert _ _ _ := println "impExpert fail" /\ 1 = 2.
-
+% Experts: new logic variables ("holes" in the proof)
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
 	:= println "allExpert"
 	.
 
-% More forbidden stuff, just in case... with these two, at least the assertion
-% of totality ends, basically (it would seem) because the logic cannot find a
-% way to focus on the left (or the right) when a situation all ... |- some ...
-% is encountered.
-Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := println "unfoldLExpert fail" /\ 1 = 2.
+Define someExpert : cert -> cert -> i -> prop by
+	someExpert Cert Cert _
+	:= println "someExpert"
+	.
 
-% New kernel, new rules
+%-------------------------%
+% Fixed points: induction %
+%-------------------------%
+
+% Perform a simple search on the base branch (propagating indexes!) and extract
+% continuation certificate and invariant for the induction branch.
+Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
+	indClerk (induce Next Last Unfold S Cert') (start Next Last Unfold) Cert' S
+	:= println "indClerk"
+	.
+
+% A simplified scheme for immediate induction
+Define indClerk' : cert -> (i -> cert) -> prop by
+	indClerk' (autoinduce Next Last Unfold Cert') Cert'
+	:= println "indClerk'"
+	.
+
+% [Added]
+Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
+	coindClerk _ _ _ _ := 1 = 2.
+
+%----------------------%
+% Fixed points: unfold %
+%----------------------%
+
+% We unfold only if the certificate allows us to, therefore consuming one token
+Define unfoldLClerk : cert -> cert -> prop by
+	unfoldLClerk Cert Cert' := exists Next Last Unfold,
+		getIndexes Cert Next Last (s Unfold) /\
+		setIndexes Cert Next Last    Unfold  Cert'
+	/\ print "unfoldLClerk" /\ println (s Unfold)
+	.	
+
+% On the right, we expect purely positive, terminating computation
+Define unfoldRExpert : cert -> cert -> prop by
+	unfoldRExpert Cert Cert
+	:= println "unfoldRExpert"
+	.
+
+% Greatest fixed points are never unfolded
+Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := 1 = 2.
+
+% [Adding this to see if it helps]
+Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := 1 = 2.
+
+%----------------------------------%
+% Fixed points: freeze and initial %
+%----------------------------------%
+
+% [Changed: freeze iff there are neither inductions nor unfoldings to perform]
+Define freezeLClerk : cert -> cert -> prop by
+	freezeLClerk (start Next Last z) (start Next Last z)
+	:= println "freezeLClerk"
+	.
+
+% [No restrictions given to init, although similar ones may apply, cf. freeze]
+Define initRExpert : cert -> prop by
+	initRExpert Cert
+	:= println "initRExpert"
+	.
+
+% [Added: greatest fixed points not supported]
+Define freezeRClerk : cert -> cert -> prop by freezeRClerk _ _ := 1 = 2.
+Define initLExpert : cert -> prop by initLExpert _ := 1 = 2.
+
+%------------------%
+% Structural rules %
+%------------------%
+
+% When storing, a unique index based on the Next counter is returned
+Define storeLClerk : cert -> cert -> idx -> prop by
+	storeLClerk Cert Cert' Next := exists Last Unfold,
+		getIndexes Cert    Next  Last Unfold /\
+		setIndexes Cert (s Next) Last Unfold Cert'
+	/\ print "storeLClerk" /\ println Next
+	.
+
+% Conversely, we decide on the earliest index that has not been read yet, adding
+% a range comparison for safety
+Define decideLClerk : cert -> cert -> idx -> prop by
+	decideLClerk Cert Cert' Last := exists Next Unfold,
+		getIndexes Cert Next    Last  Unfold       /\ gt Next Last /\
+		setIndexes Cert Next (s Last) Unfold Cert'
+	/\ print "decideLClerk" /\ println Last
+	.
+
+% No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
 	storeRClerk Cert Cert
 	:= println "storeRClerk"
 	.
-
-Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk (start  Next Last Unfold     ) (start  (s Next) Last Unfold     ) Next
-	:= print "storeLClerk" /\ println Next
-	;
-	storeLClerk (induce Next Last Unfold S Xi) (induce (s Next) Last Unfold S Xi) Next
-	:= print "storeLClerk" /\ println Next
+Define decideRClerk : cert -> cert -> prop by
+	decideRClerk Cert Cert
+	:= println "decideRClerk"
 	.
 
-% Sure, always?
+% No restrictions on release [sure, always?]
 Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert
 	:= println "releaseLExpert"
@@ -212,25 +291,3 @@ Define releaseRExpert : cert -> cert -> prop by
 	releaseRExpert Cert Cert
 	:= println "releaseRExpert"
 	.
-
-% Just adding this for now for compatibility, we may have to reorder/redefine later...
-Define unfoldLClerk : cert -> cert -> prop by
-	unfoldLClerk (start  Next Last (s Unfold)     ) (start  Next Last Unfold     )
-	:= print "unfoldLClerk" /\ println (s Unfold)
-	;
-	unfoldLClerk (induce Next Last (s Unfold) S Xi) (induce Next Last Unfold S Xi)
-	:= print "unfoldLClerk" /\ println (s Unfold)
-	.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Unused/undefined clerks/experts %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Type ffClerk      cert                                              -> prop.
-Type ttClerk      cert ->       cert                                -> prop.
-Type unfoldRClerk cert ->       cert                                -> prop.
-Type coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop.
-Type freezeRClerk cert ->       cert                                -> prop.
-
-Type ttExpert      cert                   -> prop.
-Type initLExpert   cert                   -> prop.
