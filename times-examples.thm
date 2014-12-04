@@ -24,6 +24,18 @@ Define times_total : cert -> prop by
 		times Times /\ is_nat IsNat /\
 		is_total Cert Times IsNat.
 
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+% Adding a second copy of the hypothesis to freeze it for the totality lemma
+Define times_total' : cert -> prop by
+	times_total' Cert :=
+		times Times /\ is_nat IsNat /\
+		prove Cert
+			(all A\ all B\ (imp
+				(IsNat (A ++ argv)) (imp
+				(IsNat (A ++ argv))
+				(some C\ (Times (A ++ B ++ C ++ argv)))))).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
+
 Define times_det : (i -> bool) -> cert -> prop by
 	times_det Times Cert :=
 		times Times /\ 

@@ -9,8 +9,12 @@
 %	(autoinduce z z z (dummy\ start z z z)).
 
 % times_total needs determinacy of plus
-#assert times_total
+%#assert times_total
+%	(autoinduce z z z (dummy\ start z z z)).
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+#assert times_total'
 	(autoinduce z z z (dummy\ start z z z)).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 % Needs something else to work
 %#assert times_succ

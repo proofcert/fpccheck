@@ -253,6 +253,32 @@ syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 syncR Xi Sigma Phi Gamma (mu B T) :=
 	member (mu B T) Phi /\
 	initRExpert Xi ;
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+% Let's play around with lemmas a bit... after the regular initR
+% Maybe this is too simple for some cases and I need to have several linked
+% premises, all at the same time with unification gradually filling in the gaps
+% in a consistent way, but for now this will allow me to test with minimum
+% hassle
+% (moving z up here to try this out, just in case)
+% beware of loops!
+syncR Xi Sigma Phi Gamma (mu B T) := forall z, exists IsNat Plus Phi',
+	println "** Trying to apply lemma..." /\
+	% 0. No membership needed (in fact, no membership allowed would be best)
+	%member (mu B T) Phi /\ % it would be best to negate this to avoid looping
+	% 1. Take as an inlined lemma the totality of plus
+	is_nat IsNat /\ member (IsNat (X ++ argv)) Phi /\
+	println "** is_nat fetched, membership verified" /\
+	% 2. If the conditions are satisfied, augment "context" w/ don't care index
+plus Plus /\ Phi' = ((Plus (X ++ Y ++ z ++ argv)) :: Phi) /\
+	% 1.5. Well, check that the goal agrees to avoid pointless uses!
+	%(see equality at the end)
+	%
+	println "** lemma added, ready to retry" /\
+	% N. Finish the job
+	initRExpert Xi /\
+	println "** expert agrees, launch!" /\
+	(((Plus (X ++ Y ++ z ++ argv)) = (mu B T)) -> syncR Xi Sigma Phi' Gamma (mu B T));
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
