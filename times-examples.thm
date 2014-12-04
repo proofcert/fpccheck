@@ -19,11 +19,15 @@ Define times_succ : cert -> prop by
 					(Times (K ++ M ++ KM ++ argv))
 					(Plus (K ++ KM ++ N))))))).
 
+Define times_total : cert -> prop by
+	times_total Cert :=
+		times Times /\ is_nat IsNat /\
+		is_total Cert Times IsNat.
+
 Define times_det : (i -> bool) -> cert -> prop by
 	times_det Times Cert :=
 		times Times /\ 
 		is_deterministic Cert Times.
 
 %times_comm
-%times_total
 %times_assoc

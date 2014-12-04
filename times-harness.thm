@@ -5,11 +5,13 @@
 #include "kernel.thm".              % Kernel
 #include "times-examples.thm".      % Concrete examples
 
-#assert times_zero
+%#assert times_zero
+%	(autoinduce z z z (dummy\ start z z z)).
+
+% times_total needs determinacy of plus
+#assert times_total
 	(autoinduce z z z (dummy\ start z z z)).
 
 % Needs something else to work
 %#assert times_succ
 %	(autoinduce z z z (dummy\ start z z (s z))).
-
-% times_total needs determinacy of plus
