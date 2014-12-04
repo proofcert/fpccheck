@@ -1,4 +1,5 @@
 % Notes:
+%  - Ensure soundness of immediate induction!!
 %  - A friendly reminder: Sigma is just asking for trouble, mind your step!
 %   (This should be tested thoroughly to ensure a list of unique eigenvariables,
 %   or maybe a radically different approach, e.g. dynamic retrieval, attempted.
@@ -76,7 +77,7 @@ Define copy_bool : list imap -> bool -> bool -> prop by
 % to believe. Eigenvariable unification introduces duplicates, or worse, generic
 % i-terms in the context. If used once at the beginning (Tac), it works; for
 % general use further testing is in order.
-%   One saving grace might be that, on the target branch of guided induction,
+%   One saving grace might be that, on the target branch of immediate induction,
 % the context is reinitialized. However, not that the single eigenvariable
 % corresponds to a list of arguments according to the arity of the fixed point
 % in question.
@@ -174,9 +175,9 @@ async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	          async  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
 	forall x, async (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
-% Guided induction. The main issues are the treatment of Sigma and missing sets
-% of formulas for the invariant. Critically, this addition to the trusted kernel
-% (and the computed invariants) must be provably correct.
+% Immediate induction. The main issues are the treatment of Sigma and missing
+% sets of formulas for the invariant. Critically, this addition to the trusted
+% kernel (and the computed invariants) must be provably correct.
 async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
 	indInvariant' Sigma Delta G T S /\
@@ -197,7 +198,7 @@ async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	          async  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
 	forall x, async (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
-% Guided coinduction: not implemented
+% Immediate coinduction: not implemented
 
 async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
