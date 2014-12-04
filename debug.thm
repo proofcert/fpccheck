@@ -1,0 +1,12 @@
+Define announce : prop -> prop by
+	announce G :=
+		print ">>" /\ println G /\ false.
+
+Define spy : prop -> prop by
+	spy G :=
+		print ">Entering " /\ println G /\
+		G /\
+		print ">Success "  /\ println G ;
+	spy G :=
+		print ">Leaving "  /\ println G /\
+		false.
