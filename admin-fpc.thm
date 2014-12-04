@@ -287,7 +287,4 @@ Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert
 	:= println "releaseLExpert"
 	.
-Define releaseRExpert : cert -> cert -> prop by
-	releaseRExpert Cert Cert
-	:= println "releaseRExpert"
-	.
+Define releaseRExpert : cert -> cert -> prop by releaseRExpert _ _ := 1 = 2.
