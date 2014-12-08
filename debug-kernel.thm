@@ -1,0 +1,119 @@
+#include "logic.thm".
+#include "cert-sig.thm".
+#include "admin-fpc.thm".
+#include "times-examples-sig.thm".
+#include "kernel.thm".
+
+% Design notes: we need to be able to assign names to fixed points in some way. A simple way is to provide one such list as an argument to some of the predicates. The problem is that if we do this, the list needs to be part of the information of the predicates that we wish to spy, thus affecting their signature: a very poor choice. Rather, we will make interested modules define a predicate establishing this mapping, and make use of this by call in our tracing functions.
+
+% I need to put this somewhere accessible (doesn't solve the problem yet!)
+Define member2 : A -> list A -> bool -> prop by
+	member2 X nil      ff ;
+	member2 X (X :: _) tt ;
+	member2 X (_ :: L) TF := member2 X L TF.
+
+Kind   fixp   type.
+Type   fixp   string -> (i -> bool) -> fixp.
+% Throughout, names of types, functions, variables... need to be given thought and clarity
+
+%is_nat IsNat /\ pretty_mu (IsNat argv) ((fixp "is_nat" IsNat) :: nil).
+%forall x, is_nat IsNat /\ pretty_mu (IsNat (x ++ argv)) ((fixp "is_nat" IsNat) :: nil).
+%forall x y, is_nat IsNat /\ pretty_mu (IsNat (x ++ y ++ argv)) ((fixp "is_nat" IsNat) :: nil).
+%forall x y, is_nat IsNat /\ print_bool ((fixp "is_nat" IsNat) :: nil) (IsNat (x ++ y ++ x ++ argv)).
+
+% Maybe add the single-argument case irrespective of argv to account for logic vars and non-unified argument list eigenvars... but it probably multievals and is thus messy
+Define print_argv_rec : i -> prop by
+	print_argv_rec (T ++ U) :=
+		printstr "," /\ print T /\
+		print_argv_rec U ;
+	print_argv_rec argv :=
+		printstr ")".
+
+Define print_argv : i -> prop by
+	print_argv argv :=
+		printstr "(" /\
+		print_argv_rec argv ;
+	print_argv (T ++ U) :=
+		printstr "(" /\ print T /\
+		print_argv_rec U.
+
+% maybe in logic.thm
+% pretty_i is also a possibility, but... optional? required? for now, without it
+Define print_bool : list fixp -> bool -> prop by
+	print_bool Lib tt := printstr "⊤" ;
+	print_bool Lib ff := printstr "⊥" ;
+	print_bool Lib (and P Q) :=
+		printstr "( " /\ print_bool Lib P /\ printstr " ∧ " /\ print_bool Lib Q /\ printstr " )" ;
+	print_bool Lib (or P Q) :=
+		printstr "( " /\ print_bool Lib P /\ printstr " ∨ " /\ print_bool Lib Q /\ printstr " )" ;
+	print_bool Lib (imp P Q) :=
+		printstr "( " /\ print_bool Lib P /\ printstr " ⊃ " /\ print_bool Lib Q /\ printstr " )" ;
+	print_bool Lib (all P) := forall x,
+		printstr "∀ " /\ print x /\ printstr "." /\ print_bool Lib (P x) ;
+	print_bool Lib (some P) := forall x,
+		printstr "∃ " /\ print x /\ printstr "." /\ print_bool Lib (P x) ;
+	print_bool Lib (eq P Q) :=
+		printstr "( " /\ print P /\ printstr " = " /\ print Q /\ printstr " )" ;
+	print_bool Lib (mu B T) := exists Name,
+		member (fixp Name (mu B)) Lib /\
+		printstr Name /\ print_argv T ;
+%	print_bool Lib (mu B T) :=
+%		member2 (fixp _ (mu B)) Lib ff /\
+%		printstr "μ" /\ print_argv T ;
+	print_bool Lib (nu B T) := exists Name,
+		member (fixp Name (nu B)) Lib /\
+		printstr Name /\ print_argv T.
+%	print_bool Lib (nu B T) :=
+%		member2 (fixp _ (nu B)) Lib ff /\
+%		printstr "ν" /\ print_argv T.
+
+% Much refactoring can be done here, possibly pattern extraction, etc.
+Define print_list_bool_rec : list fixp -> list bool -> prop by
+	print_list_bool_rec Lib nil ;
+	print_list_bool_rec Lib (First :: Rest) :=
+		printstr ", " /\ print_bool Lib First /\
+		print_list_bool_rec Lib Rest.
+Define print_list_bool : list fixp -> list bool -> prop by
+	print_list_bool Lib nil ;
+	print_list_bool Lib (First :: Rest) :=
+		print_bool Lib First /\
+		print_list_bool_rec Lib Rest.
+
+% This should be replaced with print_i when available/defined, refactored passing a print predicate coherent with the type? maybe, if possible!
+Define print_list_i_rec : list i -> prop by
+	print_list_i_rec nil ;
+	print_list_i_rec (First :: Rest) :=
+		printstr ", " /\ print First /\
+		print_list_i_rec Rest.
+Define print_list_i : list i -> prop by
+	print_list_i nil ;
+	print_list_i (First :: Rest) :=
+		print First /\
+		print_list_i_rec Rest.
+
+% print_idx possibly missing
+Define print_ctx : list fixp -> ctx -> prop by
+	print_ctx Lib (kvp Idx Form) :=
+		printstr "<" /\ print Idx /\ printstr "," /\ print_bool Lib Form /\ printstr ">".
+Define print_list_ctx_rec : list fixp -> list ctx -> prop by
+	print_list_ctx_rec Lib nil ;
+	print_list_ctx_rec Lib (First :: Rest) :=
+		printstr ", " /\ print_ctx Lib First /\
+		print_list_ctx_rec Lib Rest.
+Define print_list_ctx : list fixp -> list ctx -> prop by
+	print_list_ctx Lib nil ;
+	print_list_ctx Lib (First :: Rest) :=
+		print_ctx Lib First /\
+		print_list_ctx_rec Lib Rest.
+
+% Indent! (add level of indentation as attribute)
+% Also signal when we are leaving, and modularize
+Define spy_syncR : list fixp -> cert -> list i -> list bool -> list ctx -> bool -> prop by
+	spy_syncR Lib Xi Sigma Phi Gamma Goal :=
+		printstr "**  syncR  *********************************************************************\n" /\
+		%Ξ
+		printstr "  Σ: " /\ print_list_i        Sigma /\ printstr "\n" /\
+		printstr "  Φ: " /\ print_list_bool Lib Phi   /\ printstr "\n" /\
+		printstr "  Γ: " /\ print_list_ctx  Lib Gamma /\ printstr "\n" /\
+		printstr "  Ω: " /\ print_bool      Lib Goal  /\ printstr "\n" /\
+		syncR Xi Sigma Phi Gamma Goal.
