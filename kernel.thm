@@ -1,3 +1,5 @@
+#include "debug.thm".
+
 % Notes:
 %  - Ensure soundness of immediate induction!!
 %  - A friendly reminder: Sigma is just asking for trouble, mind your step!
@@ -16,6 +18,15 @@ Type   unk, sto, frz   bool -> goal.
 % An indexed context of formulas (key-value pair) for Gamma
 Kind   ctx   type.
 Type   kvp   idx -> bool -> ctx.
+
+%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+%Define notmember : bool -> list bool -> prop by
+%	notmember Form List := member Form List -> false.
+Define member_at : bool -> list bool -> bool -> prop by
+	member_at _ nil ff ;
+	member_at Elt (Elt :: _) tt ;
+	member_at Elt (Elt' :: List) Memb := member_at Elt List Memb.
+%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Immediate invariants %
@@ -210,34 +221,35 @@ async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 
 syncR Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-	syncR Xi Sigma Phi Gamma P /\
-	syncR Xi Sigma Phi Gamma Q ;
+spy(	syncR Xi Sigma Phi Gamma P ) /\
+spy(	syncR Xi Sigma Phi Gamma Q ) ;
 
+% is this use of OR ok? separate clauses?
 syncR Xi Sigma Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ syncR Xi Sigma Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ syncR Xi Sigma Phi Gamma Q) ;
+	(orExpert Xi Xi' left  /\ spy( syncR Xi Sigma Phi Gamma P )) \/
+	(orExpert Xi Xi' right /\ spy( syncR Xi Sigma Phi Gamma Q )) ;
 
 syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
-	syncL Xi Sigma Phi Gamma Q G /\
-	syncR Xi Sigma Phi Gamma   P ;
+spy(	syncL Xi Sigma Phi Gamma Q G ) /\
+spy(	syncR Xi Sigma Phi Gamma   P ) ;
 
 % Specular left implication
 syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert' Xi Xi' Xi'' /\
-	syncR Xi Sigma Phi Gamma   P /\
-	syncL Xi Sigma Phi Gamma Q G ;
+spy(	syncR Xi Sigma Phi Gamma   P ) /\
+spy(	syncL Xi Sigma Phi Gamma Q G ) ;
 
 syncR Xi Sigma Phi Gamma tt :=
 	ttExpert Xi ;
 
 syncL Xi Sigma Phi Gamma (all P) G := exists Xi' T,
 	allExpert Xi Xi' T /\
-	syncL Xi' Sigma Phi Gamma (P T) G ;
+spy(	syncL Xi' Sigma Phi Gamma (P T) G ) ;
 
 syncR Xi Sigma Phi Gamma (some P) := exists Xi' T,
 	someExpert Xi Xi' T /\
-	syncR Xi' Sigma Phi Gamma (P T) ;
+spy(	syncR Xi' Sigma Phi Gamma (P T) ) ;
 
 syncR Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
@@ -248,15 +260,58 @@ syncL Xi Sigma Phi Gamma (nu B T) G :=
 
 syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
-	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ;
+spy(	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ) ;
 
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+%%% Original code %%%
+%syncR Xi Sigma Phi Gamma (mu B T) :=
+%	member (mu B T) Phi /\
+%	initRExpert Xi ;
+%
+%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
+%	unfoldRExpert Xi Xi' /\
+%spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+
+%%% Attempt 1 %%%
+%% do this only when initR doesn't succeed? FPC? otherwise, ensure mutual exclusivity always?
+%% we run into unification problems with logic variables on the left... bad stuff
+%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
+%	(member (mu B T) Phi -> false) /\
+%	unfoldRExpert Xi Xi' /\
+%spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+
+%%% Attempt 2: replace both rules with a single one covering both %%%
+%% This doesn't prevent the second branch from entering, always
+%syncR Xi Sigma Phi Gamma (mu B T) :=
+%	(
+%	member (mu B T) Phi /\
+%	initRExpert Xi
+%	) \/ ( exists Xi',
+%	unfoldRExpert Xi Xi' /\
+%	spy( syncR Xi' Sigma Phi Gamma (B (mu B) T) )
+%	) ;
+
+%%%% Attempt 3 %%%
+%% same problem as 1
+%syncR Xi Sigma Phi Gamma (mu B T) :=
+%	member (mu B T) Phi /\
+%	initRExpert Xi ;
+%
+%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
+%	notmember (mu B T) Phi /\
+%	unfoldRExpert Xi Xi' /\
+%spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+
+%%% Atempt 4 %%%
 syncR Xi Sigma Phi Gamma (mu B T) :=
-	member (mu B T) Phi /\
+	member_at (mu B T) Phi tt /\
 	initRExpert Xi ;
 
 syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
+	member_at (mu B T) Phi ff /\
 	unfoldRExpert Xi Xi' /\
-	syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
+spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 %%%%%%%%%%%%%%%%%%%%
 % Structural rules %
@@ -271,33 +326,33 @@ async Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
 	member (kvp Idx C) Gamma /\
-	syncL Xi' Sigma Phi Gamma C G ;
+spy(	syncL Xi' Sigma Phi Gamma C G ) ;
 
 async Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
-	syncR Xi' Sigma Phi Gamma G ;
+spy(	syncR Xi' Sigma Phi Gamma G ) ;
 
 syncL Xi Sigma Phi Gamma C G := exists Xi',
 	positive C /\
 	releaseLExpert Xi Xi' /\
-	async Xi' Sigma Phi Gamma (C :: nil) G ;
+spy(	async Xi' Sigma Phi Gamma (C :: nil) G ) ;
 
 syncR Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Xi' Sigma Phi Gamma nil (unk G) ;
+spy(	async Xi' Sigma Phi Gamma nil (unk G) ) ;
 
 % Store
 
 async Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
 	negative C /\
 	storeLClerk Xi Xi' Idx /\
-	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
+spy(	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ) ;
 
 async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 	positive G /\
 	storeRClerk Xi Xi' /\
-	async Xi' Sigma Phi Delta Gamma (sto G).
+spy(	async Xi' Sigma Phi Delta Gamma (sto G) ).
 
 %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%
