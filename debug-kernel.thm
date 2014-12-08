@@ -1,19 +1,19 @@
-#include "logic.thm".
-#include "cert-sig.thm".
-#include "admin-fpc.thm".
-#include "times-examples-sig.thm".
-#include "kernel.thm".
+%#include "logic.thm".
+%#include "cert-sig.thm".
+%#include "admin-fpc.thm".
+%#include "times-examples-sig.thm".
+%#include "kernel.thm".
+
+% Probably need the kernel signature up here... and define this before the kernel proper
 
 % Design notes: we need to be able to assign names to fixed points in some way. A simple way is to provide one such list as an argument to some of the predicates. The problem is that if we do this, the list needs to be part of the information of the predicates that we wish to spy, thus affecting their signature: a very poor choice. Rather, we will make interested modules define a predicate establishing this mapping, and make use of this by call in our tracing functions.
 
-% I need to put this somewhere accessible (doesn't solve the problem yet!)
-Define member2 : A -> list A -> bool -> prop by
-	member2 X nil      ff ;
-	member2 X (X :: _) tt ;
-	member2 X (_ :: L) TF := member2 X L TF.
+%% I need to put this somewhere accessible (doesn't solve the problem yet!)
+%Define member2 : A -> list A -> bool -> prop by
+%	member2 X nil      ff ;
+%	member2 X (X :: _) tt ;
+%	member2 X (_ :: L) TF := member2 X L TF.
 
-Kind   fixp   type.
-Type   fixp   string -> (i -> bool) -> fixp.
 % Throughout, names of types, functions, variables... need to be given thought and clarity
 
 %is_nat IsNat /\ pretty_mu (IsNat argv) ((fixp "is_nat" IsNat) :: nil).
@@ -21,63 +21,66 @@ Type   fixp   string -> (i -> bool) -> fixp.
 %forall x y, is_nat IsNat /\ pretty_mu (IsNat (x ++ y ++ argv)) ((fixp "is_nat" IsNat) :: nil).
 %forall x y, is_nat IsNat /\ print_bool ((fixp "is_nat" IsNat) :: nil) (IsNat (x ++ y ++ x ++ argv)).
 
+% Define fixed_point : string -> (i -> bool)
+
 % Maybe add the single-argument case irrespective of argv to account for logic vars and non-unified argument list eigenvars... but it probably multievals and is thus messy
 Define print_argv_rec : i -> prop by
 	print_argv_rec (T ++ U) :=
 		printstr "," /\ print T /\
 		print_argv_rec U ;
 	print_argv_rec argv :=
-		printstr ")".
+		printstr "}".
 
 Define print_argv : i -> prop by
 	print_argv argv :=
-		printstr "(" /\
+		printstr "{" /\
 		print_argv_rec argv ;
 	print_argv (T ++ U) :=
-		printstr "(" /\ print T /\
+		printstr "{" /\ print T /\
 		print_argv_rec U.
 
 % maybe in logic.thm
 % pretty_i is also a possibility, but... optional? required? for now, without it
-Define print_bool : list fixp -> bool -> prop by
-	print_bool Lib tt := printstr "⊤" ;
-	print_bool Lib ff := printstr "⊥" ;
-	print_bool Lib (and P Q) :=
-		printstr "( " /\ print_bool Lib P /\ printstr " ∧ " /\ print_bool Lib Q /\ printstr " )" ;
-	print_bool Lib (or P Q) :=
-		printstr "( " /\ print_bool Lib P /\ printstr " ∨ " /\ print_bool Lib Q /\ printstr " )" ;
-	print_bool Lib (imp P Q) :=
-		printstr "( " /\ print_bool Lib P /\ printstr " ⊃ " /\ print_bool Lib Q /\ printstr " )" ;
-	print_bool Lib (all P) := forall x,
-		printstr "∀ " /\ print x /\ printstr "." /\ print_bool Lib (P x) ;
-	print_bool Lib (some P) := forall x,
-		printstr "∃ " /\ print x /\ printstr "." /\ print_bool Lib (P x) ;
-	print_bool Lib (eq P Q) :=
-		printstr "( " /\ print P /\ printstr " = " /\ print Q /\ printstr " )" ;
-	print_bool Lib (mu B T) := exists Name,
-		member (fixp Name (mu B)) Lib /\
+Define print_bool : bool -> prop by
+	print_bool tt := printstr "⊤" ;
+	print_bool ff := printstr "⊥" ;
+	print_bool (and P Q) :=
+		printstr "(" /\ print_bool P /\ printstr "∧" /\ print_bool Q /\ printstr ")" ;
+	print_bool (or P Q) :=
+		printstr "(" /\ print_bool P /\ printstr "∨" /\ print_bool Q /\ printstr ")" ;
+	print_bool (imp P Q) :=
+		printstr "(" /\ print_bool P /\ printstr "⊃" /\ print_bool Q /\ printstr ")" ;
+	print_bool (all P) := forall x,
+		printstr "∀" /\ print x /\ printstr "." /\ print_bool (P x) ;
+	print_bool (some P) := forall x,
+		printstr "∃" /\ print x /\ printstr "." /\ print_bool (P x) ;
+	print_bool (eq P Q) :=
+		printstr "(" /\ print P /\ printstr "=" /\ print Q /\ printstr ")" ;
+	print_bool (mu B T) := exists Name,
+		name_mnu Name (mu B') /\
+		(mu B) = (mu B') /\
 		printstr Name /\ print_argv T ;
-%	print_bool Lib (mu B T) :=
-%		member2 (fixp _ (mu B)) Lib ff /\
+%	print_bool (mu B T) :=
+%		member2 (fixp _ (mu B)) ff /\
 %		printstr "μ" /\ print_argv T ;
-	print_bool Lib (nu B T) := exists Name,
-		member (fixp Name (nu B)) Lib /\
+	print_bool (nu B T) := exists Name,
+		name_mnu Name (nu B) /\
 		printstr Name /\ print_argv T.
-%	print_bool Lib (nu B T) :=
-%		member2 (fixp _ (nu B)) Lib ff /\
+%	print_bool (nu B T) :=
+%		member2 (fixp _ (nu B)) ff /\
 %		printstr "ν" /\ print_argv T.
 
 % Much refactoring can be done here, possibly pattern extraction, etc.
-Define print_list_bool_rec : list fixp -> list bool -> prop by
-	print_list_bool_rec Lib nil ;
-	print_list_bool_rec Lib (First :: Rest) :=
-		printstr ", " /\ print_bool Lib First /\
-		print_list_bool_rec Lib Rest.
-Define print_list_bool : list fixp -> list bool -> prop by
-	print_list_bool Lib nil ;
-	print_list_bool Lib (First :: Rest) :=
-		print_bool Lib First /\
-		print_list_bool_rec Lib Rest.
+Define print_list_bool_rec : list bool -> prop by
+	print_list_bool_rec nil ;
+	print_list_bool_rec (First :: Rest) :=
+		printstr ", " /\ print_bool First /\
+		print_list_bool_rec Rest.
+Define print_list_bool : list bool -> prop by
+	print_list_bool nil ;
+	print_list_bool (First :: Rest) :=
+		print_bool First /\
+		print_list_bool_rec Rest.
 
 % This should be replaced with print_i when available/defined, refactored passing a print predicate coherent with the type? maybe, if possible!
 Define print_list_i_rec : list i -> prop by
@@ -92,28 +95,41 @@ Define print_list_i : list i -> prop by
 		print_list_i_rec Rest.
 
 % print_idx possibly missing
-Define print_ctx : list fixp -> ctx -> prop by
-	print_ctx Lib (kvp Idx Form) :=
-		printstr "<" /\ print Idx /\ printstr "," /\ print_bool Lib Form /\ printstr ">".
-Define print_list_ctx_rec : list fixp -> list ctx -> prop by
-	print_list_ctx_rec Lib nil ;
-	print_list_ctx_rec Lib (First :: Rest) :=
-		printstr ", " /\ print_ctx Lib First /\
-		print_list_ctx_rec Lib Rest.
-Define print_list_ctx : list fixp -> list ctx -> prop by
-	print_list_ctx Lib nil ;
-	print_list_ctx Lib (First :: Rest) :=
-		print_ctx Lib First /\
-		print_list_ctx_rec Lib Rest.
+Define print_ctx : ctx -> prop by
+	print_ctx (kvp Idx Form) :=
+		printstr "<" /\ print Idx /\ printstr "," /\ print_bool Form /\ printstr ">".
+Define print_list_ctx_rec : list ctx -> prop by
+	print_list_ctx_rec nil ;
+	print_list_ctx_rec (First :: Rest) :=
+		printstr ", " /\ print_ctx First /\
+		print_list_ctx_rec Rest.
+Define print_list_ctx : list ctx -> prop by
+	print_list_ctx  nil ;
+	print_list_ctx (First :: Rest) :=
+		print_ctx First /\
+		print_list_ctx_rec Rest.
 
 % Indent! (add level of indentation as attribute)
+% The thing to do here, rather than indent and modify everything being spied (this should be transparent) would be computing a checksup and using it to indicate nesting
 % Also signal when we are leaving, and modularize
-Define spy_syncR : list fixp -> cert -> list i -> list bool -> list ctx -> bool -> prop by
-	spy_syncR Lib Xi Sigma Phi Gamma Goal :=
-		printstr "**  syncR  *********************************************************************\n" /\
-		%Ξ
-		printstr "  Σ: " /\ print_list_i        Sigma /\ printstr "\n" /\
-		printstr "  Φ: " /\ print_list_bool Lib Phi   /\ printstr "\n" /\
-		printstr "  Γ: " /\ print_list_ctx  Lib Gamma /\ printstr "\n" /\
-		printstr "  Ω: " /\ print_bool      Lib Goal  /\ printstr "\n" /\
-		syncR Xi Sigma Phi Gamma Goal.
+%Define spy_syncR : cert -> list i -> list bool -> list ctx -> bool -> prop by
+%	spy_syncR Xi Sigma Phi Gamma Goal :=
+%		printstr "**  syncR  *********************************************************************\n" /\
+%		%Ξ
+%		printstr "  Σ: " /\ print_list_i        Sigma /\ printstr "\n" /\
+%		printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
+%		printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
+%		printstr "  Ω: " /\ print_bool      Goal  /\ printstr "\n" /\
+%		syncR Xi Sigma Phi Gamma Goal /\
+%		printstr "++  syncR  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" ;
+%	spy_syncR Xi Sigma Phi Gamma Goal :=
+%		printstr "--  syncR  ---------------------------------------------------------------------\n" /\
+%		false.
+
+Define print_goal : goal -> prop by
+	print_goal (unk P) :=
+		printstr "?-" /\ print_bool P ;
+	print_goal (sto P) :=
+		printstr "Γ-" /\ print_bool P ;
+	print_goal (frz P) :=
+		printstr "Φ-" /\ print_bool P.

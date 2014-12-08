@@ -1,4 +1,6 @@
+#include "kernel-sig.thm".
 #include "debug.thm".
+#include "debug-kernel.thm".
 
 % Notes:
 %  - Ensure soundness of immediate induction!!
@@ -9,15 +11,7 @@
 %  - The other point of contention: list i vs. i for fixed points.
 %  - Naming conventions for (co)induction clerks/experts may be improved.
 
-% The one formula on the RHS may be "unknown" (yet to be processed, it could be
-% anything), demonstrably positive and therefore "stored," or already a "frozen"
-% greatest fixed point.
-Kind   goal   type.
-Type   unk, sto, frz   bool -> goal.
-
-% An indexed context of formulas (key-value pair) for Gamma
-Kind   ctx   type.
-Type   kvp   idx -> bool -> ctx.
+% Do we need the kernel-sig, or just add debug-kernel after the declarations?
 
 %%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 %Define notmember : bool -> list bool -> prop by
@@ -135,7 +129,11 @@ by
 % Zones:       Xi      Sigma     Phi          Gamma       Delta        Goal
 Define async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
        syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
-       syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop by
+       syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop,
+
+   spy_async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
+   spy_syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
+   spy_syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
@@ -221,35 +219,35 @@ async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 
 syncR Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-spy(	syncR Xi Sigma Phi Gamma P ) /\
-spy(	syncR Xi Sigma Phi Gamma Q ) ;
+	spy_syncR Xi Sigma Phi Gamma P /\
+	spy_syncR Xi Sigma Phi Gamma Q ;
 
 % is this use of OR ok? separate clauses?
 syncR Xi Sigma Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ spy( syncR Xi Sigma Phi Gamma P )) \/
-	(orExpert Xi Xi' right /\ spy( syncR Xi Sigma Phi Gamma Q )) ;
+	(orExpert Xi Xi' left  /\ spy_syncR Xi Sigma Phi Gamma P) \/
+	(orExpert Xi Xi' right /\ spy_syncR Xi Sigma Phi Gamma Q) ;
 
 syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
-spy(	syncL Xi Sigma Phi Gamma Q G ) /\
-spy(	syncR Xi Sigma Phi Gamma   P ) ;
+	spy_syncL Xi Sigma Phi Gamma Q G /\
+	spy_syncR Xi Sigma Phi Gamma   P ;
 
 % Specular left implication
 syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert' Xi Xi' Xi'' /\
-spy(	syncR Xi Sigma Phi Gamma   P ) /\
-spy(	syncL Xi Sigma Phi Gamma Q G ) ;
+	spy_syncR Xi Sigma Phi Gamma   P /\
+	spy_syncL Xi Sigma Phi Gamma Q G  ;
 
 syncR Xi Sigma Phi Gamma tt :=
 	ttExpert Xi ;
 
 syncL Xi Sigma Phi Gamma (all P) G := exists Xi' T,
 	allExpert Xi Xi' T /\
-spy(	syncL Xi' Sigma Phi Gamma (P T) G ) ;
+	spy_syncL Xi' Sigma Phi Gamma (P T) G ;
 
 syncR Xi Sigma Phi Gamma (some P) := exists Xi' T,
 	someExpert Xi Xi' T /\
-spy(	syncR Xi' Sigma Phi Gamma (P T) ) ;
+	spy_syncR Xi' Sigma Phi Gamma (P T) ;
 
 syncR Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
@@ -260,7 +258,7 @@ syncL Xi Sigma Phi Gamma (nu B T) G :=
 
 syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
-spy(	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ) ;
+	spy_syncL Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 %%% Original code %%%
@@ -270,7 +268,7 @@ spy(	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ) ;
 %
 %syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 %	unfoldRExpert Xi Xi' /\
-%spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+%spy_kernel(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
 
 %%% Attempt 1 %%%
 %% do this only when initR doesn't succeed? FPC? otherwise, ensure mutual exclusivity always?
@@ -278,7 +276,7 @@ spy(	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ) ;
 %syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 %	(member (mu B T) Phi -> false) /\
 %	unfoldRExpert Xi Xi' /\
-%spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+%spy_kernel(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
 
 %%% Attempt 2: replace both rules with a single one covering both %%%
 %% This doesn't prevent the second branch from entering, always
@@ -288,7 +286,7 @@ spy(	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ) ;
 %	initRExpert Xi
 %	) \/ ( exists Xi',
 %	unfoldRExpert Xi Xi' /\
-%	spy( syncR Xi' Sigma Phi Gamma (B (mu B) T) )
+%	spy_kernel( syncR Xi' Sigma Phi Gamma (B (mu B) T) )
 %	) ;
 
 %%%% Attempt 3 %%%
@@ -300,7 +298,7 @@ spy(	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ) ;
 %syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 %	notmember (mu B T) Phi /\
 %	unfoldRExpert Xi Xi' /\
-%spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+%spy_kernel(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
 
 %%% Atempt 4 %%%
 syncR Xi Sigma Phi Gamma (mu B T) :=
@@ -310,7 +308,7 @@ syncR Xi Sigma Phi Gamma (mu B T) :=
 syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	member_at (mu B T) Phi ff /\
 	unfoldRExpert Xi Xi' /\
-spy(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
+	spy_syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 %%%%%%%%%%%%%%%%%%%%
@@ -326,33 +324,66 @@ async Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
 	member (kvp Idx C) Gamma /\
-spy(	syncL Xi' Sigma Phi Gamma C G ) ;
+	spy_syncL Xi' Sigma Phi Gamma C G ;
 
 async Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
-spy(	syncR Xi' Sigma Phi Gamma G ) ;
+	spy_syncR Xi' Sigma Phi Gamma G ;
 
 syncL Xi Sigma Phi Gamma C G := exists Xi',
 	positive C /\
 	releaseLExpert Xi Xi' /\
-spy(	async Xi' Sigma Phi Gamma (C :: nil) G ) ;
+	async Xi' Sigma Phi Gamma (C :: nil) G ;
 
 syncR Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-spy(	async Xi' Sigma Phi Gamma nil (unk G) ) ;
+	async Xi' Sigma Phi Gamma nil (unk G) ;
 
 % Store
 
 async Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
 	negative C /\
 	storeLClerk Xi Xi' Idx /\
-spy(	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ) ;
+	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
 
 async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 	positive G /\
 	storeRClerk Xi Xi' /\
-spy(	async Xi' Sigma Phi Delta Gamma (sto G) ).
+	async Xi' Sigma Phi Delta Gamma (sto G) ;
+
+%%%%%%%%%%%%%%%
+% Spy harness %
+%%%%%%%%%%%%%%%
+
+spy_async Xi Sigma Phi Gamma Delta Goal :=
+	printstr "**  syncR  *********************************************************************\n" /\
+	%Ξ
+	printstr "  Σ: " /\ print_list_i        Sigma /\ printstr "\n" /\
+	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
+	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
+	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\
+	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
+	spy_noheader (async Xi Sigma Phi Gamma Delta Goal) ;
+
+spy_syncL Xi Sigma Phi Gamma Delta Goal :=
+	printstr "**  syncR  *********************************************************************\n" /\
+	%Ξ
+	printstr "  Σ: " /\ print_list_i        Sigma /\ printstr "\n" /\
+	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
+	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
+	printstr "  Δ: " /\ print_bool      Delta /\ printstr "\n" /\
+	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
+	spy_noheader (syncL Xi Sigma Phi Gamma Delta Goal) ;
+
+spy_syncR Xi Sigma Phi Gamma Goal :=
+	printstr "**  syncR  *********************************************************************\n" /\
+	%Ξ
+	printstr "  Σ: " /\ print_list_i        Sigma /\ printstr "\n" /\
+	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
+	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
+	printstr "  Ω: " /\ print_bool      Goal  /\ printstr "\n" /\
+	spy_noheader (syncR Xi Sigma Phi Gamma Goal).
 
 %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%
