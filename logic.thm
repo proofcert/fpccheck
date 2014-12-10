@@ -40,25 +40,3 @@ Define positive : bool -> prop by
   positive (some _) ;
   positive (eq _ _) ;
   positive (mu _ _).
-
-%%%%%%%%%%%%%%%%%%%
-% Pretty printers %
-%%%%%%%%%%%%%%%%%%%
-
-% print_bool and friends should go here, too
-
-% Maybe add the single-argument case irrespective of argv to account for logic vars and non-unified argument list eigenvars... but it probably multievals and is thus messy
-Define print_argv_rec : i -> prop by
-	print_argv_rec (T ++ U) :=
-		printstr "," /\ print T /\
-		print_argv_rec U ;
-	print_argv_rec argv :=
-		printstr "}".
-
-Define print_argv : i -> prop by
-	print_argv argv :=
-		printstr "{" /\
-		print_argv_rec argv ;
-	print_argv (T ++ U) :=
-		printstr "{" /\ print T /\
-		print_argv_rec U.

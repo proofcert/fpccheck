@@ -9,18 +9,13 @@ Define copy_i : list imap -> i -> i -> prop by
 	%
 	copy_i Theta X U := member (imap X U) Theta.
 
-%Define is_i : i -> prop by
-%	is_i argv ;
-%	is_i (_ ++ _) ;
-%	is_i zero ;
-%	is_i (succ _).
-
-%Define print_i : i -> prop by
-%	print_i X        := print_argv X ;
-%	print_i zero     := print 0 ;
-%	print_i (succ N) := print_i N /\ printstr "+" ;
-%	print_i X        := (is_i X -> false) /\ print X.
-% what do we do with logic variables and eigenvariables? sure, we want to print them, but we don't want backtracking with constructors going through catch-alls!
+% Tentative helper predicates:
+%  - is_i
+%  - print_i
+% In both cases the problem is not how to treat all userland constructors
+% (including argument lists!), but what to do with both eigenvariables and
+% logic variables without their cases becoming catch-alls causing backtracking
+% and a multiplicity of solutions, which we don't want.
 
 Define name_mnu : string -> (i -> bool) -> prop by
 	name_mnu "times" Times := times Times ;

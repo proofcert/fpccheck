@@ -1,0 +1,75 @@
+%%%%%%%%%%%%%%%%%%%
+% Pretty printers %
+%%%%%%%%%%%%%%%%%%%
+
+% Argument lists are defined on type i but special and should only show up as
+% the arguments of fixed points.
+% [This predicate should be relocated, see print_i.]
+Define print_argv_rec : i -> prop by
+	print_argv_rec (T ++ U) :=
+		printstr "," /\ print T /\
+		print_argv_rec U ;
+	print_argv_rec argv :=
+		printstr "}".
+Define print_argv : i -> prop by
+	print_argv argv :=
+		printstr "{" /\
+		print_argv_rec argv ;
+	print_argv (T ++ U) :=
+		printstr "{" /\ print T /\
+		print_argv_rec U.
+
+% Print a logic formula. Open issues:
+%  - A compact print_i predicate would benefit readability; it should depend
+%    exclusively on the i-constructors declared in each set of modules.
+%  - Ways to pretty-print eigenvariables and logic variables without them
+%    becoming catch-alls and creating backtracking points.
+%  - Similarly, secondary branches to print unnamed fixed points (optional,
+%    though it imposes further obligations on test battery modules).
+Define print_bool : bool -> prop by
+	print_bool tt := printstr "⊤" ;
+	print_bool ff := printstr "⊥" ;
+	print_bool (and P Q) :=
+		printstr "(" /\ print_bool P /\ printstr "∧" /\ print_bool Q /\ printstr ")" ;
+	print_bool (or P Q) :=
+		printstr "(" /\ print_bool P /\ printstr "∨" /\ print_bool Q /\ printstr ")" ;
+	print_bool (imp P Q) :=
+		printstr "(" /\ print_bool P /\ printstr "⊃" /\ print_bool Q /\ printstr ")" ;
+	print_bool (all P) := forall x,
+		printstr "∀" /\ print x /\ printstr "." /\ print_bool (P x) ;
+	print_bool (some P) := forall x,
+		printstr "∃" /\ print x /\ printstr "." /\ print_bool (P x) ;
+	print_bool (eq P Q) :=
+		printstr "(" /\ print P /\ printstr "=" /\ print Q /\ printstr ")" ;
+	print_bool (mu B T) := exists Name,
+		name_mnu Name (mu B') /\
+		(mu B) = (mu B') /\
+		printstr Name /\ print_argv T ;
+	print_bool (nu B T) := exists Name,
+		name_mnu Name (nu B) /\
+		printstr Name /\ print_argv T.
+
+% The following list printers follow a very clear pattern and should be
+% modularized if possible (while retaining type-specific element printers).
+Define print_list_bool_rec : list bool -> prop by
+	print_list_bool_rec nil ;
+	print_list_bool_rec (First :: Rest) :=
+		printstr ", " /\ print_bool First /\
+		print_list_bool_rec Rest.
+Define print_list_bool : list bool -> prop by
+	print_list_bool nil ;
+	print_list_bool (First :: Rest) :=
+		print_bool First /\
+		print_list_bool_rec Rest.
+
+% The following would make use of print_i
+Define print_list_i_rec : list i -> prop by
+	print_list_i_rec nil ;
+	print_list_i_rec (First :: Rest) :=
+		printstr ", " /\ print First /\
+		print_list_i_rec Rest.
+Define print_list_i : list i -> prop by
+	print_list_i nil ;
+	print_list_i (First :: Rest) :=
+		print First /\
+		print_list_i_rec Rest.

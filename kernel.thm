@@ -10,44 +10,8 @@
 %   Rule out if possible the involvement of logic variables.)
 %  - The other point of contention: list i vs. i for fixed points.
 %  - Naming conventions for (co)induction clerks/experts may be improved.
-
-% Do we need the kernel-sig, or just add debug-kernel after the declarations?
-
-%%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
-%Define notmember : bool -> list bool -> prop by
-%	notmember Form List := member Form List -> false.
-Define member_at : bool -> list bool -> bool -> prop by
-	member_at _ nil ff ;
-	member_at Elt (Elt :: _) tt ;
-	member_at Elt (Elt' :: List) Memb := member_at Elt List Memb.
-
-Define join : list A -> list A -> list A -> prop by
-	join nil K K ;
-	join (X :: L) K M :=
-		(
-			member X L /\
-			join L K M
-		)
-		\/
-		(
-			(member X L -> false) /\ exists M',
-			join L K M' /\
-			M = (X :: M')
-		).
-
-Define clean_i : list i -> list i -> prop by
-	clean_i nil nil ;
-	clean_i (X :: L) M :=
-		member X L /\ clean_i L M ;
-	clean_i (X :: L) (X :: M) :=
-		(member X L -> false) /\ clean_i L M.
-
-% No repetitions? In that case, ok
-Define delete : i -> list i -> list i -> prop by
-	delete X nil nil ;
-	delete X (X :: L) L ;
-	delete X (Y :: L) M := delete X L M.
-%%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
+%  - Review module system and needed signatures, esp. necessity for a separate
+%    kernel-sig vs. simple addition of debug-kernel after declarations, etc.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Immediate invariants %
@@ -157,7 +121,7 @@ by
 Define async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
        syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
        syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop,
-
+% Spies (replace standard calls, i.e. prefix spy_, where so desired)
    spy_async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
    spy_syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
    spy_syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop by
@@ -288,7 +252,6 @@ syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	spy_syncL Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
-%%% Original code %%%
 syncR Xi Sigma Phi Gamma (mu B T) :=
 	member (mu B T) Phi /\
 	initRExpert Xi ;
@@ -296,56 +259,6 @@ syncR Xi Sigma Phi Gamma (mu B T) :=
 syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
 	spy_syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
-
-%%% Attempt 1 %%%
-%% do this only when initR doesn't succeed? FPC? otherwise, ensure mutual exclusivity always?
-%% we run into unification problems with logic variables on the left... bad stuff
-%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
-%	(member (mu B T) Phi -> false) /\
-%	unfoldRExpert Xi Xi' /\
-%spy_kernel(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
-
-%%% Attempt 2: replace both rules with a single one covering both %%%
-%% This doesn't prevent the second branch from entering, always
-%syncR Xi Sigma Phi Gamma (mu B T) :=
-%	(
-%	member (mu B T) Phi /\
-%	initRExpert Xi
-%	) \/ ( exists Xi',
-%	unfoldRExpert Xi Xi' /\
-%	spy_kernel( syncR Xi' Sigma Phi Gamma (B (mu B) T) )
-%	) ;
-
-%%%% Attempt 3 %%%
-%% same problem as 1
-%syncR Xi Sigma Phi Gamma (mu B T) :=
-%	member (mu B T) Phi /\
-%	initRExpert Xi ;
-%
-%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
-%	notmember (mu B T) Phi /\
-%	unfoldRExpert Xi Xi' /\
-%spy_kernel(	syncR Xi' Sigma Phi Gamma (B (mu B) T) ) ;
-
-%%%% Atempt 4 %%%
-%syncR Xi Sigma Phi Gamma (mu B T) :=
-%	member_at (mu B T) Phi tt /\
-%	initRExpert Xi ;
-%
-%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
-%	member_at (mu B T) Phi ff /\
-%	unfoldRExpert Xi Xi' /\
-%	spy_syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
-
-%%% Attempt 5 %%%
-%syncR Xi Sigma Phi Gamma (mu B T) :=
-%	member (mu B T) Phi /\
-%	initRExpert Xi ;
-%
-%syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
-%	((member (mu B T) Phi) -> false) /\
-%	unfoldRExpert Xi Xi' /\
-%	spy_syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 %%%%%%%%%%%%%%%%%%%%
@@ -393,9 +306,11 @@ async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 % Spy harness %
 %%%%%%%%%%%%%%%
 
+% Certificates Ξ are currently not shown, may need specific pretty-printers
+% It would be interesting to identify via checksum both entry and exit points
+
 spy_async Xi Sigma Phi Gamma Delta Goal :=
 	printstr "**  async  *********************************************************************\n" /\
-	%Ξ
 	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
 	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
 	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
@@ -405,7 +320,6 @@ spy_async Xi Sigma Phi Gamma Delta Goal :=
 
 spy_syncL Xi Sigma Phi Gamma Delta Goal :=
 	printstr "**  syncL  *********************************************************************\n" /\
-	%Ξ
 	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
 	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
 	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
@@ -415,7 +329,6 @@ spy_syncL Xi Sigma Phi Gamma Delta Goal :=
 
 spy_syncR Xi Sigma Phi Gamma Goal :=
 	printstr "**  syncR  *********************************************************************\n" /\
-	%Ξ
 	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
 	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
 	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\

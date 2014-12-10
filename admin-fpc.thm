@@ -97,8 +97,8 @@ Define gt : idx -> idx -> prop by
 %----------------------------------%
 
 % [Added]
-Define ffClerk : cert -> prop by ffClerk _ := 1 = 2.
-Define ttClerk : cert -> cert -> prop by ttClerk _ _ := 1 = 2.
+Define ffClerk : cert -> prop by ffClerk _ := false.
+Define ttClerk : cert -> cert -> prop by ttClerk _ _ := false.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert
@@ -125,7 +125,7 @@ Define eqClerk : cert -> cert -> prop by
 %---------------------------------%
 
 % [Added]
-Define ttExpert : cert -> prop by ttExpert _ := 1 = 2.
+Define ttExpert : cert -> prop by ttExpert _ := false.
 
 Define andExpert : cert -> cert -> cert -> prop by
 	andExpert Cert Cert Cert
@@ -144,7 +144,7 @@ Define orExpert : cert -> cert -> choice -> prop by
 	.
 
 % "Standard-order" implication is forbidden
-Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := 1 = 2.
+Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 
 % Instead, we will always evaluate the antecedent first, looking to fill some of
 % the holes in the proof and declutter before moving on with the more
@@ -205,7 +205,7 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 
 % [Added]
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	coindClerk _ _ _ _ := 1 = 2.
+	coindClerk _ _ _ _ := false.
 
 %----------------------%
 % Fixed points: unfold %
@@ -226,10 +226,10 @@ Define unfoldRExpert : cert -> cert -> prop by
 	.
 
 % Greatest fixed points are never unfolded
-Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := 1 = 2.
+Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := false.
 
 % [Adding this to see if it helps]
-Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := 1 = 2.
+Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 
 %----------------------------------%
 % Fixed points: freeze and initial %
@@ -248,8 +248,8 @@ Define initRExpert : cert -> prop by
 	.
 
 % [Added: greatest fixed points not supported]
-Define freezeRClerk : cert -> cert -> prop by freezeRClerk _ _ := 1 = 2.
-Define initLExpert : cert -> prop by initLExpert _ := 1 = 2.
+Define freezeRClerk : cert -> cert -> prop by freezeRClerk _ _ := false.
+Define initLExpert : cert -> prop by initLExpert _ := false.
 
 %------------------%
 % Structural rules %
@@ -287,4 +287,4 @@ Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert
 	:= println "releaseLExpert"
 	.
-Define releaseRExpert : cert -> cert -> prop by releaseRExpert _ _ := 1 = 2.
+Define releaseRExpert : cert -> cert -> prop by releaseRExpert _ _ := false.
