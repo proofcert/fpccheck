@@ -1,0 +1,21 @@
+#include "logic.thm".               % First-order logic syntax
+#include "cert-sig.thm".            % Certificate declarations
+#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
+#include "times-examples-sig.thm".  % Concrete signature (needed before kernel!)
+#include "kernel.thm".              % Kernel
+#include "times-examples.thm".      % Concrete examples
+
+%#assert times_zero
+%	(autoinduce z z z (dummy\ start z z z)).
+
+% times_total needs determinacy of plus
+%#assert times_total
+%	(autoinduce z z z (dummy\ start z z z)).
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+#assert times_total'
+	(autoinduce z z z (dummy\ start z z z)).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
+
+% Needs something else to work
+%#assert times_succ
+%	(autoinduce z z z (dummy\ start z z (s z))).

@@ -1,0 +1,45 @@
+#include "template.thm".
+
+Define times_zero : cert -> prop by
+	times_zero Cert :=
+		times Times /\ is_nat IsNat /\
+		prove Cert
+			(all N\ (imp
+				(IsNat (N ++ argv))
+				(Times (N ++ zero ++ zero ++ argv)))).
+
+Define times_succ : cert -> prop by
+	times_succ Cert :=
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		prove Cert 
+			(all K\ all M\ all N\ (imp
+				(IsNat (K ++ argv)) (imp
+				(Times (K ++ (succ M) ++ N ++ argv))
+				(some KM\ (and
+					(Times (K ++ M ++ KM ++ argv))
+					(Plus (K ++ KM ++ N))))))).
+
+Define times_total : cert -> prop by
+	times_total Cert :=
+		times Times /\ is_nat IsNat /\
+		is_total Cert Times IsNat.
+
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+% Revisiting and adding necessary assumptions through a revised totality
+Define times_total' : cert -> prop by
+	times_total' Cert :=
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		total' Plus IsNat PlusTotal /\
+		total' Times IsNat TimesTotal /\
+		prove_with_lemmas Cert
+			TimesTotal
+			((lemma "plus_total" PlusTotal) :: nil).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
+
+Define times_det : (i -> bool) -> cert -> prop by
+	times_det Times Cert :=
+		times Times /\ 
+		is_deterministic Cert Times.
+
+%times_comm
+%times_assoc

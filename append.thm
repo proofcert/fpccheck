@@ -1,26 +1,16 @@
-% Elements
+#include "list.thm".
+
+% Some elements to build concrete lists
 Type   a, b, c, d, e, f   i.
-% Lists of elements
-Type   empty              i.
-Type   cons               i -> i -> i.
 
 Define append : (i -> bool) -> prop by
 	append (mu A\Args\
 		(some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv))
 		(or
 			(and
-				(eq L1 empty)
+				(eq L1 null)
 				(eq L2 L3))
 			(some N\ some L1'\ some L3'\ (and (and
 				(eq L1 (cons N L1'))
 				(eq L3 (cons N L3')))
 				(A (L1' ++ L2 ++ L3' ++ argv)))))))).
-
-Define is_list : (i -> bool) -> prop by
-	is_list (mu I\Args\
-		(some L\ (and (eq Args (L ++ argv))
-		(or
-			(eq L empty)
-			(some N\ some L'\ (and
-				(eq L (cons N L'))
-				(I (L' ++ argv)))))))).

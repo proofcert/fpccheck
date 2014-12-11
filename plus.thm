@@ -1,6 +1,4 @@
-% Natural numbers
-Type   zero   i.
-Type   succ   i -> i.
+#include "nat.thm".
 
 Define plus : (i -> bool) -> prop by
 	plus (mu Pred\Args\
@@ -13,12 +11,3 @@ Define plus : (i -> bool) -> prop by
 				(eq K (succ K'))
 				(eq N (succ N')))
 				(Pred (K' ++ M ++ N' ++ argv)))))))).
-
-Define is_nat : (i -> bool) -> prop by
-	is_nat (mu Pred\Args\
-		(some N\ (and (eq Args (N ++ argv))
-		(or
-			(eq N zero)
-			(some N'\ (and
-				(eq N (succ N'))
-				(Pred (N' ++ argv)))))))).
