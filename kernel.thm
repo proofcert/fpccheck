@@ -17,6 +17,10 @@ Type   unk, sto, frz   bool -> goal.
 Kind   ctx   type.
 Type   kvp   idx -> bool -> ctx.
 
+% A named context for lemmas
+Kind   lemma   type.
+Type   lemma   string -> bool -> lemma.
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Immediate invariants %
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,168 +125,142 @@ by
 % to muLJF are noted.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Zones:       Xi      Sigma     Phi          Gamma       Delta        Goal
-Define async : cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
-       syncL : cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
-       syncR : cert -> list i -> list bool -> list ctx              -> bool -> prop by
+% Zones:       Lambda        Xi      Sigma     Phi          Gamma       Delta        Goal
+Define async : list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
+       syncL : list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
+       syncR : list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
 %%%%%%%%%%%%%%%%%%%%%%
 
-async Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
+async Lambda Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
 	andClerk Xi Xi' /\
-	async Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
+	async Lambda Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
 
-async Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
+async Lambda Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
 	orClerk Xi Xi' Xi'' /\
-	async Xi'  Sigma Phi Gamma (P :: Delta) G /\
-	async Xi'' Sigma Phi Gamma (Q :: Delta) G ;
+	async Lambda Xi'  Sigma Phi Gamma (P :: Delta) G /\
+	async Lambda Xi'' Sigma Phi Gamma (Q :: Delta) G ;
 
-async Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
 	impClerk Xi Xi' /\
-	async Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
+	async Lambda Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
 
-async Xi Sigma Phi Gamma (ff :: Delta) G :=
+async Lambda Xi Sigma Phi Gamma (ff :: Delta) G :=
 	ffClerk Xi ;
 
-async Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
+async Lambda Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
 	ttClerk Xi Xi' /\
-	async Xi' Sigma Phi Gamma Delta G ;
+	async Lambda Xi' Sigma Phi Gamma Delta G ;
 
-async Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, async (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
+	forall x, async Lambda (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
 
-async Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
+async Lambda Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
 	someClerk Xi Xi' /\
-	forall x, async (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
+	forall x, async Lambda (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
 
 % This can wreak all kinds of havoc in the structure of Sigma: beware!
-async Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
+async Lambda Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
-	((P = Q) -> async Xi Sigma Phi Gamma Delta G) ;
+	((P = Q) -> async Lambda Xi Sigma Phi Gamma Delta G) ;
 
-async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
+async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	unfoldLClerk Xi Xi' /\
-	async Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
+	async Lambda Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
 
 % As for coinduction, pay extra attention to what is preserved and modified in
 % the context and the different buckets of formulas, as this is likely to be
 % sensitive to extensions in the kernel.
-async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
+async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
-	forall x, async (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	          async Lambda  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
+	forall x, async Lambda (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 % Immediate induction. The main issues are the treatment of Sigma and missing
 % sets of formulas for the invariant. Critically, this addition to the trusted
 % kernel (and the computed invariants) must be provably correct.
-async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
+async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
 	indInvariant' Sigma Delta G T S /\
-	forall x, async (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	forall x, async Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
-async Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
+async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
-	async Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
+	async Lambda Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
 
-async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	unfoldRClerk Xi Xi' /\
-	async Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
+	async Lambda Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
 
 % Same open questions as indClerk re: Sigma. Also note and test those sets of
 % formulas that are discarded and kept, respectively.
-async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
+async Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          async  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
-	forall x, async (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
+	          async Lambda  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
+	forall x, async Lambda (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
 % Immediate coinduction: not implemented
 
-async Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
+	async Lambda Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %
 %%%%%%%%%%%%%%%%%%%%%
 
-syncR Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
+syncR Lambda Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-	syncR Xi Sigma Phi Gamma P /\
-	syncR Xi Sigma Phi Gamma Q ;
+	syncR Lambda Xi Sigma Phi Gamma P /\
+	syncR Lambda Xi Sigma Phi Gamma Q ;
 
-syncR Xi Sigma Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ syncR Xi Sigma Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ syncR Xi Sigma Phi Gamma Q) ;
+syncR Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi',
+	(orExpert Xi Xi' left  /\ syncR Lambda Xi Sigma Phi Gamma P) \/
+	(orExpert Xi Xi' right /\ syncR Lambda Xi Sigma Phi Gamma Q) ;
 
-syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
-	syncL Xi Sigma Phi Gamma Q G /\
-	syncR Xi Sigma Phi Gamma   P ;
+	syncL Lambda Xi Sigma Phi Gamma Q G /\
+	syncR Lambda Xi Sigma Phi Gamma   P ;
 
 % Specular left implication
-syncL Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert' Xi Xi' Xi'' /\
-	syncR Xi Sigma Phi Gamma   P /\
-	syncL Xi Sigma Phi Gamma Q G ;
+	syncR Lambda Xi Sigma Phi Gamma   P /\
+	syncL Lambda Xi Sigma Phi Gamma Q G ;
 
-syncR Xi Sigma Phi Gamma tt :=
+syncR Lambda Xi Sigma Phi Gamma tt :=
 	ttExpert Xi ;
 
-syncL Xi Sigma Phi Gamma (all P) G := exists Xi' T,
+syncL Lambda Xi Sigma Phi Gamma (all P) G := exists Xi' T,
 	allExpert Xi Xi' T /\
-	syncL Xi' Sigma Phi Gamma (P T) G ;
+	syncL Lambda Xi' Sigma Phi Gamma (P T) G ;
 
-syncR Xi Sigma Phi Gamma (some P) := exists Xi' T,
+syncR Lambda Xi Sigma Phi Gamma (some P) := exists Xi' T,
 	someExpert Xi Xi' T /\
-	syncR Xi' Sigma Phi Gamma (P T) ;
+	syncR Lambda Xi' Sigma Phi Gamma (P T) ;
 
-syncR Xi Sigma Phi Gamma (eq T T) :=
+syncR Lambda Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
-syncL Xi Sigma Phi Gamma (nu B T) G :=
+syncL Lambda Xi Sigma Phi Gamma (nu B T) G :=
 	member (nu B T) Phi /\
 	initLExpert Xi ;
 
-syncL Xi Sigma Phi Gamma (nu B T) G := exists Xi',
+syncL Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
-	syncL Xi' Sigma Phi Gamma (B (nu B) T) G ;
+	syncL Lambda Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
-syncR Xi Sigma Phi Gamma (mu B T) :=
+syncR Lambda Xi Sigma Phi Gamma (mu B T) :=
 	member (mu B T) Phi /\
 	initRExpert Xi ;
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
-% Let's play around with lemmas a bit... after the regular initR
-% Maybe this is too simple for some cases and I need to have several linked
-% premises, all at the same time with unification gradually filling in the gaps
-% in a consistent way, but for now this will allow me to test with minimum
-% hassle
-% (moving z up here to try this out, just in case)
-% beware of loops!
-syncR Xi Sigma Phi Gamma (mu B T) := forall z, exists IsNat Plus Phi',
-	println "** Trying to apply lemma..." /\
-	% 0. No membership needed (in fact, no membership allowed would be best)
-	%member (mu B T) Phi /\ % it would be best to negate this to avoid looping
-	% 1. Take as an inlined lemma the totality of plus
-	is_nat IsNat /\ member (IsNat (X ++ argv)) Phi /\
-	println "** is_nat fetched, membership verified" /\
-	% 2. If the conditions are satisfied, augment "context" w/ don't care index
-plus Plus /\ Phi' = ((Plus (X ++ Y ++ z ++ argv)) :: Phi) /\
-	% 1.5. Well, check that the goal agrees to avoid pointless uses!
-	%(see equality at the end)
-	%
-	println "** lemma added, ready to retry" /\
-	% N. Finish the job
-	initRExpert Xi /\
-	println "** expert agrees, launch!" /\
-	(((Plus (X ++ Y ++ z ++ argv)) = (mu B T)) -> syncR Xi Sigma Phi' Gamma (mu B T));
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
-syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
+syncR Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
-	syncR Xi' Sigma Phi Gamma (B (mu B) T) ;
+	syncR Lambda Xi' Sigma Phi Gamma (B (mu B) T) ;
 
 %%%%%%%%%%%%%%%%%%%%
 % Structural rules %
@@ -292,38 +270,76 @@ syncR Xi Sigma Phi Gamma (mu B T) := exists Xi',
 % fixed points, which are treated separately.
 %   Affected rules: releaseL, storeL, storeR.
 
+% Store
+% [I just moved this up, it probably needs to go before decide...]
+
+async Lambda Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
+	negative C /\
+	storeLClerk Xi Xi' Idx /\
+	async Lambda Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
+
+async Lambda Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
+	positive G /\
+	storeRClerk Xi Xi' /\
+	async Lambda Xi' Sigma Phi Delta Gamma (sto G) ;
+
 % Important: the chosen formula never leaves Gamma, i.e. it merely is duplicated
-async Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
+async Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
 	member (kvp Idx C) Gamma /\
-	syncL Xi' Sigma Phi Gamma C G ;
+	syncL Lambda Xi' Sigma Phi Gamma C G ;
 
-async Xi Sigma Phi Gamma nil (sto G) := exists Xi',
+async Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
-	syncR Xi' Sigma Phi Gamma G ;
+	syncR Lambda Xi' Sigma Phi Gamma G ;
 
-syncL Xi Sigma Phi Gamma C G := exists Xi',
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+% There is a very real risk of looping here
+% As a minimum, ensure that only freezing will take place (but depends on FPC!)
+% I'm putting this after decideL and R, to give chances to both sides
+async Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
+	(G = (sto _) \/ G = (frz _)) /\
+	decideLClerk' Xi Xi' Idx /\
+	member (lemma Idx C) Lambda /\
+println "Lemma" /\
+	syncL Lambda Xi' Sigma Phi Gamma C G ;
+
+%% Let's play around with lemmas a bit... after the regular initR
+%% Maybe this is too simple for some cases and I need to have several linked
+%% premises, all at the same time with unification gradually filling in the gaps
+%% in a consistent way, but for now this will allow me to test with minimum
+%% hassle
+%% (moving z up here to try this out, just in case)
+%% beware of loops!
+%syncR Xi Sigma Phi Gamma (mu B T) := forall z, exists IsNat Plus Phi',
+%	println "** Trying to apply lemma..." /\
+%	% 0. No membership needed (in fact, no membership allowed would be best)
+%	%member (mu B T) Phi /\ % it would be best to negate this to avoid looping
+%	% 1. Take as an inlined lemma the totality of plus
+%	is_nat IsNat /\ member (IsNat (X ++ argv)) Phi /\
+%	println "** is_nat fetched, membership verified" /\
+%	% 2. If the conditions are satisfied, augment "context" w/ don't care index
+%plus Plus /\ Phi' = ((Plus (X ++ Y ++ z ++ argv)) :: Phi) /\
+%	% 1.5. Well, check that the goal agrees to avoid pointless uses!
+%	%(see equality at the end)
+%	%
+%	println "** lemma added, ready to retry" /\
+%	% N. Finish the job
+%	initRExpert Xi /\
+%	println "** expert agrees, launch!" /\
+%	(((Plus (X ++ Y ++ z ++ argv)) = (mu B T)) -> syncR Xi Sigma Phi' Gamma (mu B T));
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
+
+syncL Lambda Xi Sigma Phi Gamma C G := exists Xi',
 	positive C /\
 	releaseLExpert Xi Xi' /\
-	async Xi' Sigma Phi Gamma (C :: nil) G ;
+	async Lambda Xi' Sigma Phi Gamma (C :: nil) G ;
 
-syncR Xi Sigma Phi Gamma G := exists Xi',
+syncR Lambda Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Xi' Sigma Phi Gamma nil (unk G) ;
-
-% Store
-
-async Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
-	negative C /\
-	storeLClerk Xi Xi' Idx /\
-	async Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
-
-async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
-	positive G /\
-	storeRClerk Xi Xi' /\
-	async Xi' Sigma Phi Delta Gamma (sto G).
+	async Lambda Xi' Sigma Phi Gamma nil (unk G).
 
 %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%
@@ -333,4 +349,9 @@ async Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 
 Define prove : cert -> bool -> prop by
 	prove Cert Form :=
-		async Cert nil nil nil nil (unk Form).
+		async nil Cert nil nil nil nil (unk Form).
+
+% Hacky but fast for now
+Define prove_with_lemmas : cert -> bool -> list lemma -> prop by
+	prove_with_lemmas Cert Form Lemmas :=
+		async Lemmas Cert nil nil nil nil (unk Form).

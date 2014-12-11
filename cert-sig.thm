@@ -41,6 +41,7 @@ Kind   idx           type.
 %unfoldRExpert cert -> cert           -> prop
 
 %decideLClerk   cert -> cert -> idx -> prop
+%decideLClerk'  cert -> cert -> idx -> prop
 %decideRClerk   cert -> cert        -> prop
 %releaseLExpert cert -> cert        -> prop
 %releaseRExpert cert -> cert        -> prop

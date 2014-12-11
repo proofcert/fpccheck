@@ -88,6 +88,11 @@ Define gt : idx -> idx -> prop by
 	gt (s _) z ;
 	gt (s A) (s B) := gt A B.
 
+Define le : idx -> idx -> prop by
+	le z z ;
+	le z (s _) ;
+	le (s A) (s B) := le A B.
+
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
 %%%%%%%%%%%%%%%%%%%%%%
@@ -263,6 +268,7 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 	/\ print "storeLClerk" /\ println Next
 	.
 
+% Local decide
 % Conversely, we decide on the earliest index that has not been read yet, adding
 % a range comparison for safety
 Define decideLClerk : cert -> cert -> idx -> prop by
@@ -271,6 +277,15 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		setIndexes Cert Next (s Last) Unfold Cert'
 	/\ print "decideLClerk" /\ println Last
 	.
+
+% "Global" decide (on lemmas)
+% [Restrict to those moments when nothing else is possible?]
+% [For now, try everything, though it should be possible to "call by name"!]
+% [For now also, the index is a string; change in cert-sig.thm if needed]
+Define decideLClerk' : cert -> cert -> string -> prop by
+	decideLClerk' Cert Cert Idx := exists Next Last Unfold,
+		getIndexes Cert Next Last Unfold /\
+		le Next Last.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
