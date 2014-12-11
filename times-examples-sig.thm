@@ -8,3 +8,16 @@ Define copy_i : list imap -> i -> i -> prop by
 	copy_i Theta (succ X) (succ U) := copy_i Theta X U ;
 	%
 	copy_i Theta X U := member (imap X U) Theta.
+
+% Tentative helper predicates:
+%  - is_i
+%  - print_i
+% In both cases the problem is not how to treat all userland constructors
+% (including argument lists!), but what to do with both eigenvariables and
+% logic variables without their cases becoming catch-alls causing backtracking
+% and a multiplicity of solutions, which we don't want.
+
+Define name_mnu : string -> (i -> bool) -> prop by
+	name_mnu "times" Times := times Times ;
+	name_mnu "plus"  Plus  := plus Plus ;
+	name_mnu "nat"   IsNat := is_nat IsNat.
