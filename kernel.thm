@@ -342,8 +342,7 @@ syncL Lambda Xi Sigma Phi Gamma C G := exists Xi',
 syncR Lambda Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma nil (unk G).
-
+	async Lambda Xi' Sigma Phi Gamma nil (unk G) ;
 
 %%%%%%%%%%%%%%%
 % Spy harness %

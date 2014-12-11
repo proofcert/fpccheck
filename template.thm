@@ -27,6 +27,17 @@ Define is_total : cert -> (i -> bool) -> (i -> bool) -> prop by
 		total Op Memb F /\
 		prove Cert F.
 
+% Strengthened totality
+Define total' : (i -> bool) -> (i -> bool) -> bool -> prop by
+	total' Op Memb
+		(all A\ all B\ (imp
+			(Memb (A ++ argv))
+			(some C\ (and
+				(Op (A ++ B ++ C ++ argv))
+				(Memb (C ++ argv)))))).
+
+% (This will be used with lemmas... so no is_total' here, yet)
+
 % Associativity
 Define associative : (i -> bool) -> bool -> prop by
 	associative Op
