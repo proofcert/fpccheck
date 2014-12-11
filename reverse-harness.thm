@@ -1,20 +1,9 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "append-fpc.thm".        % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-#include "reverse-examples.thm".  % Concrete examples
-
-% Note we are trying to reuse the FPC for append verbatim!
-
-% Some simple operational tests of the predicate are desirable
+#include "logic.thm".               % First-order logic syntax
+#include "cert-sig.thm".            % Certificate declarations
+#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
+#include "reverse-examples-sig.thm".% Concrete signature (needed before kernel!)
+#include "kernel.thm".              % Kernel
+#include "reverse-examples.thm".    % Concrete examples
 
 #assert reverse_total
-	(induce z z z
-		(Args\ all L\ imp
-			(eq Args (L ++ argv))
-			(some L'\ (mu Pred\Args\ (some L1\ some L2\ (and (eq Args (L1 ++ L2 ++ argv)) (or (and (eq L1 empty) (eq L2 empty)) (some H\ some L1'\ (and (eq L1 (cons H L1')) (some L3\ and (Pred (L1' ++ L3 ++ argv)) ((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv)))))))) (L3 ++ (cons H empty) ++ L2 ++ argv)))))))))
-				(L ++ L' ++ argv)))
-		(dummy\ start z z (s z))).
-
-% reverse:
-% (mu Pred\Args\ (some L1\ some L2\ (and (eq Args (L1 ++ L2 ++ argv)) (or (and (eq L1 empty) (eq L2 empty)) (some H\ some L1'\ (and (eq L1 (cons H L1')) (some L3\ and (Pred (L1' ++ L3 ++ argv)) ((mu A\Args\ (some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv)) (or (and (eq L1 empty) (eq L2 L3)) (some N\ some L1'\ some L3'\ (and (and (eq L1 (cons N L1')) (eq L3 (cons N L3'))) (A (L1' ++ L2 ++ L3' ++ argv)))))))) (L3 ++ (cons H empty) ++ L2 ++ argv)))))))))
+	(autoinduce z z z (dummy\ start z z (s z))).

@@ -38,6 +38,18 @@ Define total' : (i -> bool) -> (i -> bool) -> bool -> prop by
 
 % (This will be used with lemmas... so no is_total' here, yet)
 
+% Totality for single-input predicates [rename the others to total3, etc.?]
+Define total2 : (i -> bool) -> (i -> bool) -> bool -> prop by
+	total2 Op Memb
+		(all A\ (imp
+			(Memb (A ++ argv))
+			(some B\ (Op (A ++ B ++ argv))))).
+
+Define is_total2 : cert -> (i -> bool) -> (i -> bool) -> prop by
+	is_total2 Cert Op Memb := exists F,
+		total2 Op Memb F /\
+		prove Cert F.
+
 % Associativity
 Define associative : (i -> bool) -> bool -> prop by
 	associative Op
