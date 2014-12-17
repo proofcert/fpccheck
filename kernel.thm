@@ -3,6 +3,8 @@
 #include "debug.thm".
 #include "debug-kernel.thm".
 
+% TODO: add unfold limits to LExpert, clerks?
+
 % Notes:
 %  - Ensure soundness of immediate induction!!
 %  - A friendly reminder: Sigma is just asking for trouble, mind your step!
@@ -122,148 +124,148 @@ by
 % to muLJF are noted.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Zones:       Level  Lambda        Xi      Sigma     Phi          Gamma       Delta        Goal
-Define async : idx -> list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
-       syncL : idx -> list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
-       syncR : idx -> list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop,
+% Zones:       NRelease NUnfold  Lambda        Xi      Sigma     Phi          Gamma       Delta        Goal
+Define async : idx   -> idx   -> list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
+       syncL : idx   -> idx   -> list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
+       syncR : idx   -> idx   -> list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop,
 % Spies (replace standard calls, i.e. prefix spy_, where so desired)
-   spy_async : idx -> list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
-   spy_syncL : idx -> list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
-   spy_syncR : idx -> list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop by
+   spy_async : idx   -> idx   -> list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
+   spy_syncL : idx   -> idx   -> list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
+   spy_syncR : idx   -> idx   -> list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
 %%%%%%%%%%%%%%%%%%%%%%
 
-async Level Lambda Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
 	andClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
 
-async Level Lambda Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
 	orClerk Xi Xi' Xi'' /\
-	async Level Lambda Xi'  Sigma Phi Gamma (P :: Delta) G /\
-	async Level Lambda Xi'' Sigma Phi Gamma (Q :: Delta) G ;
+	async NRelease NUnfold Lambda Xi'  Sigma Phi Gamma (P :: Delta) G /\
+	async NRelease NUnfold Lambda Xi'' Sigma Phi Gamma (Q :: Delta) G ;
 
-async Level Lambda Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
 	impClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
 
-async Level Lambda Xi Sigma Phi Gamma (ff :: Delta) G :=
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma (ff :: Delta) G :=
 	ffClerk Xi ;
 
-async Level Lambda Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
 	ttClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma Delta G ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma Delta G ;
 
-async Level Lambda Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, async Level Lambda (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
+	forall x, async NRelease NUnfold Lambda (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
 
-async Level Lambda Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
 	someClerk Xi Xi' /\
-	forall x, async Level Lambda (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
+	forall x, async NRelease NUnfold Lambda (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
 
 % This can wreak all kinds of havoc in the structure of Sigma: beware!
-async Level Lambda Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
-	((P = Q) -> async Level Lambda Xi Sigma Phi Gamma Delta G) ;
+	((P = Q) -> async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta G) ;
 
-async Level Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	unfoldLClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
 
 % As for coinduction, pay extra attention to what is preserved and modified in
 % the context and the different buckets of formulas, as this is likely to be
 % sensitive to extensions in the kernel.
-async Level Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
-	          async Level Lambda  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
-	forall x, async Level Lambda (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	          async NRelease NUnfold Lambda  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
+	forall x, async NRelease NUnfold Lambda (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 % Immediate induction. The main issues are the treatment of Sigma and missing
 % sets of formulas for the invariant. Critically, this addition to the trusted
 % kernel (and the computed invariants) must be provably correct.
-async Level Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
 	indInvariant' Sigma Delta G T S /\
-	forall x, async Level Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	forall x, async NRelease NUnfold Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
-async Level Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
+	async NRelease NUnfold Lambda Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
 
-async Level Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	unfoldRClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
 
 % Same open questions as indClerk re: Sigma. Also note and test those sets of
 % formulas that are discarded and kept, respectively.
-async Level Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          async Level Lambda  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
-	forall x, async Level Lambda (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
+	          async NRelease NUnfold Lambda  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
+	forall x, async NRelease NUnfold Lambda (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
 % Immediate coinduction: not implemented
 
-async Level Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %
 %%%%%%%%%%%%%%%%%%%%%
 
-syncR Level Lambda Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
+syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-	spy_syncR Level Lambda Xi Sigma Phi Gamma P /\
-	spy_syncR Level Lambda Xi Sigma Phi Gamma Q ;
+	spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma P /\
+	spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma Q ;
 
 % is this use of OR ok? separate clauses?
-syncR Level Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ spy_syncR Level Lambda Xi Sigma Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ spy_syncR Level Lambda Xi Sigma Phi Gamma Q) ;
+syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi',
+	(orExpert Xi Xi' left  /\ spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma P) \/
+	(orExpert Xi Xi' right /\ spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma Q) ;
 
-syncL Level Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
-	spy_syncL Level Lambda Xi Sigma Phi Gamma Q G /\
-	spy_syncR Level Lambda Xi Sigma Phi Gamma   P ;
+	spy_syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma Q G /\
+	spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma   P ;
 
 % Specular left implication
-syncL Level Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
+syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert' Xi Xi' Xi'' /\
-	spy_syncR Level Lambda Xi Sigma Phi Gamma   P /\
-	spy_syncL Level Lambda Xi Sigma Phi Gamma Q G ;
+	spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma   P /\
+	spy_syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma Q G ;
 
-syncR Level Lambda Xi Sigma Phi Gamma tt :=
+syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma tt :=
 	ttExpert Xi ;
 
-syncL Level Lambda Xi Sigma Phi Gamma (all P) G := exists Xi' T,
+syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma (all P) G := exists Xi' T,
 	allExpert Xi Xi' T /\
-	spy_syncL Level Lambda Xi' Sigma Phi Gamma (P T) G ;
+	spy_syncL NRelease NUnfold Lambda Xi' Sigma Phi Gamma (P T) G ;
 
-syncR Level Lambda Xi Sigma Phi Gamma (some P) := exists Xi' T,
+syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma (some P) := exists Xi' T,
 	someExpert Xi Xi' T /\
-	spy_syncR Level Lambda Xi' Sigma Phi Gamma (P T) ;
+	spy_syncR NRelease NUnfold Lambda Xi' Sigma Phi Gamma (P T) ;
 
-syncR Level Lambda Xi Sigma Phi Gamma (eq T T) :=
+syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
-syncL Level Lambda Xi Sigma Phi Gamma (nu B T) G :=
+syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma (nu B T) G :=
 	member (nu B T) Phi /\
 	initLExpert Xi ;
 
-syncL Level Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
+syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
-	spy_syncL Level Lambda Xi' Sigma Phi Gamma (B (nu B) T) G ;
+	spy_syncL NRelease NUnfold Lambda Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
-syncR Level Lambda Xi Sigma Phi Gamma (mu B T) :=
+syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma (mu B T) :=
 	member (mu B T) Phi /\
 	initRExpert Xi ;
 
-syncR Level Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
+syncR NRelease (s NUnfold) Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
-	spy_syncR Level Lambda Xi' Sigma Phi Gamma (B (mu B) T) ;
+	spy_syncR NRelease NUnfold Lambda Xi' Sigma Phi Gamma (B (mu B) T) ;
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 %%%%%%%%%%%%%%%%%%%%
@@ -277,37 +279,37 @@ syncR Level Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
 % Store
 % [I just moved this up, it probably needs to go before decide...]
 
-async Level Lambda Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
 	negative C /\
 	storeLClerk Xi Xi' Idx /\
-	async Level Lambda Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
 
-async Level Lambda Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
 	positive G /\
 	storeRClerk Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Delta Gamma (sto G) ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Delta Gamma (sto G) ;
 
 % Important: the chosen formula never leaves Gamma, i.e. it merely is duplicated
-async Level Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
 	member (kvp Idx C) Gamma /\
-	spy_syncL Level Lambda Xi' Sigma Phi Gamma C G ;
+	spy_syncL NRelease NUnfold Lambda Xi' Sigma Phi Gamma C G ;
 
-async Level Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 	decideRClerk Xi Xi' /\
-	spy_syncR Level Lambda Xi' Sigma Phi Gamma G ;
+	spy_syncR NRelease NUnfold Lambda Xi' Sigma Phi Gamma G ;
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 % There is a very real risk of looping here
 % As a minimum, ensure that only freezing will take place (but depends on FPC!)
 % I'm putting this after decideL and R, to give chances to both sides
-async Level Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
+async NRelease NUnfold Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk' Xi Xi' Idx /\
 	member (lemma Idx C) Lambda /\
 println "Lemma" /\
-	syncL Level Lambda Xi' Sigma Phi Gamma C G ;
+	syncL NRelease NUnfold Lambda Xi' Sigma Phi Gamma C G ;
 
 %% Let's play around with lemmas a bit... after the regular initR
 %% Maybe this is too simple for some cases and I need to have several linked
@@ -335,15 +337,15 @@ println "Lemma" /\
 %	(((Plus (X ++ Y ++ z ++ argv)) = (mu B T)) -> syncR Xi Sigma Phi' Gamma (mu B T));
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
-syncL (s Level) Lambda Xi Sigma Phi Gamma C G := exists Xi',
+syncL (s NRelease) NUnfold Lambda Xi Sigma Phi Gamma C G := exists Xi',
 	positive C /\
 	releaseLExpert Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma (C :: nil) G ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma (C :: nil) G ;
 
-syncR (s Level) Lambda Xi Sigma Phi Gamma G := exists Xi',
+syncR (s NRelease) NUnfold Lambda Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Level Lambda Xi' Sigma Phi Gamma nil (unk G) ;
+	async NRelease NUnfold Lambda Xi' Sigma Phi Gamma nil (unk G) ;
 
 %%%%%%%%%%%%%%%
 % Spy harness %
@@ -352,31 +354,31 @@ syncR (s Level) Lambda Xi Sigma Phi Gamma G := exists Xi',
 % Certificates Ξ are currently not shown, may need specific pretty-printers
 % It would be interesting to identify via checksum both entry and exit points
 
-spy_async Level Lambda Xi Sigma Phi Gamma Delta Goal :=
+spy_async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta Goal :=
 	printstr "**  async  *********************************************************************\n" /\
 	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
 	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
 	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
 	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\
 	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
-	spy_noheader (async Level Lambda Xi Sigma Phi Gamma Delta Goal) ;
+	spy_noheader (async NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
-spy_syncL Level Lambda Xi Sigma Phi Gamma Delta Goal :=
+spy_syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta Goal :=
 	printstr "**  syncL  *********************************************************************\n" /\
 	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
 	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
 	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
 	printstr "  Δ: " /\ print_bool      Delta /\ printstr "\n" /\
 	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
-	spy_noheader (syncL Level Lambda Xi Sigma Phi Gamma Delta Goal) ;
+	spy_noheader (syncL NRelease NUnfold Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
-spy_syncR Level Lambda Xi Sigma Phi Gamma Goal :=
+spy_syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma Goal :=
 	printstr "**  syncR  *********************************************************************\n" /\
 	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
 	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
 	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
 	printstr "  Ω: " /\ print_bool      Goal  /\ printstr "\n" /\
-	spy_noheader (syncR Level Lambda Xi Sigma Phi Gamma Goal).
+	spy_noheader (syncR NRelease NUnfold Lambda Xi Sigma Phi Gamma Goal).
 
 %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%
@@ -386,13 +388,13 @@ spy_syncR Level Lambda Xi Sigma Phi Gamma Goal :=
 
 Define prove : cert -> bool -> prop by
 	prove Cert Form :=
-		async (s z) nil Cert nil nil nil nil (unk Form).
+		async (s z) (s (s z)) nil Cert nil nil nil nil (unk Form).
 
 % Hacky variations, fast for now
 Define prove_with_lemmas : cert -> bool -> list lemma -> prop by
 	prove_with_lemmas Cert Form Lemmas :=
-		async z Lemmas Cert nil nil nil nil (unk Form).
+		async z z Lemmas Cert nil nil nil nil (unk Form).
 
-Define prove_with_level : cert -> bool -> idx -> prop by
-	prove_with_level Cert Form Level :=
-		async Level nil Cert nil nil nil nil (unk Form).
+Define prove_with_bounds : cert -> bool -> idx -> idx -> prop by
+	prove_with_bounds Cert Form NRelease NUnfold :=
+		async NRelease NUnfold nil Cert nil nil nil nil (unk Form).
