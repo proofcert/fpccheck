@@ -49,12 +49,18 @@
 % it comes across. If needed, reorder these clauses to bring the target clause
 % to the front of the list (i.e. it should be listed last, immediately before
 % the goal formula).
+%   Common indexing structure:
+%  1. Next index for try in decideLClerk
+%  2. Next index to use in storeLClerk
+%  3. Number of allowed unfoldings in unfoldLClerk
+%  4. Number of allowed unfoldings in unfoldRExpert (current phase)
+%  5. Maximum allowed unfoldings in unfoldRExpert per synchronous phase
 
-                  % Next % Last % Unf  % Invariant    % NewCert
-Type   start        idx -> idx -> idx                               -> cert.
-Type   induce       idx -> idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
+                  % Next % Last % AUnf % SUnf % SMax % Invariant    % NewCert
+Type   start        idx -> idx -> idx -> idx -> idx                               -> cert.
+Type   induce       idx -> idx -> idx -> idx -> idx -> (i -> bool) -> (i -> cert) -> cert.
 % May need a 'freeze' nesting to select the appropriate clause sometimes?
-Type   autoinduce   idx -> idx -> idx                -> (i -> cert) -> cert.
+Type   autoinduce   idx -> idx -> idx -> idx -> idx                -> (i -> cert) -> cert.
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Index constructors %
@@ -74,15 +80,15 @@ Type   s   idx -> idx.
 
 % TODO: indexing structure to simplify and refactor everything throughout
 
-Define getIndexes : cert -> idx -> idx -> idx -> prop by
-	getIndexes (start      N L U    ) N L U ;
-	getIndexes (induce     N L U _ _) N L U ;
-	getIndexes (autoinduce N L U   _) N L U.
+Define getIndexes : cert -> idx -> idx -> idx -> idx -> idx -> prop by
+	getIndexes (start      N L Ul Ur Um    ) N L Ul Ur Um ;
+	getIndexes (induce     N L Ul Ur Um _ _) N L Ul Ur Um ;
+	getIndexes (autoinduce N L Ul Ur Um   _) N L Ul Ur Um.
 
-Define setIndexes : cert -> idx -> idx -> idx -> cert -> prop by
-	setIndexes (start      _ _ _     ) N L U (start      N L U     ) ;
-	setIndexes (induce     _ _ _ S Xi) N L U (induce     N L U S Xi) ;
-	setIndexes (autoinduce _ _ _   Xi) N L U (autoinduce N L U   Xi).
+Define setIndexes : cert -> idx -> idx -> idx -> idx -> idx -> cert -> prop by
+	setIndexes (start      _ _ _ _ _     ) N L Ul Ur Um (start      N L Ul Ur Um     ) ;
+	setIndexes (induce     _ _ _ _ _ S Xi) N L Ul Ur Um (induce     N L Ul Ur Um S Xi) ;
+	setIndexes (autoinduce _ _ _ _ _   Xi) N L Ul Ur Um (autoinduce N L Ul Ur Um   Xi).
 
 Define gt : idx -> idx -> prop by
 	gt (s _) z ;
@@ -198,13 +204,13 @@ Define someExpert : cert -> cert -> i -> prop by
 % Perform a simple search on the base branch (propagating indexes!) and extract
 % continuation certificate and invariant for the induction branch.
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	indClerk (induce Next Last Unfold S Cert') (start Next Last Unfold) Cert' S
+	indClerk (induce Next Last UnfoldL UnfoldR UnfoldM S Cert') (start Next Last UnfoldL UnfoldR UnfoldM) Cert' S
 	:= println "indClerk"
 	.
 
 % A simplified scheme for immediate induction
 Define indClerk' : cert -> (i -> cert) -> prop by
-	indClerk' (autoinduce Next Last Unfold Cert') Cert'
+	indClerk' (autoinduce Next Last UnfoldL UnfoldR UnfoldM Cert') Cert'
 	:= println "indClerk'"
 	.
 
@@ -218,16 +224,19 @@ Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 
 % We unfold only if the certificate allows us to, therefore consuming one token
 Define unfoldLClerk : cert -> cert -> prop by
-	unfoldLClerk Cert Cert' := exists Next Last Unfold,
-		getIndexes Cert Next Last (s Unfold) /\
-		setIndexes Cert Next Last    Unfold  Cert'
-	/\ print "unfoldLClerk" /\ println (s Unfold)
+	unfoldLClerk Cert Cert' := exists Next Last UnfoldL UnfoldR UnfoldM,
+		getIndexes Cert Next Last (s UnfoldL) UnfoldR UnfoldM /\
+		setIndexes Cert Next Last    UnfoldL  UnfoldR UnfoldM Cert'
+	/\ print "unfoldLClerk" /\ println (s UnfoldL)
 	.	
 
 % On the right, we expect purely positive, terminating computation
+% [This may not necessarily happen if logic variables are involved]
 Define unfoldRExpert : cert -> cert -> prop by
-	unfoldRExpert Cert Cert
-	:= println "unfoldRExpert"
+	unfoldRExpert Cert Cert' := exists Next Last UnfoldL UnfoldR UnfoldM,
+		getIndexes Cert Next Last UnfoldL (s UnfoldR) UnfoldM /\
+		setIndexes Cert Next Last UnfoldL    UnfoldR  UnfoldM Cert'
+	/\ print "unfoldRExpert" /\ println (s UnfoldR)
 	.
 
 % Greatest fixed points are never unfolded
@@ -242,7 +251,7 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 
 % [Changed: freeze iff there are neither inductions nor unfoldings to perform]
 Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk (start Next Last z) (start Next Last z)
+	freezeLClerk (start Next Last z UnfoldR UnfoldM) (start Next Last z UnfoldR UnfoldM)
 	:= println "freezeLClerk"
 	.
 
@@ -262,9 +271,9 @@ Define initLExpert : cert -> prop by initLExpert _ := false.
 
 % When storing, a unique index based on the Next counter is returned
 Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk Cert Cert' Next := exists Last Unfold,
-		getIndexes Cert    Next  Last Unfold /\
-		setIndexes Cert (s Next) Last Unfold Cert'
+	storeLClerk Cert Cert' Next := exists Last UnfoldL UnfoldR UnfoldM,
+		getIndexes Cert    Next  Last UnfoldL UnfoldR UnfoldM /\
+		setIndexes Cert (s Next) Last UnfoldL UnfoldR UnfoldM Cert'
 	/\ print "storeLClerk" /\ println Next
 	.
 
@@ -272,9 +281,9 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 % Conversely, we decide on the earliest index that has not been read yet, adding
 % a range comparison for safety
 Define decideLClerk : cert -> cert -> idx -> prop by
-	decideLClerk Cert Cert' Last := exists Next Unfold,
-		getIndexes Cert Next    Last  Unfold       /\ gt Next Last /\
-		setIndexes Cert Next (s Last) Unfold Cert'
+	decideLClerk Cert Cert' Last := exists Next UnfoldL UnfoldM,
+		getIndexes Cert Next    Last  UnfoldL _       UnfoldM       /\ gt Next Last /\
+		setIndexes Cert Next (s Last) UnfoldL UnfoldM UnfoldM Cert'
 	/\ print "decideLClerk" /\ println Last
 	.
 
@@ -283,9 +292,12 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % [For now, try everything, though it should be possible to "call by name"!]
 % [For now also, the index is a string; change in cert-sig.thm if needed]
 Define decideLClerk' : cert -> cert -> string -> prop by
-	decideLClerk' Cert Cert Idx := exists Next Last Unfold,
-		getIndexes Cert Next Last Unfold /\
-		le Next Last.
+	decideLClerk' Cert Cert' Idx := exists Next Last UnfoldL UnfoldM,
+		getIndexes Cert Next Last UnfoldL _       UnfoldM /\
+		setIndexes Cert Next Last UnfoldL UnfoldM UnfoldM Cert' /\
+		le Next Last
+	/\ println "decideLClerk'"
+	.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
@@ -293,8 +305,10 @@ Define storeRClerk : cert -> cert -> prop by
 	:= println "storeRClerk"
 	.
 Define decideRClerk : cert -> cert -> prop by
-	decideRClerk Cert Cert
-	:= println "decideRClerk"
+	decideRClerk Cert Cert' := exists Next Last UnfoldL UnfoldM,
+		getIndexes Cert Next Last UnfoldL _       UnfoldM /\
+		setIndexes Cert Next Last UnfoldL UnfoldM UnfoldM Cert'
+	/\ println "decideRClerk"
 	.
 
 % No restrictions on release [sure, always?]

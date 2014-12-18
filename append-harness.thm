@@ -5,44 +5,44 @@
 #include "kernel.thm".              % Kernel
 #include "append-examples.thm".     % Concrete examples
 
-#assert appendable (start z z z)
+#assert appendable (start z z z _ (s z))
 	null null null.
 
-#assert appendable (start z z z)
+#assert appendable (start z z z _ (s (s z)))
 	(cons a null) null (cons a null).
 
-#assert appendable (start z z z)
+#assert appendable (start z z z _ (s z))
 	null (cons a null) (cons a null).
 
-#assert appendable (start z z z)
+#assert appendable (start z z z _ (s (s z)))
 	(cons a null) (cons b null) (cons a (cons b null)).
 
-#assert eigen_unify (start z z z).
+#assert eigen_unify (start z z z _ z).
 
 #assert append_total Append
-	(induce z z z
+	(induce z z z _ z
 		(x\ all A\ all B\ imp
 			(eq x (A ++ argv))
 			(some C\ Append (A ++ B ++ C ++ argv)))
-		(dummy\ start z z z)).
+		(dummy\ start z z z _ (s z))).
 
 #assert append_total _
-	(autoinduce z z z (dummy\ start z z z)).
+	(autoinduce z z z _ z (dummy\ start z z z _ (s z))).
 
 #assert append_det Append
-	(induce z z z
+	(induce z z z _ (s (s z))
 		(x\ all I\ all J\ all K\ all L\ imp
 			(eq x (I ++ J ++ K ++ argv)) (imp
 			(Append (I ++ J ++ L ++ argv))
 			(eq K L)
 		))
-		(dummy\ start z z (s z))).
+		(dummy\ start z z (s z) _ z)).
 
 #assert append_det _
-	(autoinduce z z z (dummy\ start z z (s z))).
+	(autoinduce z z z _ z (dummy\ start z z (s z) _ z)).
 
 #assert append_assoc Append
-	(induce z z z
+	(induce z z z _ z
 		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
 			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
 			(Append (l6 ++ l1 ++ l7 ++ argv))
@@ -51,7 +51,7 @@
 				(Append (l4 ++ l3 ++ l7 ++ argv))
 			)
 		))
-		(dummy\ start z z (s z))).
+		(dummy\ start z z (s z) _ (s z))).
 
 #assert append_assoc _
-	(autoinduce z z z (dummy\ start z z (s z))).
+	(autoinduce z z z _ z (dummy\ start z z (s z) _ (s z))).

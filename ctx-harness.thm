@@ -6,24 +6,24 @@
 #include "ctx-examples.thm".       % Concrete examples
 
 #assert ctx1_struct Member IsNat
-	(induce z z z
+	(induce z z z _ z
 		(Args\ all N\ all L\ imp
 			(eq Args (L ++ argv)) (imp
 			(Member (N ++ L ++ argv))
 			(IsNat (N ++ argv))))
-		(dummy\ start z z (s z))).
+		(dummy\ start z z (s z) _ z)).
 
 #assert ctx1_struct _ _
-	(autoinduce z z z (dummy\ start z z (s z))).
+	(autoinduce z z z _ z (dummy\ start z z (s z) _ z)).
 
 #assert ctx1_length Length
-	(induce z z z
+	(induce z z z _ (s z)
 		(Args\ all L1\ all L2\ imp
 			(eq Args (L1 ++ L2 ++ argv))
 			(some N\ (and
 				(Length (L1 ++ N ++ argv))
 				(Length (L2 ++ N ++ argv)))))
-		(dummy\ start z z (s z))).
+		(dummy\ start z z (s z) _ (s (s z)))).
 
 #assert ctx1_length _
-	(autoinduce z z z (dummy\ start z z (s z))).
+	(autoinduce z z z _ (s z) (dummy\ start z z (s z) _ (s (s z)))).
