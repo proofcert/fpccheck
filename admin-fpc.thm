@@ -41,18 +41,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 
 % Common indexing structure:
-%  1. Next index to try in decideLClerk
-%  2. Next index to use in storeLClerk
-%  3. Number of allowed unfoldings in unfoldLClerk
-%  4. Number of allowed unfoldings in unfoldRExpert (current phase)
-%  5. Maximum allowed unfoldings in unfoldRExpert per synchronous phase
+%  1. Maximum allowed bipole transitions in release*Expert
+%  2. Next index to try in decideLClerk
+%  3. Next index to use in storeLClerk
+%  4. Number of allowed unfoldings in unfoldLClerk
+%  5. Number of allowed unfoldings in unfoldRExpert (current phase)
+%  6. Maximum allowed unfoldings in unfoldRExpert per synchronous phase
 
 Kind   ctrl   type.
-Type   ctrl   idx -> % (Next) Next index to try in decideLClerk
-              idx -> % (Last) Next index to use in storeLClerk
-              idx -> % (AUnf) Allowed LC-unfoldings
-              idx -> % (SUnf) Allowed RE-unfoldings (current phase)
-              idx -> % (SMax) Maximum RE-unfoldings per synchronous phase
+Type   ctrl   idx -> % (Depth) Allowed search depth in bipole transitions
+              idx -> % (Next)  Next index to try in decideLClerk
+              idx -> % (Last)  Next index to use in storeLClerk
+              idx -> % (AUnf)  Allowed LC-unfoldings
+              idx -> % (SUnf)  Allowed RE-unfoldings (current phase)
+              idx -> % (SMax)  Maximum RE-unfoldings per synchronous phase
               ctrl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,35 +114,40 @@ Define le : idx -> idx -> prop by
 	le z (s _) ;
 	le (s A) (s B) := le A B.
 
+Define decrementDepth : cert -> cert -> prop by
+	decrementDepth Cert Cert' := exists D N L UL UR UM,
+		getControl Cert (ctrl (s D) N L UL UR UM) /\
+		setControl Cert (ctrl    D  N L UL UR UM) Cert'.
+
 Define decrementUnfoldL : cert -> cert -> prop by
-	decrementUnfoldL Cert Cert' := exists N L UL UR UM,
-		getControl Cert (ctrl N L (s UL) UR UM) /\
-		setControl Cert (ctrl N L    UL  UR UM) Cert'.
+	decrementUnfoldL Cert Cert' := exists D N L UL UR UM,
+		getControl Cert (ctrl D N L (s UL) UR UM) /\
+		setControl Cert (ctrl D N L    UL  UR UM) Cert'.
 
 Define decrementUnfoldR : cert -> cert -> prop by
-	decrementUnfoldR Cert Cert' := exists N L UL UR UM,
-		getControl Cert (ctrl N L UL (s UR) UM) /\
-		setControl Cert (ctrl N L UL    UR  UM) Cert'.
+	decrementUnfoldR Cert Cert' := exists D N L UL UR UM,
+		getControl Cert (ctrl D N L UL (s UR) UM) /\
+		setControl Cert (ctrl D N L UL    UR  UM) Cert'.
 
 Define returnAndIncrementNext : cert -> cert -> idx -> prop by
-	returnAndIncrementNext Cert Cert' N := exists L UL UR UM,
-		getControl Cert (ctrl    N  L UL UR UM) /\
-		setControl Cert (ctrl (s N) L UL UR UM) Cert'.
+	returnAndIncrementNext Cert Cert' N := exists D L UL UR UM,
+		getControl Cert (ctrl D    N  L UL UR UM) /\
+		setControl Cert (ctrl D (s N) L UL UR UM) Cert'.
 
 Define returnAndIncrementLast : cert -> cert -> idx -> prop by
-	returnAndIncrementLast Cert Cert' L := exists N UL UR UM,
-		getControl Cert (ctrl N    L  UL UR UM) /\
-		setControl Cert (ctrl N (s L) UL UR UM) Cert' /\
+	returnAndIncrementLast Cert Cert' L := exists D N UL UR UM,
+		getControl Cert (ctrl D N    L  UL UR UM) /\
+		setControl Cert (ctrl D N (s L) UL UR UM) Cert' /\
 		gt N L.
 
 Define resetUnfoldR : cert -> cert -> prop by
-	resetUnfoldR Cert Cert' := exists N L UL UM,
-		getControl Cert (ctrl N L UL _  UM) /\
-		setControl Cert (ctrl N L UL UM UM) Cert'.
+	resetUnfoldR Cert Cert' := exists D N L UL UM,
+		getControl Cert (ctrl D N L UL _  UM) /\
+		setControl Cert (ctrl D N L UL UM UM) Cert'.
 
 Define checkNoLocalDecide : cert -> prop by
 	checkNoLocalDecide Cert := exists N L,
-		getControl Cert (ctrl N L _ _ _) /\
+		getControl Cert (ctrl _ N L _ _ _) /\
 		le N L.
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -293,7 +300,7 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 
 % [Changed: freeze iff there are neither inductions nor unfoldings to perform]
 Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk (start (ctrl N L z UR UM)) (start (ctrl N L z UR UM))
+	freezeLClerk (start (ctrl D N L z UR UM)) (start (ctrl D N L z UR UM))
 	:= println "freezeLClerk"
 	.
 
@@ -352,7 +359,8 @@ Define decideRClerk : cert -> cert -> prop by
 
 % No restrictions on release [sure, always?]
 Define releaseLExpert : cert -> cert -> prop by
-	releaseLExpert Cert Cert
-	:= println "releaseLExpert"
+	releaseLExpert Cert Cert' :=
+		decrementDepth Cert Cert'
+	/\ println "releaseLExpert"
 	.
 Define releaseRExpert : cert -> cert -> prop by releaseRExpert _ _ := false.
