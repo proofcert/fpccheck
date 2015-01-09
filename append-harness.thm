@@ -29,6 +29,9 @@
 #assert append_total _
 	(autoinduce (ctrl z z z z _ z) (dummy\ start (ctrl (s z) z z z _ (s z)))).
 
+%#assert_not append_total _
+%	(autoinduce (ctrl z z z z _ z) (dummy\ start (ctrl z z z z _ (s z)))).
+
 #assert append_det Append
 	(induce (ctrl (s z) z z z _ (s (s z)))
 		(x\ all I\ all J\ all K\ all L\ imp

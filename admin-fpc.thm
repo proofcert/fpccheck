@@ -298,9 +298,13 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 % Fixed points: freeze and initial %
 %----------------------------------%
 
-% [Changed: freeze iff there are neither inductions nor unfoldings to perform]
+%% [Changed: freeze iff there are neither inductions nor unfoldings to perform]
+%Define freezeLClerk : cert -> cert -> prop by
+%	freezeLClerk (start (ctrl D N L z UR UM)) (start (ctrl D N L z UR UM))
+%	:= println "freezeLClerk"
+%	.
 Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk (start (ctrl D N L z UR UM)) (start (ctrl D N L z UR UM))
+	freezeLClerk (start Ctrl) (start Ctrl)
 	:= println "freezeLClerk"
 	.
 
@@ -339,8 +343,9 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % [Restrict to those moments when nothing else is possible?]
 % [For now, try everything, though it should be possible to "call by name"!]
 % [For now also, the index is a string; change in cert-sig.thm if needed]
+% [[Attention!! Returning an unbounded variable: potential, exotic trouble]]
 Define decideLClerk' : cert -> cert -> string -> prop by
-	decideLClerk' Cert Cert' Idx :=
+	decideLClerk' Cert Cert' "my_lemma" := % Idx :=
 		resetUnfoldR Cert Cert' /\
 		checkNoLocalDecide Cert'
 	/\ println "decideLClerk'"

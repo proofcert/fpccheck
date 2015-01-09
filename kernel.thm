@@ -136,48 +136,48 @@ Define async : list lemma -> cert -> list i -> list bool -> list ctx -> list boo
 
 async Lambda Xi Sigma Phi Gamma ((and P Q) :: Delta) G := exists Xi',
 	andClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
+	spy_async Lambda Xi' Sigma Phi Gamma (P :: Q :: Delta) G ;
 
 async Lambda Xi Sigma Phi Gamma ((or P Q) :: Delta) G := exists Xi' Xi'',
 	orClerk Xi Xi' Xi'' /\
-	async Lambda Xi'  Sigma Phi Gamma (P :: Delta) G /\
-	async Lambda Xi'' Sigma Phi Gamma (Q :: Delta) G ;
+	spy_async Lambda Xi'  Sigma Phi Gamma (P :: Delta) G /\
+	spy_async Lambda Xi'' Sigma Phi Gamma (Q :: Delta) G ;
 
-async Lambda Xi Sigma Phi Gamma Delta (unk (imp P Q)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma nil (unk (imp P Q)) := exists Xi',
 	impClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma (P :: Delta) (unk Q) ;
+	spy_async Lambda Xi' Sigma Phi Gamma (P :: nil) (unk Q) ;
 
 async Lambda Xi Sigma Phi Gamma (ff :: Delta) G :=
 	ffClerk Xi ;
 
 async Lambda Xi Sigma Phi Gamma (tt :: Delta) G := exists Xi',
 	ttClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma Delta G ;
+	spy_async Lambda Xi' Sigma Phi Gamma Delta G ;
 
-async Lambda Xi Sigma Phi Gamma Delta (unk (all P)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma nil (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, async Lambda (Xi' x) (x :: Sigma) Phi Gamma Delta (unk (P x)) ;
+	forall x, spy_async Lambda (Xi' x) (x :: Sigma) Phi Gamma nil (unk (P x)) ;
 
 async Lambda Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
 	someClerk Xi Xi' /\
-	forall x, async Lambda (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
+	forall x, spy_async Lambda (Xi' x) (x :: Sigma) Phi Gamma ((P x) :: Delta) G ;
 
 % This can wreak all kinds of havoc in the structure of Sigma: beware!
 async Lambda Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
-	((P = Q) -> async Lambda Xi Sigma Phi Gamma Delta G) ;
+	((P = Q) -> spy_async Lambda Xi Sigma Phi Gamma Delta G) ;
 
 async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	unfoldLClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
+	spy_async Lambda Xi' Sigma Phi Gamma ((B (mu B) T) :: Delta) G ;
 
 % As for coinduction, pay extra attention to what is preserved and modified in
 % the context and the different buckets of formulas, as this is likely to be
 % sensitive to extensions in the kernel.
 async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
-	          async Lambda  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
-	forall x, async Lambda (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	          spy_async Lambda  Xi'     Sigma      Phi Gamma ((S T) :: Delta) G /\
+	forall x, spy_async Lambda (Xi'' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 % Immediate induction. The main issues are the treatment of Sigma and missing
 % sets of formulas for the invariant. Critically, this addition to the trusted
@@ -185,28 +185,28 @@ async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S,
 async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
 	indInvariant' Sigma Delta G T S /\
-	forall x, async Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	forall x, spy_async Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 async Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
 	freezeLClerk Xi Xi' /\
-	async Lambda Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
+	spy_async Lambda Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
 
-async Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi',
 	unfoldRClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma Delta (unk (B (nu B) T)) ;
+	spy_async Lambda Xi' Sigma Phi Gamma nil (unk (B (nu B) T)) ;
 
 % Same open questions as indClerk re: Sigma. Also note and test those sets of
 % formulas that are discarded and kept, respectively.
-async Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi' Xi'' S,
+async Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          async Lambda  Xi'     Sigma      Phi Gamma Delta          (unk (S T)) /\
-	forall x, async Lambda (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
+	          spy_async Lambda  Xi'     Sigma      Phi Gamma nil            (unk (S T)) /\
+	forall x, spy_async Lambda (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
 % Immediate coinduction: not implemented
 
-async Lambda Xi Sigma Phi Gamma Delta (unk (nu B T)) := exists Xi',
+async Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma Delta (frz (nu B T)) ;
+	spy_async Lambda Xi' Sigma Phi Gamma nil (frz (nu B T)) ;
 
 %%%%%%%%%%%%%%%%%%%%%
 % Synchronous rules %
@@ -279,12 +279,12 @@ syncR Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
 async Lambda Xi Sigma Phi Gamma (C :: Delta) G := exists Xi' Idx,
 	negative C /\
 	storeLClerk Xi Xi' Idx /\
-	async Lambda Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
+	spy_async Lambda Xi' Sigma Phi ((kvp Idx C) :: Gamma) Delta G ;
 
-async Lambda Xi Sigma Phi Delta Gamma (unk G) := exists Xi',
+async Lambda Xi Sigma Phi Gamma nil (unk G) := exists Xi',
 	positive G /\
 	storeRClerk Xi Xi' /\
-	async Lambda Xi' Sigma Phi Delta Gamma (sto G) ;
+	spy_async Lambda Xi' Sigma Phi Gamma nil (sto G) ;
 
 % Important: the chosen formula never leaves Gamma, i.e. it merely is duplicated
 async Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
@@ -306,7 +306,7 @@ async Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	decideLClerk' Xi Xi' Idx /\
 	member (lemma Idx C) Lambda /\
 println "Lemma" /\
-	syncL Lambda Xi' Sigma Phi Gamma C G ;
+	spy_syncL Lambda Xi' Sigma Phi Gamma C G ;
 
 %% Let's play around with lemmas a bit... after the regular initR
 %% Maybe this is too simple for some cases and I need to have several linked
@@ -337,12 +337,12 @@ println "Lemma" /\
 syncL Lambda Xi Sigma Phi Gamma C G := exists Xi',
 	positive C /\
 	releaseLExpert Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma (C :: nil) G ;
+	spy_async Lambda Xi' Sigma Phi Gamma (C :: nil) G ;
 
 syncR Lambda Xi Sigma Phi Gamma G := exists Xi',
 	negative G /\
 	releaseRExpert Xi Xi' /\
-	async Lambda Xi' Sigma Phi Gamma nil (unk G) ;
+	spy_async Lambda Xi' Sigma Phi Gamma nil (unk G) ;
 
 %%%%%%%%%%%%%%%
 % Spy harness %

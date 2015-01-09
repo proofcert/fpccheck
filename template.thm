@@ -42,8 +42,8 @@ Define total' : (i -> bool) -> (i -> bool) -> bool -> prop by
 Define associative : (i -> bool) -> bool -> prop by
 	associative Op
 		(all A\ all B\ all C\ all AB\ all ABC\ (imp
-			(Op (AB ++ C ++ ABC ++ argv)) (imp
-			(Op (A ++ B ++ AB ++ argv))
+			(Op (A ++ B ++ AB ++ argv)) (imp
+			(Op (AB ++ C ++ ABC ++ argv))
 			(some BC\ (and
 				(Op (B ++ C ++ BC ++ argv))
 				(Op (A ++ BC ++ ABC ++ argv))))))).
