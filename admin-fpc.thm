@@ -47,6 +47,7 @@
 %  4. Number of allowed unfoldings in unfoldLClerk
 %  5. Number of allowed unfoldings in unfoldRExpert (current phase)
 %  6. Maximum allowed unfoldings in unfoldRExpert per synchronous phase
+%  7. Next index to use in decideLClerk'
 
 Kind   ctrl   type.
 Type   ctrl   idx -> % (Depth) Allowed search depth in bipole transitions
@@ -55,6 +56,7 @@ Type   ctrl   idx -> % (Depth) Allowed search depth in bipole transitions
               idx -> % (AUnf)  Allowed LC-unfoldings
               idx -> % (SUnf)  Allowed RE-unfoldings (current phase)
               idx -> % (SMax)  Maximum RE-unfoldings per synchronous phase
+              idx -> % (LNext) Next lemma index to try in decideLClerk'
               ctrl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,39 +117,44 @@ Define le : idx -> idx -> prop by
 	le (s A) (s B) := le A B.
 
 Define decrementDepth : cert -> cert -> prop by
-	decrementDepth Cert Cert' := exists D N L UL UR UM,
-		getControl Cert (ctrl (s D) N L UL UR UM) /\
-		setControl Cert (ctrl    D  N L UL UR UM) Cert'.
+	decrementDepth Cert Cert' := exists D N L UL UR UM LN,
+		getControl Cert (ctrl (s D) N L UL UR UM LN) /\
+		setControl Cert (ctrl    D  N L UL UR UM LN) Cert'.
 
 Define decrementUnfoldL : cert -> cert -> prop by
-	decrementUnfoldL Cert Cert' := exists D N L UL UR UM,
-		getControl Cert (ctrl D N L (s UL) UR UM) /\
-		setControl Cert (ctrl D N L    UL  UR UM) Cert'.
+	decrementUnfoldL Cert Cert' := exists D N L UL UR UM LN,
+		getControl Cert (ctrl D N L (s UL) UR UM LN) /\
+		setControl Cert (ctrl D N L    UL  UR UM LN) Cert'.
 
 Define decrementUnfoldR : cert -> cert -> prop by
-	decrementUnfoldR Cert Cert' := exists D N L UL UR UM,
-		getControl Cert (ctrl D N L UL (s UR) UM) /\
-		setControl Cert (ctrl D N L UL    UR  UM) Cert'.
+	decrementUnfoldR Cert Cert' := exists D N L UL UR UM LN,
+		getControl Cert (ctrl D N L UL (s UR) UM LN) /\
+		setControl Cert (ctrl D N L UL    UR  UM LN) Cert'.
 
 Define returnAndIncrementNext : cert -> cert -> idx -> prop by
-	returnAndIncrementNext Cert Cert' N := exists D L UL UR UM,
-		getControl Cert (ctrl D    N  L UL UR UM) /\
-		setControl Cert (ctrl D (s N) L UL UR UM) Cert'.
+	returnAndIncrementNext Cert Cert' N := exists D L UL UR UM LN,
+		getControl Cert (ctrl D    N  L UL UR UM LN) /\
+		setControl Cert (ctrl D (s N) L UL UR UM LN) Cert'.
 
 Define returnAndIncrementLast : cert -> cert -> idx -> prop by
-	returnAndIncrementLast Cert Cert' L := exists D N UL UR UM,
-		getControl Cert (ctrl D N    L  UL UR UM) /\
-		setControl Cert (ctrl D N (s L) UL UR UM) Cert' /\
+	returnAndIncrementLast Cert Cert' L := exists D N UL UR UM LN,
+		getControl Cert (ctrl D N    L  UL UR UM LN) /\
+		setControl Cert (ctrl D N (s L) UL UR UM LN) Cert' /\
 		gt N L.
 
+Define returnAndIncrementLNext : cert -> cert -> idx -> prop by
+	returnAndIncrementLNext Cert Cert' LN := exists D N L UL UR UM,
+		getControl Cert (ctrl D N L UL UR UM    LN ) /\
+		setControl Cert (ctrl D N L UL UR UM (s LN)) Cert'.
+
 Define resetUnfoldR : cert -> cert -> prop by
-	resetUnfoldR Cert Cert' := exists D N L UL UM,
-		getControl Cert (ctrl D N L UL _  UM) /\
-		setControl Cert (ctrl D N L UL UM UM) Cert'.
+	resetUnfoldR Cert Cert' := exists D N L UL UM LN,
+		getControl Cert (ctrl D N L UL _  UM LN) /\
+		setControl Cert (ctrl D N L UL UM UM LN) Cert'.
 
 Define checkNoLocalDecide : cert -> prop by
 	checkNoLocalDecide Cert := exists N L,
-		getControl Cert (ctrl _ N L _ _ _) /\
+		getControl Cert (ctrl _ N L _ _ _ _) /\
 		le N L.
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -344,11 +351,12 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % [For now, try everything, though it should be possible to "call by name"!]
 % [For now also, the index is a string; change in cert-sig.thm if needed]
 % [[Attention!! Returning an unbounded variable: potential, exotic trouble]]
-Define decideLClerk' : cert -> cert -> string -> prop by
-	decideLClerk' Cert Cert' "my_lemma" := % Idx :=
-		resetUnfoldR Cert Cert' /\
-		checkNoLocalDecide Cert'
-	/\ println "decideLClerk'"
+Define decideLClerk' : cert -> cert -> idx -> prop by
+	decideLClerk' Cert Cert' Idx := exists Cert'',
+		returnAndIncrementNext Cert Cert'' Idx /\
+		resetUnfoldR Cert'' Cert' %/\
+		%checkNoLocalDecide Cert'
+	/\ print "decideLClerk'" /\ println Idx
 	.
 
 % No restrictions on store/decide on the right (exactly one formula)

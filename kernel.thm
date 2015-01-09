@@ -15,7 +15,7 @@
 
 % A named context for lemmas
 Kind   lemma   type.
-Type   lemma   string -> bool -> lemma.
+Type   lemma   idx -> string -> bool -> lemma.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Immediate invariants %
@@ -304,7 +304,7 @@ async Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 async Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk' Xi Xi' Idx /\
-	member (lemma Idx C) Lambda /\
+	member (lemma Idx Name C) Lambda /\
 println "Lemma" /\
 	spy_syncL Lambda Xi' Sigma Phi Gamma C G ;
 

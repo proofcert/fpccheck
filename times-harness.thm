@@ -13,8 +13,8 @@
 %	(autoinduce z z z (dummy\ start z z z)).
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 #assert times_total'
-	(autoinduce (ctrl z z z z _ z)
-		(dummy\ start (ctrl (s (s z)) z z z _ (s z)))).
+	(autoinduce (ctrl z z z z _ z _)
+		(dummy\ start (ctrl (s (s z)) z z z _ (s z) _))).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 % Needs something else to work

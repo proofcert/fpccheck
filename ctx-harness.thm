@@ -6,25 +6,25 @@
 #include "ctx-examples.thm".       % Concrete examples
 
 #assert ctx1_struct Member IsNat
-	(induce (ctrl (s z) z z z _ z)
+	(induce (ctrl (s z) z z z _ z _)
 		(Args\ all N\ all L\ imp
 			(eq Args (L ++ argv)) (imp
 			(Member (N ++ L ++ argv))
 			(IsNat (N ++ argv))))
-		(dummy\ start (ctrl (s z) z z (s z) _ z))).
+		(dummy\ start (ctrl (s z) z z (s z) _ z _))).
 
 #assert ctx1_struct _ _
-	(autoinduce (ctrl z z z z _ z) (dummy\ start (ctrl (s z) z z (s z) _ z))).
+	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z (s z) _ z _))).
 
 #assert ctx1_length Length
-	(induce (ctrl (s z) z z z _ (s z))
+	(induce (ctrl (s z) z z z _ (s z) _)
 		(Args\ all L1\ all L2\ imp
 			(eq Args (L1 ++ L2 ++ argv))
 			(some N\ (and
 				(Length (L1 ++ N ++ argv))
 				(Length (L2 ++ N ++ argv)))))
-		(dummy\ start (ctrl (s z) z z (s z) _ (s (s z))))).
+		(dummy\ start (ctrl (s z) z z (s z) _ (s (s z)) _))).
 
 #assert ctx1_length _
-	(autoinduce (ctrl z z z z _ (s z))
-		(dummy\ start (ctrl (s z) z z (s z) _ (s (s z))))).
+	(autoinduce (ctrl z z z z _ (s z) _)
+		(dummy\ start (ctrl (s z) z z (s z) _ (s (s z)) _))).
