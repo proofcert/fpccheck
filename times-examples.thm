@@ -32,8 +32,7 @@ Define times_total' : cert -> prop by
 		total' Plus IsNat PlusTotal /\
 		total' Times IsNat TimesTotal /\
 		prove_with_lemmas Cert TimesTotal
-			((lemma z     "plus_total" PlusTotal) ::
-			 (lemma (s z) "plus_total" PlusTotal) :: nil).
+			((lemma z "plus_total" PlusTotal) :: nil).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 Define times_det : (i -> bool) -> cert -> prop by

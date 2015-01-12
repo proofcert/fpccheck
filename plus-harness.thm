@@ -6,24 +6,24 @@
 #include "plus-examples.thm".       % Concrete examples
 
 #assert plus_zero Plus
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(Args\ all N\ imp
 			(eq Args (N ++ argv))
 			(Plus (N ++ zero ++ N ++ argv)))
-		(dummy\ start (ctrl (s z) z z z _ (s z) _))).
+		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 #assert plus_zero _
-	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z z _ (s z) _))).
+	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 #assert plus_succ Plus
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(Args\ all K\ all M\ all N\ imp
 			(eq Args (K ++ M ++ N ++ argv))
 			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))
-		(dummy\ start (ctrl (s z) z z z _ (s z) _))).
+		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 #assert plus_succ _
-	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z z _ (s z) _))).
+	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 % Requires plus_zero as a lemma/embedded induction
 %#assert plus_comm
@@ -35,36 +35,36 @@
 %		(dummy\ start z z z)).
 
 #assert plus_total Plus
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(Args\ all A\ all B\ imp
 			(eq Args (A ++ argv))
 			(some C\ Plus (A ++ B ++ C ++ argv)))
-		(dummy\ start (ctrl (s z) z z z _ (s z) _))).
+		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 #assert plus_total _
-	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z z _ (s z) _))).
+	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 #assert plus_det Plus
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(Args\ all A\ all B\ all C\ all D\ imp
 			(eq Args (A ++ B ++ C ++ argv)) (imp
 			(Plus (A ++ B ++ D ++ argv))
 			(eq C D)))
-		(dummy\ start (ctrl (s z) z z (s z) _ z _))).
+		(dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
 
 #assert plus_det _
-	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z (s z) _ z _))).
+	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
 
 #assert plus_assoc Plus
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
 			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
 			(Plus (l6 ++ l1 ++ l7 ++ argv))
 			(some l3\ and
 				(Plus (l2 ++ l1 ++ l3 ++ argv))
 				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
-		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _))).
+		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
 
 #assert plus_assoc _
-	(autoinduce (ctrl z z z z _ z _)
-		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _))).
+	(autoinduce (ctrl z z z z _ z _ _)
+		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).

@@ -5,47 +5,47 @@
 #include "kernel.thm".              % Kernel
 #include "append-examples.thm".     % Concrete examples
 
-#assert appendable (start (ctrl z z z z _ (s z) _))
+#assert appendable (start (ctrl z z z z _ (s z) _ _))
 	null null null.
 
-#assert appendable (start (ctrl z z z z _ (s (s z)) _))
+#assert appendable (start (ctrl z z z z _ (s (s z)) _ _))
 	(cons a null) null (cons a null).
 
-#assert appendable (start (ctrl z z z z _ (s z) _))
+#assert appendable (start (ctrl z z z z _ (s z) _ _))
 	null (cons a null) (cons a null).
 
-#assert appendable (start (ctrl z z z z _ (s (s z)) _))
+#assert appendable (start (ctrl z z z z _ (s (s z)) _ _))
 	(cons a null) (cons b null) (cons a (cons b null)).
 
-#assert eigen_unify (start (ctrl z z z z _ z _)).
+#assert eigen_unify (start (ctrl z z z z _ z _ _)).
 
 #assert append_total Append
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(x\ all A\ all B\ imp
 			(eq x (A ++ argv))
 			(some C\ Append (A ++ B ++ C ++ argv)))
-		(dummy\ start (ctrl (s z) z z z _ (s z) _))).
+		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 #assert append_total _
-	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z z _ (s z) _))).
+	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 %#assert_not append_total _
-%	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl z z z z _ (s z) _))).
+%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl z z z z _ (s z) _ _))).
 
 #assert append_det Append
-	(induce (ctrl (s z) z z z _ (s (s z)) _)
+	(induce (ctrl (s z) z z z _ (s (s z)) _ _)
 		(x\ all I\ all J\ all K\ all L\ imp
 			(eq x (I ++ J ++ K ++ argv)) (imp
 			(Append (I ++ J ++ L ++ argv))
 			(eq K L)
 		))
-		(dummy\ start (ctrl (s z) z z (s z) _ z _))).
+		(dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
 
 #assert append_det _
-	(autoinduce (ctrl z z z z _ z _) (dummy\ start (ctrl (s z) z z (s z) _ z _))).
+	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
 
 #assert append_assoc Append
-	(induce (ctrl (s z) z z z _ z _)
+	(induce (ctrl (s z) z z z _ z _ _)
 		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
 			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
 			(Append (l6 ++ l1 ++ l7 ++ argv))
@@ -54,8 +54,8 @@
 				(Append (l4 ++ l3 ++ l7 ++ argv))
 			)
 		))
-		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _))).
+		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
 
 #assert append_assoc _
-	(autoinduce (ctrl z z z z _ z _)
-		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _))).
+	(autoinduce (ctrl z z z z _ z _ _)
+		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
