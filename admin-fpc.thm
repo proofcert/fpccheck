@@ -164,7 +164,7 @@ Define incrementLNext : cert -> cert -> prop by
 	incrementLNext Cert Cert' := exists D N L UL UR UM LN LL,
 		getControl Cert (ctrl D N L UL UR UM    LN  LL) /\
 		setControl Cert (ctrl D N L UL UR UM (s LN) LL) Cert' /\
-		gt LN LL.
+		gt LL LN.
 
 Define returnAndResetLNext : cert -> cert -> idx -> prop by
 	returnAndResetLNext Cert Cert' LN := exists D N L UL UR UM LL,
