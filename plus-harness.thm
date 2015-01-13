@@ -26,13 +26,9 @@
 	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
 % Requires plus_zero as a lemma/embedded induction
-%#assert plus_comm
-%	(induce z z z
-%		(Args\ all M\ all N\ all K\ imp
-%			(eq Args (M ++ N ++ K ++ argv)) (imp
-%			(IsNat (K ++ argv))
-%			(Plus (N ++ M ++ K ++ argv))))
-%		(dummy\ start z z z)).
+#assert plus_comm _ _
+	(autoinduce (ctrl z z z z _ z z z) (dummy\ start (ctrl (s (s z)) z z (s z) _ (s (s z)) z (s z)))).
+% (autoinduce (ctrl z z z z _ z z z) (dummy\ start (ctrl (s z) z z (s z) _ (s (s z)) z (s z)))) % Logical variable encountered on the left
 
 #assert plus_total Plus
 	(induce (ctrl (s z) z z z _ z _ _)

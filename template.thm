@@ -57,11 +57,11 @@ Define is_associative : cert -> (i -> bool) -> prop by
 Define commutative : (i -> bool) -> (i -> bool) -> bool -> prop by
 	commutative Op Memb
 		(all A\ all B\ all C\ (imp
-			(Memb (C ++ argv)) (imp
-			(Op (A ++ B ++ C ++ argv))
+			(Op (A ++ B ++ C ++ argv)) (imp
+			(Memb (C ++ argv))
 			(Op (B ++ A ++ C ++ argv))))).
 
-Define is_commutative : cert -> (i -> bool) -> (i -> bool) -> prop by
-	is_commutative Cert Op Memb := exists F,
+Define is_commutative : cert -> (i -> bool) -> (i -> bool) -> list lemma -> prop by
+	is_commutative Cert Op Memb Lemmas := exists F,
 		commutative Op Memb F /\
-		prove Cert F.
+		prove_with_lemmas Cert F Lemmas.

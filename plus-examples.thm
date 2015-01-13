@@ -13,9 +13,12 @@ Define plus_succ : (i -> bool) -> cert -> prop by
 			(Plus (K ++       M  ++       N  ++ argv))
 			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))).
 
+% [Here, the lemma should be expressed symbolically, not copied from above!]
 Define plus_comm : (i -> bool) -> (i -> bool) -> cert -> prop by
 	plus_comm Plus IsNat Cert :=
-		plus Plus /\ is_nat IsNat /\ is_commutative Cert Plus IsNat.
+		plus Plus /\ is_nat IsNat /\ is_commutative Cert Plus IsNat
+			((lemma z "plus_zero" (all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv))))) ::
+			 (lemma (s z) "plus_succ" (all K\ all M\ all N\ (imp (Plus (K ++ M  ++ N  ++ argv)) (Plus (K ++ (succ M) ++ (succ N) ++ argv))))) :: nil).
 
 Define plus_total : (i -> bool) -> cert -> prop by
 	plus_total Plus Cert :=
