@@ -104,6 +104,8 @@ Type   s   idx -> idx.
 
 % (Reusing for now for unfolding counters, even though type reuse is evil.)
 
+#include "debug-admin-fpc.thm".
+
 %%%%%%%%%%%%%%%%%%%%%
 % Helper predicates %
 %%%%%%%%%%%%%%%%%%%%%
@@ -303,7 +305,7 @@ Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 Define unfoldLClerk : cert -> cert -> prop by
 	unfoldLClerk Cert Cert' :=
 		decrementUnfoldL Cert Cert'
-	/\ println "unfoldLClerk"
+	/\ println "unfoldLClerk" /\ print_cert Cert'
 	.	
 
 % On the right, we expect purely positive, terminating computation
@@ -311,7 +313,7 @@ Define unfoldLClerk : cert -> cert -> prop by
 Define unfoldRExpert : cert -> cert -> prop by
 	unfoldRExpert Cert Cert' :=
 		decrementUnfoldR Cert Cert'
-	/\ println "unfoldRExpert"
+	/\ println "unfoldRExpert" /\ print_cert Cert'
 	.
 
 % Greatest fixed points are never unfolded
@@ -352,7 +354,7 @@ Define initLExpert : cert -> prop by initLExpert _ := false.
 Define storeLClerk : cert -> cert -> idx -> prop by
 	storeLClerk Cert Cert' Next :=
 		returnAndIncrementNext Cert Cert' Next
-	/\ print "storeLClerk" /\ println Next
+	/\ print "storeLClerk" /\ println Next /\ print_cert Cert'
 	.
 
 % Local decide
@@ -362,7 +364,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert' Last := exists Cert'',
 		returnAndIncrementLast Cert Cert'' Last /\
 		resetUnfoldR Cert'' Cert'
-	/\ print "decideLClerk" /\ println Last
+	/\ print "decideLClerk" /\ println Last /\ print_cert Cert'
 	.
 
 % "Global" decide (on lemmas)
@@ -373,7 +375,7 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert' LNext := exists Cert'',
 		returnAndResetLNext Cert Cert'' LNext /\
 		resetUnfoldR Cert'' Cert'
-	/\ print "decideLClerk'" /\ println LNext
+	/\ print "decideLClerk'" /\ println LNext /\ print_cert Cert'
 	;
 	% ... or we may try to decide on the next one (or the next, etc.)
 	decideLClerk' Cert Cert' LNext := exists Cert'',
@@ -388,14 +390,14 @@ Define storeRClerk : cert -> cert -> prop by
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert' :=
 		resetUnfoldR Cert Cert'
-	/\ println "decideRClerk"
+	/\ println "decideRClerk" /\ print_cert Cert'
 	.
 
 % No restrictions on release [sure, always?]
 Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert' :=
 		decrementDepth Cert Cert'
-	/\ println "releaseLExpert"
+	/\ println "releaseLExpert" /\ print_cert Cert'
 	.
 
 Define releaseRExpert : cert -> cert -> prop by releaseRExpert _ _ := false.
