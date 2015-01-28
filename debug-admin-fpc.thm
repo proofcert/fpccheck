@@ -49,10 +49,12 @@ Define print_ctrl : ctrl -> prop by
 		printstr "UnfoldR (" /\ print_idx UR /\ printstr "," /\ print_idx UM /\ printstr "), " /\
 		printstr "Lemma (" /\ print_idx LN /\ printstr "," /\ print_idx LL /\ printstr ")".
 
+% WARNING: Infinite backtracking risk on don't cares: use with caution!
 Define print_cert : cert -> prop by
-	print_cert (start      Ctrl    ) :=
-		printstr "  Ξ: simple  " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (induce     Ctrl _ _) :=
-		printstr "  Ξ: man-ind " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (autoinduce Ctrl   _) :=
-		printstr "  Ξ: imm-ind " /\ print_ctrl Ctrl /\ printstr "\n".
+	print_cert Cert.
+%	print_cert (start      Ctrl    ) :=
+%		printstr "  Ξ: simple  " /\ print_ctrl Ctrl /\ printstr "\n" ;
+%	print_cert (induce     Ctrl _ _) :=
+%		printstr "  Ξ: man-ind " /\ print_ctrl Ctrl /\ printstr "\n" ;
+%	print_cert (autoinduce Ctrl   _) :=
+%		printstr "  Ξ: imm-ind " /\ print_ctrl Ctrl /\ printstr "\n".
