@@ -17,6 +17,13 @@
 		)
 	).
 
+#assert times_det
+	(autoinduce (ctrl z z z z z z z z)
+		(dummy\ guideOr (ctrl z z z z z z z z)
+			(start (ctrl z z z (s z) z z z z))
+			(guideLemma (ctrl (s z) z z (s z) z z z z) z
+				(start (ctrl (s z) z z z z z z z))))).
+
 % Needs something else to work
 %#assert times_succ
 %	(autoinduce z z z (dummy\ start z z (s z))).

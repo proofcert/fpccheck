@@ -35,10 +35,11 @@ Define times_total' : cert -> prop by
 			((lemma z "plus_total" PlusTotal) :: nil).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
-Define times_det : (i -> bool) -> cert -> prop by
-	times_det Times Cert :=
-		times Times /\ 
-		is_deterministic Cert Times.
+Define times_det : cert -> prop by
+	times_det Cert :=
+		times Times /\ plus Plus /\ deterministic Plus PlusDet /\
+		is_deterministic' Cert Times
+			((lemma z "plus_det" PlusDet) :: nil).
 
 %times_comm
 %times_assoc
