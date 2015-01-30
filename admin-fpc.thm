@@ -205,13 +205,15 @@ Define andClerk : cert -> cert -> prop by
 
 %NOTE Explicit enumeration!
 Define orClerk : cert -> cert -> cert -> prop by
-	orClerk (guideOr _ Cert Cert') Cert Cert' ;
+	orClerk (guideOr _ Cert Cert') Cert Cert'
+	:= println "orClerk guided"
+	;
 	orClerk Cert Cert Cert := (
 		Cert = (start _)          \/
 		Cert = (induce _ _ _)     \/
-		Cert = (autoinduce _  _)  \/
+		Cert = (autoinduce _ _)   \/
 		Cert = (guideLemma _ _ _) )
-	/\ println "orClerk"
+	/\ println "orClerk blind"
 	.
 
 Define impClerk : cert -> cert -> prop by
@@ -345,9 +347,13 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 %	freezeLClerk (start (ctrl D N L z UR UM)) (start (ctrl D N L z UR UM))
 %	:= println "freezeLClerk"
 %	.
+% This is trickier: let's allow this for non-eager predicates
 Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk (start Ctrl) (start Ctrl)
-	:= println "freezeLClerk"
+	freezeLClerk Cert Cert := (
+		Cert = (start _)          \/
+		Cert = (guideOr _ _ _)    \/
+		Cert = (guideLemma _ _ _) )
+	/\ println "freezeLClerk"
 	.
 
 % [No restrictions given to init, although similar ones may apply, cf. freeze]
@@ -385,7 +391,9 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % [Restrict to those moments when nothing else is possible?] %checkNoLocalDecide Cert'
 % -> Tentatively fulfilling our promise of a "call by name" (index)
 Define decideLClerk' : cert -> cert -> idx -> prop by
-	decideLClerk' (guideLemma _ Idx Cert) Cert Idx.
+	decideLClerk' (guideLemma _ Idx Cert) Cert Idx
+	:= print "decideLClerk'" /\ println Idx
+	.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
