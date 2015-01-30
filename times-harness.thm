@@ -9,8 +9,13 @@
 	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s (s z)) z z z _ (s (s z)) z z))).
 
 #assert times_total'
-	(autoinduce (ctrl z z z z _ z _ _)
-		(dummy\ start (ctrl (s (s z)) z z z _ (s z) z z))).
+	(autoinduce (ctrl z z z z z z z z)
+		(dummy\ guideOr (ctrl z z z z z z z z)
+			(start (ctrl z z z z z (s z) z z))
+			(guideLemma (ctrl (s z) z z z z z z z) z
+				(start (ctrl (s z) z z z z (s z) z z)))
+		)
+	).
 
 % Needs something else to work
 %#assert times_succ

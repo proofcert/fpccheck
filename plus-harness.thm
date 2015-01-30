@@ -27,7 +27,14 @@
 
 % Requires plus_zero as a lemma/embedded induction
 #assert plus_comm _ _
-	(autoinduce (ctrl z z z z _ z z z) (dummy\ start (ctrl (s (s z)) z z (s z) _ (s (s z)) z (s z)))).
+	(autoinduce (ctrl z z z z z z z z)
+		(dummy\ guideOr (ctrl z z z z z z z z)
+			(guideLemma (ctrl z z z z z z z z) z
+				(start (ctrl (s z) z z z z z z z)))
+			(guideLemma (ctrl (s z) z z (s z) z z z z) (s z)
+				(start (ctrl (s z) z z z z z z z)))
+		)
+	).
 % (autoinduce (ctrl z z z z _ z z z) (dummy\ start (ctrl (s z) z z (s z) _ (s (s z)) z (s z)))) % Logical variable encountered on the left
 
 #assert plus_total Plus
