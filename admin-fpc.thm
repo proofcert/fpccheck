@@ -92,6 +92,10 @@ Type   induce       ctrl -> (i -> bool) -> (i -> cert) -> cert.
 % May need a 'freeze' nesting to select the appropriate clause sometimes?
 Type   autoinduce   ctrl                -> (i -> cert) -> cert.
 
+                  % Ctrl  % Idx  % NewC1 % NewC2 
+Type   guideOr      ctrl ->        cert -> cert -> cert.
+Type   guideLemma   ctrl -> idx -> cert         -> cert.
+
 %%%%%%%%%%%%%%%%%%%%%%
 % Index constructors %
 %%%%%%%%%%%%%%%%%%%%%%
@@ -115,12 +119,16 @@ Type   s   idx -> idx.
 Define getControl : cert -> ctrl -> prop by
 	getControl (start      Ctrl    ) Ctrl ;
 	getControl (induce     Ctrl _ _) Ctrl ;
-	getControl (autoinduce Ctrl   _) Ctrl.
+	getControl (autoinduce Ctrl   _) Ctrl ;
+	getControl (guideOr    Ctrl _ _) Ctrl ;
+	getControl (guideLemma Ctrl _ _) Ctrl.
 
 Define setControl : cert -> ctrl -> cert -> prop by
-	setControl (start      _     ) Ctrl (start      Ctrl     ) ;
-	setControl (induce     _ S Xi) Ctrl (induce     Ctrl S Xi) ;
-	setControl (autoinduce _   Xi) Ctrl (autoinduce Ctrl   Xi).
+	setControl (start      _             ) Ctrl (start      Ctrl             ) ;
+	setControl (induce     _ S     Xi    ) Ctrl (induce     Ctrl S     Xi    ) ;
+	setControl (autoinduce _       Xi    ) Ctrl (autoinduce Ctrl       Xi    ) ;
+	setControl (guideOr    _       Xi Xi') Ctrl (guideOr    Ctrl       Xi Xi') ;
+	setControl (guideLemma _   Idx Xi    ) Ctrl (guideLemma Ctrl   Idx Xi    ).
 
 Define gt : idx -> idx -> prop by
 	gt (s _) z ;
@@ -195,9 +203,15 @@ Define andClerk : cert -> cert -> prop by
 	:= println "andClerk"
 	.
 
+%NOTE Explicit enumeration!
 Define orClerk : cert -> cert -> cert -> prop by
-	orClerk Cert Cert Cert
-	:= println "orClerk"
+	orClerk (guideOr _ Cert Cert') Cert Cert' ;
+	orClerk Cert Cert Cert := (
+		Cert = (start _)          \/
+		Cert = (induce _ _ _)     \/
+		Cert = (autoinduce _  _)  \/
+		Cert = (guideLemma _ _ _) )
+	/\ println "orClerk"
 	.
 
 Define impClerk : cert -> cert -> prop by
@@ -369,18 +383,9 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 
 % "Global" decide (on lemmas)
 % [Restrict to those moments when nothing else is possible?] %checkNoLocalDecide Cert'
-% [For now, try everything, though it should be possible to "call by name"!]
+% -> Tentatively fulfilling our promise of a "call by name" (index)
 Define decideLClerk' : cert -> cert -> idx -> prop by
-	% We may pick any one lemma and proceed, in which case the count is reset...
-	decideLClerk' Cert Cert' LNext := exists Cert'',
-		returnAndResetLNext Cert Cert'' LNext /\
-		resetUnfoldR Cert'' Cert'
-	/\ print "decideLClerk'" /\ println LNext /\ print_cert Cert'
-	;
-	% ... or we may try to decide on the next one (or the next, etc.)
-	decideLClerk' Cert Cert' LNext := exists Cert'',
-		incrementLNext Cert Cert'' /\
-		decideLClerk' Cert'' Cert' LNext.
+	decideLClerk' (guideLemma _ Idx Cert) Cert Idx.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
