@@ -200,7 +200,7 @@ Define ttClerk : cert -> cert -> prop by ttClerk _ _ := false.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert
-	:= println "andClerk"
+	:= println "andClerk" /\ print_cert Cert
 	.
 
 %NOTE Explicit enumeration!
@@ -213,17 +213,17 @@ Define orClerk : cert -> cert -> cert -> prop by
 		Cert = (induce _ _ _)     \/
 		Cert = (autoinduce _ _)   \/
 		Cert = (guideLemma _ _ _) )
-	/\ println "orClerk blind"
+	/\ println "orClerk blind" /\ print_cert Cert
 	.
 
 Define impClerk : cert -> cert -> prop by
 	impClerk Cert Cert
-	:= println "impClerk"
+	:= println "impClerk" /\ print_cert Cert
 	.
 
 Define eqClerk : cert -> cert -> prop by
 	eqClerk Cert Cert
-	:= println "eqClerk"
+	:= println "eqClerk" /\ print_cert Cert
 	.
 
 %---------------------------------%
@@ -235,7 +235,7 @@ Define ttExpert : cert -> prop by ttExpert _ := false.
 
 Define andExpert : cert -> cert -> cert -> prop by
 	andExpert Cert Cert Cert
-	:= println "andExpert"
+	:= println "andExpert" /\ print_cert Cert
 	.
 
 % Assuming that in a fixed point the base cases are given first, we prioritize
@@ -243,10 +243,10 @@ Define andExpert : cert -> cert -> cert -> prop by
 % this fails, on the right.
 Define orExpert : cert -> cert -> choice -> prop by
 	orExpert Cert Cert left 
-	:= println "orExpert left"
+	:= println "orExpert left" /\ print_cert Cert
 	;
 	orExpert Cert Cert right
-	:= println "orExpert right"
+	:= println "orExpert right" /\ print_cert Cert
 	.
 
 % "Standard-order" implication is forbidden
@@ -257,13 +257,13 @@ Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 % interesting consequent.
 Define impExpert' : cert -> cert -> cert -> prop by
 	impExpert' Cert Cert Cert
-	:= println "impExpert'"
+	:= println "impExpert'" /\ print_cert Cert
 	.
 
 % [Random: should this be limited to initial certificates?]
 Define eqExpert : cert -> prop by
 	eqExpert Cert
-	:= println "eqExpert"
+	:= println "eqExpert" /\ print_cert Cert
 	.
 
 %-------------%
@@ -273,23 +273,23 @@ Define eqExpert : cert -> prop by
 % Clerks: new eigenvariables
 Define allClerk : cert -> (i -> cert) -> prop by
 	allClerk Cert (_\ Cert)
-	:= println "allClerk"
+	:= println "allClerk" /\ print_cert Cert
 	.
 
 Define someClerk : cert -> (i -> cert) -> prop by
 	someClerk Cert (_\ Cert)
-	:= println "someClerk"
+	:= println "someClerk" /\ print_cert Cert
 	.
 
 % Experts: new logic variables ("holes" in the proof)
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
-	:= println "allExpert"
+	:= println "allExpert" /\ print_cert Cert
 	.
 
 Define someExpert : cert -> cert -> i -> prop by
 	someExpert Cert Cert _
-	:= println "someExpert"
+	:= println "someExpert" /\ print_cert Cert
 	.
 
 %-------------------------%
@@ -353,13 +353,13 @@ Define freezeLClerk : cert -> cert -> prop by
 		Cert = (start _)          \/
 		Cert = (guideOr _ _ _)    \/
 		Cert = (guideLemma _ _ _) )
-	/\ println "freezeLClerk"
+	/\ println "freezeLClerk" /\ print_cert Cert
 	.
 
 % [No restrictions given to init, although similar ones may apply, cf. freeze]
 Define initRExpert : cert -> prop by
 	initRExpert Cert
-	:= println "initRExpert"
+	:= println "initRExpert" /\ print_cert Cert
 	.
 
 % [Added: greatest fixed points not supported]
@@ -392,13 +392,13 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % -> Tentatively fulfilling our promise of a "call by name" (index)
 Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' (guideLemma _ Idx Cert) Cert Idx
-	:= print "decideLClerk'" /\ println Idx
+	:= print "decideLClerk'" /\ println Idx /\ print_cert Cert
 	.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
 	storeRClerk Cert Cert
-	:= println "storeRClerk"
+	:= println "storeRClerk" /\ print_cert Cert
 	.
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert' :=
