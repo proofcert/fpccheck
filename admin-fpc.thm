@@ -186,6 +186,14 @@ Define checkNoLocalDecide : cert -> prop by
 		getControl Cert (ctrl _ N L _ _ _ _ _) /\
 		le N L.
 
+% Transfer the global, shared parts of a certificate to its successor
+%NOTE This is added manually to each instance of succession, and thus is at risk
+Define bequest : cert -> cert -> cert -> prop by
+	bequest Bequeather Heir Inheritor := exists D N L UL UR UM LN LL,
+		getControl Bequeather (ctrl _ N L _  _  _  _  _ ) /\
+		getControl Heir       (ctrl D _ _ UL UR UM LN LL) /\
+		setControl Heir       (ctrl D N L UL UR UM LN LL) Inheritor.
+
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
 %%%%%%%%%%%%%%%%%%%%%%
@@ -205,8 +213,11 @@ Define andClerk : cert -> cert -> prop by
 
 %NOTE Explicit enumeration!
 Define orClerk : cert -> cert -> cert -> prop by
-	orClerk (guideOr _ Cert Cert') Cert Cert'
-	:= println "orClerk guided"
+	orClerk Cert CertL CertR := exists CertL' CertR',
+		Cert = (guideOr _ CertL' CertR') /\
+		bequest Cert CertL' CertL /\
+		bequest Cert CertR' CertR
+	/\ println "orClerk guided"
 	;
 	orClerk Cert Cert Cert := (
 		Cert = (start _)          \/
@@ -296,17 +307,19 @@ Define someExpert : cert -> cert -> i -> prop by
 % Fixed points: induction %
 %-------------------------%
 
+%NOTE No bequest! If inductions do not occur right at the start, buggy
 % Perform a simple search on the base branch (propagating indexes!) and extract
 % continuation certificate and invariant for the induction branch.
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk (induce Ctrl S Cert') (start Ctrl) Cert' S
-	:= println "indClerk"
+	:= println "indClerk (no bequest)"
 	.
 
+%NOTE No bequest! If inductions do not occur right at the start, buggy
 % A simplified scheme for immediate induction
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (autoinduce Ctrl Cert') Cert'
-	:= println "indClerk'"
+	:= println "indClerk' (no bequest)"
 	.
 
 % [Added]
@@ -391,8 +404,10 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % [Restrict to those moments when nothing else is possible?] %checkNoLocalDecide Cert'
 % -> Tentatively fulfilling our promise of a "call by name" (index)
 Define decideLClerk' : cert -> cert -> idx -> prop by
-	decideLClerk' (guideLemma _ Idx Cert) Cert Idx
-	:= print "decideLClerk'" /\ println Idx /\ print_cert Cert
+	decideLClerk' Cert Cert' Idx := exists Cert'',
+		Cert = (guideLemma _ Idx Cert'') /\
+		bequest Cert Cert'' Cert'
+	/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert
 	.
 
 % No restrictions on store/decide on the right (exactly one formula)
