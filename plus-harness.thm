@@ -71,3 +71,11 @@
 #assert plus_assoc _
 	(autoinduce (ctrl z z z z _ z _ _)
 		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
+
+#assert augend_nat
+	(autoinduce (ctrl z z z z z z z z)
+		(dummy\ guideOr (ctrl z z z z z z z z)
+			(start (ctrl z z z z z (s z) z z))
+			(start (ctrl (s z) z z (s z) z (s z) z z))
+		)
+	).

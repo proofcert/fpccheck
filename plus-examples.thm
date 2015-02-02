@@ -31,3 +31,19 @@ Define plus_det : (i -> bool) -> cert -> prop by
 Define plus_assoc : (i -> bool) -> cert -> prop by
 	plus_assoc Plus Cert :=
 		plus Plus /\ is_associative Cert Plus.
+
+%%%%%%%%%%%%%%%%%%%%
+% Typing judgments %
+%%%%%%%%%%%%%%%%%%%%
+
+Define augend_nat_f : bool -> prop by
+	augend_nat_f F :=
+		plus Plus /\ is_nat IsNat /\ F =
+		(all A\ all B\ all C\ imp
+			(Plus (A ++ B ++ C ++ argv)) (imp
+			(IsNat (C ++ argv))
+			(IsNat (A ++ argv)))).
+
+Define augend_nat : cert -> prop by
+	augend_nat Cert :=
+		augend_nat_f AugendNat /\ prove Cert AugendNat.
