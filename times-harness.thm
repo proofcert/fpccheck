@@ -24,6 +24,85 @@
 			(guideLemma (ctrl (s z) z z (s z) z z z z) z
 				(start (ctrl (s z) z z z z z z z))))).
 
+#assert times_comm
+	(autoinduce (ctrl z z z z z z z z)
+		(dummy\ guideOr (ctrl z z z z z z z z)
+			(guideLemma (ctrl z z z z z z z z) z
+				(start (ctrl (s z) z z z z z z z)))
+			(guideLemma (ctrl z z z (s z) z z z (s z)) (s z)
+				(guideLemma (ctrl (s (s z)) z z z z z z (s (s z))) (s (s z))
+					(guideLemma (ctrl (s z) z z z z z z (s (s (s z)))) (s (s (s z)))
+						(start (ctrl (s z) z z z z z z (s (s (s (s z))))))
+					)
+				)
+			)
+		)
+	).
+
+% After this, it's straightforward (even though decision trees are deep enough that without resuming halfway from a saved state that we assume correct it will be very slow to prove and adjust optimality of subsequent phases! thankfully, here we got lucky
+%%
+% After adjusting bequests, this seems to work until the end of guidelemma2, where we want to release and freeze, again, i.e. until around line 1300 of the trace, level 54 (lines may change, levels won't... right?)
+%	(autoinduce (ctrl z z z z z z z z)
+%		(dummy\ guideOr (ctrl z z z z z z z z)
+%			(guideLemma (ctrl z z z z z z z z) z
+%				(start (ctrl (s z) z z z z z z z)))
+%			(guideLemma (ctrl z z z (s z) z z z (s z)) (s z)
+%				(guideLemma (ctrl (s z) z z z z z z (s (s z))) (s (s z))
+%					(guideLemma (ctrl (s z) z z z z z z (s (s (s z)))) (s (s (s z)))
+%						(start (ctrl (s z) z z z z z z (s (s (s (s z))))))
+%					)
+%				)
+%			)
+%		)
+%	).
+% This gets stuck trying to apply the third lemma, given all the combinations of naturals and stuff. What to do? For one thing, we can change the order of hypotheses so that the most specific will go first! This will speed things up dramatically, and certainly typing judgments should go last, being the least specific of the lot
+%	(autoinduce (ctrl z z z z z z z z)
+%		(dummy\ guideOr (ctrl z z z z z z z z)
+%			(guideLemma (ctrl z z z z z z z z) z
+%				(start (ctrl (s z) z z z z z z z)))
+%			(guideLemma (ctrl z z z (s z) z z z (s z)) (s z)
+%				(guideLemma (ctrl (s z) z z z z z z (s (s z))) (s (s z))
+%					(guideLemma (ctrl (s z) z z z z z z (s (s (s z)))) (s (s (s z)))
+%						(start (ctrl (s z) z z z z z z (s (s (s (s z))))))
+%					)
+%				)
+%			)
+%		)
+%	).
+% up to [39] line 999, ok; but then, when I releaseL and freezeL, I fail to decideL on the stored bit in gamma! why? had I decided on it fruitlessly before? only tried and failed! I probably need to print the certificates to see what's going on
+% This basic skeleton shows that a fair lot of guesses in backtracking are involved, but it ends "quickly"
+%	(autoinduce (ctrl z z z z z z z z)
+%		(dummy\ guideOr (ctrl z z z z z z z z)
+%			(guideLemma (ctrl z z z z z z z z) z
+%				(start (ctrl (s z) z z z z z z z)))
+%			(guideLemma (ctrl z z z z z z z z) (s z)
+%				(guideLemma (ctrl (s z) z z z z z z z) (s (s z))
+%					(guideLemma (ctrl (s z) z z z z z z z) (s (s (s z)))
+%						(start (ctrl (s z) z z z z z z z))
+%					)
+%				)
+%			)
+%		)
+%	).
+% First branch ok (return point [11])
+%	(autoinduce (ctrl z z z z z z z z)
+%		(dummy\ guideOr (ctrl z z z z z z z z)
+%			(guideLemma (ctrl z z z z z z z z) z
+%				(start (ctrl (s z) z z z z z z z)))
+%			(start (ctrl z z z z z z z z))
+%		)
+%	).
+% Too much search in first branch, but probable ok (haven't checked exhaustively)
+%	(autoinduce (ctrl z z z z z z z z)
+%		(dummy\ guideOr (ctrl z z z z z z z z)
+%			(guideLemma (ctrl z z z (s z) z z z z) z
+%				(start (ctrl (s z) z z z z z z z)))
+%			(start (ctrl z z z z z z z z))
+%		)
+%	).
+%% Whenever we enter a lemma, we will need to escape it, and its continuation needs to open one new bipole at least (and hopefully just one)
+%% Probably, I want to favor freezes without "successor"-like stuff, which I'd unroll prior to that: here how to pick efficiently is very important (and from the CASE there seems to be enough information in the Abella script to decide)
+
 % Needs something else to work
 %#assert times_succ
 %	(autoinduce z z z (dummy\ start z z (s z))).

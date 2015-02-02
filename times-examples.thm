@@ -1,12 +1,16 @@
 #include "template.thm".
+#include "plus-examples.thm".
+
+Define times_zero_f : bool -> prop by
+	times_zero_f F :=
+		times Times /\ is_nat IsNat /\ F =
+		(all N\ (imp
+			(IsNat (N ++ argv))
+			(Times (N ++ zero ++ zero ++ argv)))).
 
 Define times_zero : cert -> prop by
 	times_zero Cert :=
-		times Times /\ is_nat IsNat /\
-		prove Cert
-			(all N\ (imp
-				(IsNat (N ++ argv))
-				(Times (N ++ zero ++ zero ++ argv)))).
+		times_zero_f TimesZero /\ prove Cert TimesZero.
 
 Define times_succ : cert -> prop by
 	times_succ Cert :=
@@ -18,6 +22,20 @@ Define times_succ : cert -> prop by
 				(some KM\ (and
 					(Times (K ++ M ++ KM ++ argv))
 					(Plus (K ++ KM ++ N))))))).
+
+% Need a better naming scheme!
+Define times_succ_f' : bool -> prop by
+	times_succ_f' F :=
+		times Times /\ plus Plus /\ is_nat IsNat /\ F =
+		(all M\ all N\ all MN\ imp
+			(Times (M ++ N ++ MN ++ argv)) (imp
+			(IsNat (M  ++ argv)) (imp
+			(IsNat (N  ++ argv)) (imp
+			(IsNat (MN ++ argv))
+			(some K\ and
+				(IsNat (K ++ argv)) (and
+				(Plus (MN ++ M ++ K ++ argv))
+				(Times (M ++ (succ N) ++ K ++ argv)))))))).
 
 Define times_total : cert -> prop by
 	times_total Cert :=
@@ -41,5 +59,31 @@ Define times_det : cert -> prop by
 		is_deterministic' Cert Times
 			((lemma z "plus_det" PlusDet) :: nil).
 
-%times_comm
+%TODO temporarily not using templates to specialize
+Define times_comm_f : bool -> prop by
+	times_comm_f F :=
+		times Times /\ is_nat IsNat /\ F =
+		(all M\ all N\ all K\ imp
+			(Times (M ++ N ++ K ++ argv)) (imp
+			(IsNat (M ++ argv)) (imp
+			(IsNat (N ++ argv)) (imp
+			(IsNat (K ++ argv))
+			(Times (N ++ M ++ K ++ argv)))))).
+
+Define times_comm : cert -> prop by
+	times_comm Cert :=
+		% Base predicates
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		% Lemmas
+		times_zero_f TimesZero /\ augend_nat_f AugendNat /\
+		times_succ_f' TimesSucc' /\ deterministic Plus PlusDet /\
+		% Theorem
+		times_comm_f TimesComm /\
+		% Proof statement
+		prove_with_lemmas Cert TimesComm
+			((lemma          z    "times_zero"  TimesZero ) ::
+			 (lemma       (s z)   "augend_nat"  AugendNat ) ::
+			 (lemma    (s (s z))  "times_succ'" TimesSucc') ::
+			 (lemma (s (s (s z))) "plus_det"    PlusDet   ) :: nil).
+
 %times_assoc
