@@ -44,6 +44,49 @@ Define augend_nat_f : bool -> prop by
 			(IsNat (C ++ argv))
 			(IsNat (A ++ argv)))).
 
+%TODO Cert missing!
 Define augend_nat : cert -> prop by
 	augend_nat Cert :=
 		augend_nat_f AugendNat /\ prove Cert AugendNat.
+
+Define addend_nat_f : bool -> prop by
+	addend_nat_f F :=
+		plus Plus /\ is_nat IsNat /\ F =
+		(all A\ all B\ all C\ imp
+			(Plus (A ++ B ++ C ++ argv)) (imp
+			(IsNat (C ++ argv))
+			(IsNat (B ++ argv)))).
+
+%TODO Cert missing!
+Define addend_nat : cert -> prop by
+	addend_nat Cert :=
+		augend_nat_f AddendNat /\ prove Cert AddendNat.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Constructive permutations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Define plus_assoc_rl_f : bool -> prop by
+	plus_assoc_rl_f F :=
+		plus Plus /\ is_nat IsNat /\ F =
+		(all A\ all B\ all C\ all BC\ all ABC\ imp
+			(Plus (B ++  C ++  BC ++ argv)) (imp
+			(Plus (A ++ BC ++ ABC ++ argv)) (imp
+			(IsNat (ABC ++ argv))
+			(some AB\ and
+				(Plus (A  ++ B ++ AB  ++ argv))
+				(Plus (AB ++ C ++ ABC ++ argv)))))).
+
+Define plus_assoc_rl : cert -> prop by
+	plus_assoc_rl Cert :=
+		%
+		plus Plus /\ is_nat IsNat /\
+		%
+		addend_nat_f AddendNat /\
+		commutative Plus IsNat PlusComm /\ associative Plus PlusAssoc /\
+		%
+		plus_assoc_rl_f PlusAssocRL /\
+		prove_with_lemmas Cert PlusAssocRL (
+			(lemma       z   "addend_nat" AddendNat) ::
+			(lemma    (s z)  "plus_comm"  PlusComm ) ::
+			(lemma (s (s z)) "plus_assoc" PlusAssoc) :: nil).

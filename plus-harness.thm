@@ -79,3 +79,16 @@
 			(start (ctrl (s z) z z (s z) z (s z) z z))
 		)
 	).
+
+% Warning: plenty of backtracking on this one! (due to choice)
+% (Increasing lemma counters are only keeping track of where we are)
+#assert plus_assoc_rl
+	(guideLemma (ctrl    z  z z z z z z                      z       )    (s z)
+	(guideLemma (ctrl (s z) z z z z z z                   (s z)      )       z
+	(guideLemma (ctrl (s z) z z z z z z                (s (s z))     )    (s z)
+	(guideLemma (ctrl (s z) z z z z z z             (s (s (s z)))    ) (s (s z))
+	(guideLemma (ctrl (s z) z z z z z z          (s (s (s (s z))))   )    (s z)
+	(guideLemma (ctrl (s z) z z z z z z       (s (s (s (s (s z)))))  )       z
+	(guideLemma (ctrl (s z) z z z z z z    (s (s (s (s (s (s z)))))) )    (s z)
+	(start      (ctrl (s z) z z z z z z (s (s (s (s (s (s (s z))))))))
+	)))))))).
