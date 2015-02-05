@@ -317,10 +317,13 @@ Define ffClerk : cert -> prop by ffClerk _ := false.
 Define ttClerk : cert -> cert -> prop by ttClerk _ _ := false.
 
 Define andClerk : cert -> cert -> prop by
-	andClerk Cert Cert
-% level 47
-	:= println "andClerk" /\ print_cert Cert
+	andClerk Cert Cert' :=
+		getControl Cert (ctrl Limits (names ((split NameL    NameR) :: Delta) Goal)) /\
+		setControl Cert (ctrl Limits (names (       NameL :: NameR  :: Delta) Goal)) Cert'
+	/\ println "andClerk" /\ print_cert Cert'
 	.
+	%2nd case; also TODO check that debug printers are not operating on old data after additions!!!
+	%also not that no exists are used here, and it seems to work fine! remove clutter elsewhere? when?
 
 %NOTE Explicit enumeration!
 Define orClerk : cert -> cert -> cert -> prop by
