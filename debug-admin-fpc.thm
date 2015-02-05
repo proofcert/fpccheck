@@ -44,12 +44,14 @@ Define print_idx : numidx -> prop by
 
 %NOTE not doing anything with names, now and yet...
 Define print_ctrl : ctrl -> prop by
-	print_ctrl (ctrl (limits D N L UL UR UM LN LL) Names) :=
+	print_ctrl (ctrl (limits D N L UL UR UM LN LL) (names Delta Goal)) :=
 		printstr "Depth " /\ print_idx D /\ printstr ", " /\
 		printstr "Store (" /\ print_idx N /\ printstr "," /\ print_idx L /\ printstr "), " /\
 		printstr "UnfoldL " /\ print_idx UL /\ printstr ", " /\
 		printstr "UnfoldR (" /\ print_idx UR /\ printstr "," /\ print_idx UM /\ printstr "), " /\
-		printstr "Lemma (" /\ print_idx LN /\ printstr "," /\ print_idx LL /\ printstr ")".
+		printstr "Lemma (" /\ print_idx LN /\ printstr "," /\ print_idx LL /\ printstr ")" /\
+		printstr "\n  Δ: " /\ print Delta /\
+		printstr "\n  Ω: " /\ print Goal.
 
 % WARNING: Infinite backtracking risk on don't cares: use with caution!
 Define print_cert : cert -> prop by
