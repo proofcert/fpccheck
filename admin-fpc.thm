@@ -36,29 +36,81 @@
 % independently along each branch.
 %   Random idea: do random starting indexes, e.g. _, make any sense?
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Indexes as enumerations %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Indexes are natural counters representing the next index to generate and the
+% last index retrieved; both are used to avoid processing a stored formula more
+% than once and thus avoid looping behavior
+Kind   numidx   type.
+Type   z        numidx.
+Type   s        numidx -> numidx.
+% A don't-care index adds flexible encoding and avoids backtracking traps; it
+% should always be used in isolation
+Type   x        numidx.
+
+% (Reusing for now for unfolding counters, even though type reuse is evil.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Indexes as hypotheses %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% A simple branching structure reproduces the branching pattern of a theorem or
+% lemma and assigns a (possibly/usually/hopefully?) unique index to each leaf
+% i.e. fixed point expression for guidance in the application of lemmas and
+% partial results
+%  - A boolidx structure must match the decision points that lead to the atoms
+%    of the formula it annotates, however linear sequences of decisions need not
+%    be reflected in it
+%  - If a leaf is reached before the atoms of the formula (or, say, in the event
+%    of an unfolding), its value will be propagated to all children
+Type   split   boolidx -> boolidx -> boolidx.
+Type   name    string -> boolidx.
+
+%%%%%%%%%%%%%%%%
+% Full indexes %
+%%%%%%%%%%%%%%%%
+
+Type   idx   numidx -> boolidx -> idx.
+
 %%%%%%%%%%%%%%%%%%%%%%%
 % Certificate control %
 %%%%%%%%%%%%%%%%%%%%%%%
 
-% Common indexing structure:
-%  1. Maximum allowed bipole transitions in release*Expert
-%  2. Next index to try in decideLClerk
-%  3. Next index to use in storeLClerk
-%  4. Number of allowed unfoldings in unfoldLClerk
-%  5. Number of allowed unfoldings in unfoldRExpert (current phase)
-%  6. Maximum allowed unfoldings in unfoldRExpert per synchronous phase
-%  7. Next index to use in decideLClerk'
-%  8. Last index to use in decideLClerk'
+% Common control structure:
+%  A. Computation limits and storage management (indexing)
+%       1. Maximum allowed bipole transitions in release*Expert
+%       2. Next index to try in decideLClerk (passive)
+%       3. Next index to use in storeLClerk (passive)
+%       4. Number of allowed LC-unfoldings in unfoldLClerk
+%       5. Number of RE-unfoldings in unfoldRExpert, current phase (passive)
+%       6. Maximum allowed RE-unfoldings in unfoldRExpert per synchronous phase
+%       7. Next lemma index to try in decideLClerk' (passive, unused)
+%       8. Last lemma index to try in decideLClerk' (passive, unused)
+%  B.
+%       9. List of naming structures for the formulas in Delta
+%      10. List of naming structures for the formula in Goal
+
+Kind   limits   type.
+Type   limits   numidx -> % (Depth) [1]
+                numidx -> % (Next)  [2]
+                numidx -> % (Last)  [3]
+                numidx -> % (AUnf)  [4]
+                numidx -> % (SUnf)  [5]
+                numidx -> % (SMax)  [6]
+                numidx -> % (LNext) [7]
+                numidx -> % (LLast) [8]
+                limits.
+
+Kind   names   type.
+Type   names   list boolidx -> % (Delta) [9]
+               boolidx      -> % (Goal)  [10]
+               names.
 
 Kind   ctrl   type.
-Type   ctrl   idx -> % (Depth) Allowed search depth in bipole transitions
-              idx -> % (Next)  Next index to try in decideLClerk
-              idx -> % (Last)  Next index to use in storeLClerk
-              idx -> % (AUnf)  Allowed LC-unfoldings
-              idx -> % (SUnf)  Allowed RE-unfoldings (current phase)
-              idx -> % (SMax)  Maximum RE-unfoldings per synchronous phase
-              idx -> % (LNext) Next lemma index to try in decideLClerk'
-              idx -> % (LLast) Last lemma index to try in decideLClerk'
+Type   ctrl   limits -> % (Lims)  [A]
+              names  -> % (Names) [B]
               ctrl.
 
 % Note: the naming conventions of Next/Last and LNext/LLast are inverted because
@@ -92,21 +144,15 @@ Type   induce       ctrl -> (i -> bool) -> (i -> cert) -> cert.
 % May need a 'freeze' nesting to select the appropriate clause sometimes?
 Type   autoinduce   ctrl                -> (i -> cert) -> cert.
 
-                  % Ctrl  % Idx  % NewC1 % NewC2 
-Type   guideOr      ctrl ->        cert -> cert -> cert.
-Type   guideLemma   ctrl -> idx -> cert         -> cert.
-
-%%%%%%%%%%%%%%%%%%%%%%
-% Index constructors %
-%%%%%%%%%%%%%%%%%%%%%%
-
-% Indexes are natural counters representing the next index to generate and the
-% last index retrieved; both are used to avoid processing a stored formula more
-% than once and thus avoid looping behavior
-Type   z   idx.
-Type   s   idx -> idx.
-
-% (Reusing for now for unfolding counters, even though type reuse is evil.)
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+%                  % Ctrl  % Idx      % NewC1 % NewC2 
+%Type   guideOr      ctrl            -> cert -> cert -> cert.
+%Type   guideLemma   ctrl -> boolidx -> cert         -> cert.
+%-------------------------------------------------------------------------------
+                  % Ctrl  % Idx      % Names    % NewC1 % NewC2 
+Type   guideOr      ctrl                       -> cert -> cert -> cert.
+Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #include "debug-admin-fpc.thm".
 
@@ -117,82 +163,139 @@ Type   s   idx -> idx.
 % TODO: indexing structure to simplify and refactor everything throughout
 
 Define getControl : cert -> ctrl -> prop by
-	getControl (start      Ctrl    ) Ctrl ;
-	getControl (induce     Ctrl _ _) Ctrl ;
-	getControl (autoinduce Ctrl   _) Ctrl ;
-	getControl (guideOr    Ctrl _ _) Ctrl ;
-	getControl (guideLemma Ctrl _ _) Ctrl.
+	getControl (start      Ctrl      ) Ctrl ;
+	getControl (induce     Ctrl   _ _) Ctrl ;
+	getControl (autoinduce Ctrl     _) Ctrl ;
+	getControl (guideOr    Ctrl   _ _) Ctrl ;
+	getControl (guideLemma Ctrl _ _ _) Ctrl.
 
 Define setControl : cert -> ctrl -> cert -> prop by
 	setControl (start      _             ) Ctrl (start      Ctrl             ) ;
 	setControl (induce     _ S     Xi    ) Ctrl (induce     Ctrl S     Xi    ) ;
 	setControl (autoinduce _       Xi    ) Ctrl (autoinduce Ctrl       Xi    ) ;
 	setControl (guideOr    _       Xi Xi') Ctrl (guideOr    Ctrl       Xi Xi') ;
-	setControl (guideLemma _   Idx Xi    ) Ctrl (guideLemma Ctrl   Idx Xi    ).
+	setControl (guideLemma _   Idx Names Xi    ) Ctrl (guideLemma Ctrl   Idx Names Xi    ).
 
-Define gt : idx -> idx -> prop by
+Define gt : numidx -> numidx -> prop by
 	gt (s _) z ;
 	gt (s A) (s B) := gt A B.
 
-Define le : idx -> idx -> prop by
+Define le : numidx -> numidx -> prop by
 	le z z ;
 	le z (s _) ;
 	le (s A) (s B) := le A B.
 
 Define decrementDepth : cert -> cert -> prop by
-	decrementDepth Cert Cert' := exists D N L UL UR UM LN LL,
-		getControl Cert (ctrl (s D) N L UL UR UM LN LL) /\
-		setControl Cert (ctrl    D  N L UL UR UM LN LL) Cert'.
+	decrementDepth Cert Cert' := exists D N L UL UR UM LN LL Names,
+		getControl Cert (ctrl (limits (s D) N L UL UR UM LN LL) Names) /\
+		setControl Cert (ctrl (limits    D  N L UL UR UM LN LL) Names) Cert'.
 
 Define decrementUnfoldL : cert -> cert -> prop by
-	decrementUnfoldL Cert Cert' := exists D N L UL UR UM LN LL,
-		getControl Cert (ctrl D N L (s UL) UR UM LN LL) /\
-		setControl Cert (ctrl D N L    UL  UR UM LN LL) Cert'.
+	decrementUnfoldL Cert Cert' := exists D N L UL UR UM LN LL Names,
+		getControl Cert (ctrl (limits D N L (s UL) UR UM LN LL) Names) /\
+		setControl Cert (ctrl (limits D N L    UL  UR UM LN LL) Names) Cert'.
 
 Define decrementUnfoldR : cert -> cert -> prop by
-	decrementUnfoldR Cert Cert' := exists D N L UL UR UM LN LL,
-		getControl Cert (ctrl D N L UL (s UR) UM LN LL) /\
-		setControl Cert (ctrl D N L UL    UR  UM LN LL) Cert'.
+	decrementUnfoldR Cert Cert' := exists D N L UL UR UM LN LL Names,
+		getControl Cert (ctrl (limits D N L UL (s UR) UM LN LL) Names) /\
+		setControl Cert (ctrl (limits D N L UL    UR  UM LN LL) Names) Cert'.
 
-Define returnAndIncrementNext : cert -> cert -> idx -> prop by
-	returnAndIncrementNext Cert Cert' N := exists D L UL UR UM LN LL,
-		getControl Cert (ctrl D    N  L UL UR UM LN LL) /\
-		setControl Cert (ctrl D (s N) L UL UR UM LN LL) Cert'.
+Define returnAndIncrementNext : cert -> cert -> numidx -> prop by
+	returnAndIncrementNext Cert Cert' N := exists D L UL UR UM LN LL Names,
+		getControl Cert (ctrl (limits D    N  L UL UR UM LN LL) Names) /\
+		setControl Cert (ctrl (limits D (s N) L UL UR UM LN LL) Names) Cert'.
 
-Define returnAndIncrementLast : cert -> cert -> idx -> prop by
-	returnAndIncrementLast Cert Cert' L := exists D N UL UR UM LN LL,
-		getControl Cert (ctrl D N    L  UL UR UM LN LL) /\
-		setControl Cert (ctrl D N (s L) UL UR UM LN LL) Cert' /\
+Define returnAndIncrementLast : cert -> cert -> numidx -> prop by
+	returnAndIncrementLast Cert Cert' L := exists D N UL UR UM LN LL Names,
+		getControl Cert (ctrl (limits D N    L  UL UR UM LN LL) Names) /\
+		setControl Cert (ctrl (limits D N (s L) UL UR UM LN LL) Names) Cert' /\
 		gt N L.
 
 Define resetUnfoldR : cert -> cert -> prop by
-	resetUnfoldR Cert Cert' := exists D N L UL UM LN LL,
-		getControl Cert (ctrl D N L UL _  UM LN LL) /\
-		setControl Cert (ctrl D N L UL UM UM LN LL) Cert'.
+	resetUnfoldR Cert Cert' := exists D N L UL UM LN LL Names,
+		getControl Cert (ctrl (limits D N L UL _  UM LN LL) Names) /\
+		setControl Cert (ctrl (limits D N L UL UM UM LN LL) Names) Cert'.
 
 Define incrementLNext : cert -> cert -> prop by
-	incrementLNext Cert Cert' := exists D N L UL UR UM LN LL,
-		getControl Cert (ctrl D N L UL UR UM    LN  LL) /\
-		setControl Cert (ctrl D N L UL UR UM (s LN) LL) Cert' /\
+	incrementLNext Cert Cert' := exists D N L UL UR UM LN LL Names,
+		getControl Cert (ctrl (limits D N L UL UR UM    LN  LL) Names) /\
+		setControl Cert (ctrl (limits D N L UL UR UM (s LN) LL) Names) Cert' /\
 		gt LL LN.
 
-Define returnAndResetLNext : cert -> cert -> idx -> prop by
-	returnAndResetLNext Cert Cert' LN := exists D N L UL UR UM LL,
-		getControl Cert (ctrl D N L UL UR UM LN LL) /\
-		setControl Cert (ctrl D N L UL UR UM z  LL) Cert'.
+Define returnAndResetLNext : cert -> cert -> numidx -> prop by
+	returnAndResetLNext Cert Cert' LN := exists D N L UL UR UM LL Names,
+		getControl Cert (ctrl (limits D N L UL UR UM LN LL) Names) /\
+		setControl Cert (ctrl (limits D N L UL UR UM z  LL) Names) Cert'.
 
 Define checkNoLocalDecide : cert -> prop by
 	checkNoLocalDecide Cert := exists N L,
-		getControl Cert (ctrl _ N L _ _ _ _ _) /\
+		getControl Cert (ctrl (limits _ N L _ _ _ _ _) _) /\
 		le N L.
 
 % Transfer the global, shared parts of a certificate to its successor
 %NOTE This is added manually to each instance of succession, and thus is at risk
+%NOTE For now, taking Names from the bequeather, but this is a bit more complex!
 Define bequest : cert -> cert -> cert -> prop by
-	bequest Bequeather Heir Inheritor := exists D N L UL UR UM LN LL,
-		getControl Bequeather (ctrl _ N L _  _  _  _  _ ) /\
-		getControl Heir       (ctrl D _ _ UL UR UM LN LL) /\
-		setControl Heir       (ctrl D N L UL UR UM LN LL) Inheritor.
+	bequest Bequeather Heir Inheritor := exists D N L UL UR UM LN LL Names,
+		getControl Bequeather (ctrl (limits _ N L _  _  _  _  _ ) Names) /\
+		getControl Heir       (ctrl (limits D _ _ UL UR UM LN LL) _    ) /\
+		setControl Heir       (ctrl (limits D N L UL UR UM LN LL) Names) Inheritor.
+
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Define replaceDelta : cert -> boolidx -> cert -> prop by
+	replaceDelta Cert Name Cert' := exists Limits Delta Goal,
+		getControl Cert (ctrl Limits (names (_    :: Delta) Goal)) /\
+		setControl Cert (ctrl Limits (names (Name :: Delta) Goal)) Cert'.
+
+Define appendDelta : cert -> boolidx -> cert -> prop by
+	appendDelta Cert Name Cert' := exists Limits Delta Goal,
+		getControl Cert (ctrl Limits (names          Delta  Goal)) /\
+		setControl Cert (ctrl Limits (names (Name :: Delta) Goal)) Cert'.
+
+Define popDelta : cert -> boolidx -> cert -> prop by
+	popDelta Cert (name Name) Cert' := exists Limits Delta Goal,
+		getControl Cert (ctrl Limits (names ((name Name) :: Delta) Goal)) /\
+		setControl Cert (ctrl Limits (names                 Delta  Goal)) Cert'.
+
+Define pushDelta : cert -> boolidx -> cert -> prop by
+	pushDelta Cert Names Cert' := exists Limits Delta Goal,
+		getControl Cert (ctrl Limits (names           Delta  Goal)) /\
+		setControl Cert (ctrl Limits (names (Names :: Delta) Goal)) Cert'.
+
+Define replaceGoal : cert -> boolidx -> cert -> prop by
+	replaceGoal Cert Name Cert' := exists Limits Delta Goal,
+		getControl Cert (ctrl Limits (names Delta _   )) /\
+		setControl Cert (ctrl Limits (names Delta Goal)) Cert'.
+
+% (assumes a copy or propagation... something to have there, at least)
+% apply after bequest or copy: a baseline for names must have been inherited
+% This is rather horrible and repetitive
+Define splitDelta : cert -> cert -> cert -> cert -> cert -> prop by
+	splitDelta Cert CertL CertR CertL' CertR' := exists NamesL NamesR,
+		getControl Cert (ctrl _ (names ((split NamesL NamesR) :: _) _)) /\
+		replaceDelta CertL NamesL CertL' /\
+		replaceDelta CertR NamesR CertR' ;
+	splitDelta Cert CertL CertR CertL' CertR' := exists Name,
+		getControl Cert (ctrl _ (names ((name Name) :: _) _)) /\
+		replaceDelta CertL (name Name) CertL' /\
+		replaceDelta CertR (name Name) CertR'.
+
+% probably should be named splitGoal2 / splitGoalL
+Define splitGoal : cert -> cert -> cert -> cert -> cert -> prop by
+	splitGoal Cert CertL CertR CertL' CertR' :=
+		getControl Cert (ctrl _ (names _ (split NamesL NamesR))) /\
+		appendDelta CertL NamesL CertL' /\
+		replaceGoal CertR NamesR CertR'.
+	% 2nd case? exhaustive matches are nice
+
+% or give names related to the clerks and experts they serve, if unique
+Define splitGoalR : cert -> cert -> prop by
+	splitGoalR Cert Cert' := exists NamesL NamesR Cert'',
+		getControl Cert (ctrl _ (names _ (split NamesL NamesR))) /\
+		pushDelta Cert NamesL Cert'' /\
+		replaceGoal Cert'' NamesR Cert'.
+	%TODO 2nd case?
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -213,23 +316,26 @@ Define andClerk : cert -> cert -> prop by
 
 %NOTE Explicit enumeration!
 Define orClerk : cert -> cert -> cert -> prop by
-	orClerk Cert CertL CertR := exists CertL' CertR',
+	orClerk Cert CertL CertR := exists CertL' CertR' CertL'' CertR'',
 		Cert = (guideOr _ CertL' CertR') /\
-		bequest Cert CertL' CertL /\
-		bequest Cert CertR' CertR
+		bequest Cert CertL' CertL'' /\
+		bequest Cert CertR' CertR'' /\
+		splitDelta Cert CertL'' CertR'' CertL CertR
 	/\ println "orClerk guided"
 	;
-	orClerk Cert Cert Cert := (
-		Cert = (start _)          \/
-		Cert = (induce _ _ _)     \/
-		Cert = (autoinduce _ _)   \/
-		Cert = (guideLemma _ _ _) )
+	orClerk Cert CertL CertR := (
+		Cert = (start _)            \/
+		Cert = (induce _ _ _)       \/
+		Cert = (autoinduce _ _)     \/
+		Cert = (guideLemma _ _ _ _) ) /\
+		splitDelta Cert Cert Cert CertL CertR
 	/\ println "orClerk blind" /\ print_cert Cert
 	.
 
 Define impClerk : cert -> cert -> prop by
-	impClerk Cert Cert
-	:= println "impClerk" /\ print_cert Cert
+	impClerk Cert Cert' :=
+		splitGoalR Cert Cert'
+	/\ println "impClerk" /\ print_cert Cert
 	.
 
 Define eqClerk : cert -> cert -> prop by
@@ -267,8 +373,9 @@ Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 % the holes in the proof and declutter before moving on with the more
 % interesting consequent.
 Define impExpert' : cert -> cert -> cert -> prop by
-	impExpert' Cert Cert Cert
-	:= println "impExpert'" /\ print_cert Cert
+	impExpert' Cert CertL CertR :=
+		splitGoal Cert Cert Cert CertL CertR
+	/\ println "impExpert'" /\ print_cert Cert
 	.
 
 % [Random: should this be limited to initial certificates?]
@@ -310,12 +417,15 @@ Define someExpert : cert -> cert -> i -> prop by
 %NOTE No bequest! If inductions do not occur right at the start, buggy
 % Perform a simple search on the base branch (propagating indexes!) and extract
 % continuation certificate and invariant for the induction branch.
+%TODO
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk (induce Ctrl S Cert') (start Ctrl) Cert' S
 	:= println "indClerk (no bequest)"
 	.
 
 %NOTE No bequest! If inductions do not occur right at the start, buggy
+%NOTE From the POV of naming, this also represents a problem, since an invariant will not be accompanied by an annotation... what to do? a transfer of labels would be appropriate, but here we have no access to the invariant! that's the kernel's business
+%TODO
 % A simplified scheme for immediate induction
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (autoinduce Ctrl Cert') Cert'
@@ -361,11 +471,13 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 %	:= println "freezeLClerk"
 %	.
 % This is trickier: let's allow this for non-eager predicates
-Define freezeLClerk : cert -> cert -> prop by
-	freezeLClerk Cert Cert := (
-		Cert = (start _)          \/
-		Cert = (guideOr _ _ _)    \/
-		Cert = (guideLemma _ _ _) )
+%NOTE use a don't care _ for x here? also, it looks like only the name is needed...
+Define freezeLClerk : cert -> cert -> idx -> prop by
+	freezeLClerk Cert Cert' (idx x Name) := (
+		Cert = (start _)            \/
+		Cert = (guideOr _ _ _)      \/
+		Cert = (guideLemma _ _ _ _) ) /\
+		popDelta Cert Name Cert'
 	/\ println "freezeLClerk" /\ print_cert Cert
 	.
 
@@ -385,8 +497,9 @@ Define initLExpert : cert -> prop by initLExpert _ := false.
 
 % When storing, a unique index based on the Next counter is returned
 Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk Cert Cert' Next :=
-		returnAndIncrementNext Cert Cert' Next
+	storeLClerk Cert Cert' (idx Next Names) := exists Cert'',
+		returnAndIncrementNext Cert Cert'' Next /\
+		popDelta Cert'' Names Cert
 	/\ print "storeLClerk" /\ println Next /\ print_cert Cert'
 	.
 
@@ -394,9 +507,12 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 % Conversely, we decide on the earliest index that has not been read yet, adding
 % a range comparison for safety
 Define decideLClerk : cert -> cert -> idx -> prop by
-	decideLClerk Cert Cert' Last := exists Cert'',
+	decideLClerk Cert Cert' Idx := exists Last Names Cert'' Cert''',
+		Idx = (idx Last Names) /\
 		returnAndIncrementLast Cert Cert'' Last /\
-		resetUnfoldR Cert'' Cert'
+		resetUnfoldR Cert'' Cert''' /\
+		pushDelta Cert''' Names Cert
+		 % can we trust this to be instanciated by the kernel?? if not, we need more information in the FPC!!
 	/\ print "decideLClerk" /\ println Last /\ print_cert Cert'
 	.
 
@@ -404,9 +520,10 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % [Restrict to those moments when nothing else is possible?] %checkNoLocalDecide Cert'
 % -> Tentatively fulfilling our promise of a "call by name" (index)
 Define decideLClerk' : cert -> cert -> idx -> prop by
-	decideLClerk' Cert Cert' Idx := exists Cert'',
-		Cert = (guideLemma _ Idx Cert'') /\
-		bequest Cert Cert'' Cert'
+	decideLClerk' Cert Cert' (idx x (name Idx)) := exists Cert'' Cert''',
+		Cert = (guideLemma _ (name Idx) Names Cert'') /\
+		bequest Cert Cert'' Cert''' /\
+		pushDelta Cert''' Names Cert'
 	/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert
 	.
 
