@@ -169,7 +169,7 @@ async Debug Lambda Xi Sigma Phi Gamma ((some P) :: Delta) G := exists Xi',
 % This can wreak all kinds of havoc in the structure of Sigma: beware!
 async Debug Lambda Xi Sigma Phi Gamma ((eq P Q) :: Delta) G := exists Xi',
 	eqClerk Xi Xi' /\
-	((P = Q) -> spy_async Debug Lambda Xi Sigma Phi Gamma Delta G) ;
+	((P = Q) -> spy_async Debug Lambda Xi' Sigma Phi Gamma Delta G) ;
 
 async Debug Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	unfoldLClerk Xi Xi' /\
@@ -218,13 +218,13 @@ async Debug Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi',
 
 syncR Debug Lambda Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	andExpert Xi Xi' Xi'' /\
-	spy_syncR Debug Lambda Xi Sigma Phi Gamma P /\
-	spy_syncR Debug Lambda Xi Sigma Phi Gamma Q ;
+	spy_syncR Debug Lambda Xi'  Sigma Phi Gamma P /\
+	spy_syncR Debug Lambda Xi'' Sigma Phi Gamma Q ;
 
 % is this use of OR ok? separate clauses?
 syncR Debug Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ spy_syncR Debug Lambda Xi Sigma Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ spy_syncR Debug Lambda Xi Sigma Phi Gamma Q) ;
+	(orExpert Xi Xi' left  /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma P) \/
+	(orExpert Xi Xi' right /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma Q) ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
