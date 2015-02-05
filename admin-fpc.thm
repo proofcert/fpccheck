@@ -318,6 +318,7 @@ Define ttClerk : cert -> cert -> prop by ttClerk _ _ := false.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert
+% level 47
 	:= println "andClerk" /\ print_cert Cert
 	.
 
@@ -490,14 +491,16 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 	.
 
 % [No restrictions given to init, although similar ones may apply, cf. freeze]
-Define initRExpert : cert -> prop by
-	initRExpert Cert
-	:= println "initRExpert" /\ print_cert Cert
+%TODO hardcoded conventions elsewhere?
+Define initRExpert : cert -> idx -> prop by
+	initRExpert Cert (idx x Name) :=
+		getControl Cert (ctrl _ (names _ Name))
+	/\ println "initRExpert" /\ print_cert Cert
 	.
 
 % [Added: greatest fixed points not supported]
 Define freezeRClerk : cert -> cert -> prop by freezeRClerk _ _ := false.
-Define initLExpert : cert -> prop by initLExpert _ := false.
+Define initLExpert : cert -> idx -> prop by initLExpert _ _ := false.
 
 %------------------%
 % Structural rules %
