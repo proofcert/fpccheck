@@ -145,11 +145,11 @@ Type   induce       ctrl -> (i -> bool) -> (i -> cert) -> cert.
 Type   autoinduce   ctrl                -> (i -> cert) -> cert.
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-%                  % Ctrl  % Idx      % NewC1 % NewC2 
+%                  % Ctrl  % Idx      % NewC1 % NewC2
 %Type   guideOr      ctrl            -> cert -> cert -> cert.
 %Type   guideLemma   ctrl -> boolidx -> cert         -> cert.
 %-------------------------------------------------------------------------------
-                  % Ctrl  % Idx      % Names    % NewC1 % NewC2 
+                  % Ctrl  % Idx      % Names    % NewC1 % NewC2
 Type   guideOr      ctrl                       -> cert -> cert -> cert.
 Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -265,7 +265,7 @@ Define pushDelta : cert -> boolidx -> cert -> prop by
 Define replaceGoal : cert -> boolidx -> cert -> prop by
 	replaceGoal Cert Name Cert' := exists Limits Delta Goal,
 		getControl Cert (ctrl Limits (names Delta _   )) /\
-		setControl Cert (ctrl Limits (names Delta Goal)) Cert'.
+		setControl Cert (ctrl Limits (names Delta Name)) Cert'.
 
 % (assumes a copy or propagation... something to have there, at least)
 % apply after bequest or copy: a baseline for names must have been inherited
@@ -279,6 +279,13 @@ Define splitDelta : cert -> cert -> cert -> cert -> cert -> prop by
 		getControl Cert (ctrl _ (names ((name Name) :: _) _)) /\
 		replaceDelta CertL (name Name) CertL' /\
 		replaceDelta CertR (name Name) CertR'.
+
+Define distributeDelta : cert -> cert -> cert -> cert -> cert -> prop by
+	distributeDelta Cert CertL CertR CertL' CertR' := exists NamesL NamesR,
+		getControl Cert (ctrl _ (names ((split NamesL NamesR) :: _) _)) /\
+		replaceDelta CertL NamesR CertL' /\
+		replaceGoal  CertR NamesL CertR'.
+	%TODO 2nd case?
 
 % probably should be named splitGoal2 / splitGoalL
 Define splitGoal : cert -> cert -> cert -> cert -> cert -> prop by
@@ -372,9 +379,10 @@ Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 % Instead, we will always evaluate the antecedent first, looking to fill some of
 % the holes in the proof and declutter before moving on with the more
 % interesting consequent.
+%TODO encapsulate?
 Define impExpert' : cert -> cert -> cert -> prop by
 	impExpert' Cert CertL CertR :=
-		splitGoal Cert Cert Cert CertL CertR
+		distributeDelta Cert Cert Cert CertL CertR
 	/\ println "impExpert'" /\ print_cert Cert
 	.
 
