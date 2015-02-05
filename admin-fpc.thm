@@ -362,8 +362,11 @@ Define eqClerk : cert -> cert -> prop by
 Define ttExpert : cert -> prop by ttExpert _ := false.
 
 Define andExpert : cert -> cert -> cert -> prop by
-	andExpert Cert Cert Cert
-	:= println "andExpert" /\ print_cert Cert
+	andExpert Cert CertL CertR :=
+		getControl Cert (ctrl Limits (names Delta (split NameL NameR)))       /\
+		setControl Cert (ctrl Limits (names Delta        NameL       )) CertL /\
+		setControl Cert (ctrl Limits (names Delta              NameR )) CertR
+	/\ println "andExpert" /\ print_cert CertL /\ print_cert CertR
 	.
 
 % Assuming that in a fixed point the base cases are given first, we prioritize
