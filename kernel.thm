@@ -252,8 +252,8 @@ syncR Debug Lambda Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G :=
-	member (kvp _ (nu B T)) Phi /\
-	initLExpert Xi ;
+	initLExpert Xi Idx /\
+	member (kvp Idx (nu B T)) Phi ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
@@ -261,8 +261,8 @@ syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 syncR Debug Lambda Xi Sigma Phi Gamma (mu B T) :=
-	member (kvp _ (mu B T)) Phi /\
-	initRExpert Xi ;
+	initRExpert Xi Idx /\
+	member (kvp Idx (mu B T)) Phi ;
 
 syncR Debug Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
 	unfoldRExpert Xi Xi' /\
