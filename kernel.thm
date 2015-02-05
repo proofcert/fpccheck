@@ -15,11 +15,11 @@
 
 % A named context for lemmas
 Kind   lemma   type.
-Type   lemma   idx -> string -> bool -> lemma.
+Type   lemma   boolidx -> bool -> lemma. %TODO Simple name better!
 
 % A type for traces and debugging information
 Kind   debug   type.
-Type   debug   idx -> debug.
+Type   debug   numidx -> debug.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Immediate invariants %
@@ -125,14 +125,14 @@ by
 % to muLJF are noted.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Zones:       Debug    Lambda        Xi      Sigma     Phi          Gamma       Delta        Goal
-Define async : debug -> list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
-       syncL : debug -> list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
-       syncR : debug -> list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop,
+% Zones:       Debug    Lambda        Xi      Sigma     Phi         Gamma       Delta        Goal
+Define async : debug -> list lemma -> cert -> list i -> list ctx -> list ctx -> list bool -> goal -> prop,
+       syncL : debug -> list lemma -> cert -> list i -> list ctx -> list ctx ->      bool -> goal -> prop,
+       syncR : debug -> list lemma -> cert -> list i -> list ctx -> list ctx              -> bool -> prop,
 % Spies (replace standard calls, i.e. prefix spy_, where so desired)
-   spy_async : debug -> list lemma -> cert -> list i -> list bool -> list ctx -> list bool -> goal -> prop,
-   spy_syncL : debug -> list lemma -> cert -> list i -> list bool -> list ctx ->      bool -> goal -> prop,
-   spy_syncR : debug -> list lemma -> cert -> list i -> list bool -> list ctx              -> bool -> prop by
+   spy_async : debug -> list lemma -> cert -> list i -> list ctx -> list ctx -> list bool -> goal -> prop,
+   spy_syncL : debug -> list lemma -> cert -> list i -> list ctx -> list ctx ->      bool -> goal -> prop,
+   spy_syncR : debug -> list lemma -> cert -> list i -> list ctx -> list ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
@@ -192,8 +192,8 @@ async Debug Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	forall x, spy_async Debug Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 async Debug Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi', % store index?
-	freezeLClerk Xi Xi' /\
-	spy_async Debug Lambda Xi' Sigma ((mu B T) :: Phi) Gamma Delta G ;
+	freezeLClerk Xi Xi' Idx /\
+	spy_async Debug Lambda Xi' Sigma ((kvp Idx (mu B T)) :: Phi) Gamma Delta G ;
 
 async Debug Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi',
 	unfoldRClerk Xi Xi' /\
@@ -252,7 +252,7 @@ syncR Debug Lambda Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G :=
-	member (nu B T) Phi /\
+	member (kvp _ (nu B T)) Phi /\
 	initLExpert Xi ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
@@ -261,7 +261,7 @@ syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 syncR Debug Lambda Xi Sigma Phi Gamma (mu B T) :=
-	member (mu B T) Phi /\
+	member (kvp _ (mu B T)) Phi /\
 	initRExpert Xi ;
 
 syncR Debug Lambda Xi Sigma Phi Gamma (mu B T) := exists Xi',
@@ -307,8 +307,8 @@ async Debug Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 % I'm putting this after decideL and R, to give chances to both sides
 async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
-	decideLClerk' Xi Xi' Idx /\
-	member (lemma Idx Name C) Lambda /\
+	decideLClerk' Xi Xi' (idx _ Idx) /\
+	member (lemma Idx C) Lambda /\ %TODO standard encoding hardcoded!
 println "Lemma" /\
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
@@ -357,31 +357,31 @@ syncR Debug Lambda Xi Sigma Phi Gamma G := exists Xi',
 
 spy_async (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
 	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-%	printstr "**  async  *********************************************************************\n" /\
-%	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
-%	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
-%	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
-%	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\
-%	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
+	printstr "**  async  *********************************************************************\n" /\
+	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
+	printstr "  Φ: " /\ print_list_ctx  Phi   /\ printstr "\n" /\
+	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
+	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\
+	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
 	spy_noheader (async (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
 spy_syncL (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
 	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-%	printstr "**  syncL  *********************************************************************\n" /\
-%	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
-%	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
-%	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
-%	printstr "  Δ: " /\ print_bool      Delta /\ printstr "\n" /\
-%	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
+	printstr "**  syncL  *********************************************************************\n" /\
+	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\
+	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\
+	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\
+	printstr "  Δ: " /\ print_bool     Delta /\ printstr "\n" /\
+	printstr "  Ω: " /\ print_goal     Goal  /\ printstr "\n" /\
 	spy_noheader (syncL (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
 spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-%	printstr "**  syncR  *********************************************************************\n" /\
-%	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
-%	printstr "  Φ: " /\ print_list_bool Phi   /\ printstr "\n" /\
-%	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
-%	printstr "  Ω: " /\ print_bool      Goal  /\ printstr "\n" /\
+	printstr "**  syncR  *********************************************************************\n" /\
+	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\
+	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\
+	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\
+	printstr "  Ω: " /\ print_bool     Goal  /\ printstr "\n" /\
 	spy_noheader (syncR (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Goal).
 
 %%%%%%%%%%%%%%%
