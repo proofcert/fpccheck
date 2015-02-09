@@ -24,7 +24,15 @@
 %
 %#assert plus_succ _
 %	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
-%
+
+#assert plus_succ _
+	(autoinduce         (ctrl (limits    z  z z z z    z  z z) (names nil (split (name "H1") (name "G")))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
+		(dummy\ guideOr (ctrl (limits    z  z z z z    z  z z) (names nil (name "X")))
+			(start      (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))
+			(start      (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))
+		)
+	).
+
 %% Requires plus_zero as a lemma/embedded induction
 %#assert plus_comm _ _
 %	(autoinduce (ctrl z z z z z z z z)
@@ -35,6 +43,36 @@
 %				(start (ctrl (s z) z z z z z z z)))
 %		)
 %	).
+
+%NOTE if I debug and use don't care integers, and can't print them, I'll fail
+%#assert plus_comm _ _
+%	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (split (name "X2") (split (name "X3") (split (name "X4") (name "S"))))
+%		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
+%			(guideLemma (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (name "X") (name "plus_zero")
+%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
+%			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X")))   (name "X") (name "plus_succ")
+%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
+%		)
+%	).
+%#assert plus_comm _ _
+%	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (split (name "H1") (split (name "H2") (name "G"))))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
+%		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
+%			(guideLemma (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (name "plus_zero") (split (name "H2") (name "G"))
+%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
+%			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X")))   (name "plus_succ") (split (name "H1") (name "G"))
+%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
+%		)
+%	).
+#assert plus_comm _ _
+	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (split (name "H1") (split (name "H2") (name "G"))))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
+		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
+			(guideLemma (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (name "plus_zero") (split (name "H2") (name "G"))
+				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
+			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X")))   (name "plus_succ") (split (name "G") (name "G"))
+				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
+		)
+	).
+
 %% (autoinduce (ctrl z z z z _ z z z) (dummy\ start (ctrl (s z) z z (s z) _ (s (s z)) z (s z)))) % Logical variable encountered on the left
 %
 %#assert plus_total Plus
@@ -93,20 +131,8 @@
 %	(start      (ctrl (s z) z z z z z z (s (s (s (s (s (s (s z))))))))
 %	)))))))).
 
-%% There is a special start case where I initialize everything and may possibly supply a simpler certificate, set up initial stuff, etc.
+%% [Old!] There is a special start case where I initialize everything and may possibly supply a simpler certificate, set up initial stuff, etc.
 %% Also note: careful use of these renders most formula optimizations (order of specificity, etc.) moot
-%%#assert plus_assoc_rl
-%%	(start  
-%%	(apply  (ctrl (limits    z  z z z x z x                      z       ) X)    (s z)
-%%	(apply  (ctrl (limits (s z) z z z x z x                   (s z)      ) X)       z
-%%	(apply  (ctrl (limits (s z) z z z x z x                (s (s z))     ) X)    (s z)
-%%	(apply  (ctrl (limits (s z) z z z x z x             (s (s (s z)))    ) X) (s (s z))
-%%	(apply  (ctrl (limits (s z) z z z x z x          (s (s (s (s z))))   ) X)    (s z)
-%%	(apply  (ctrl (limits (s z) z z z x z x       (s (s (s (s (s z)))))  ) X)       z
-%%	(apply  (ctrl (limits (s z) z z z x z x    (s (s (s (s (s (s z)))))) ) X)    (s z)
-%%	(search (ctrl (limits (s z) z z z x z x (s (s (s (s (s (s (s z)))))))) X)
-%%	))))))))).
-
 % Need a better empty form for names, something that avoids backtracking trouble!
 %(names nil (split (name "H1") (split (name "H2") (split (name "H3") (name "G"))))) I need to split the goal too
 % goals can be specified or left to search, as well
@@ -135,38 +161,3 @@
 		(split (name "H7") (split (name "H10") (name "H11")))                                          % plus A B BC1
 	(start      (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z)))))))) (names nil (name "X")))
 	)))))))).
-
-%#assert plus_assoc_rl
-%	(guideLemma (limits
-%		(ctrl    z  z z z z z z                      z       )
-%		(split (name "H1") (split (name "H2") (split (name "H3") (name "G")))))
-%		(idx x (name "plus_comm"))
-%	(guideLemma (limits
-%		(ctrl (s z) z z z z z z                   (s z)      )
-%		(split (name "H2") (split (name "H3") (name "H4")))) % plus A BC ABC, nat ABC, plus BC A ABC
-%		(idx x (name "addend_nat"))
-%	(guideLemma (limits
-%		(ctrl (s z) z z z z z z                (s (s z))     )
-%		(split (name "H2") (split (name "H3") (name "H5")))) % plus A BC ABC, nat ABC, nat BC
-%		(idx x (name "plus_comm"))
-%	(guideLemma (limits
-%		(ctrl (s z) z z z z z z             (s (s (s z)))    )
-%		(split (name "H1") (split (name "H5") (name "H6")))) % plus B C BC, nat BC, plus C B BC
-%		(idx x (name "plus_assoc"))
-%	(guideLemma (limits
-%		(ctrl (s z) z z z z z z          (s (s (s (s z))))   )
-%		(split (name "H6") (split (name "H4") (split (name "H7") (name "H8"))))) % , plus B A BC1 ^ plus C BC1 ABC
-%		(idx x (name "plus_comm"))
-%	(guideLemma (limits
-%		(ctrl (s z) z z z z z z       (s (s (s (s (s z)))))  )
-%		(split (name "H8") (split (name "H3") (name "H9"))))) % plus C BC1 ABC, nat ABC, plus BC1 C ABC
-%		(idx x (name "addend_nat"))
-%	(guideLemma (limits
-%		(ctrl (s z) z z z z z z    (s (s (s (s (s (s z)))))) )
-%		(split (name "H8") (split (name "H3") (name "H10")))) % plus C BC1 ABC, nat ABC, nat BC1
-%		(idx x (name "plus_comm"))
-%	(start (limits
-%		(ctrl (s z) z z z z z z (s (s (s (s (s (s (s z))))))))
-%		(split (name "H7") (split (name "H10") (name "H11")))) % plus B A BC1, nat BC1, plus A B BC1
-%	))))))).
-
