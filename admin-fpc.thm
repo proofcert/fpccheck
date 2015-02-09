@@ -138,11 +138,11 @@ Type   ctrl   limits -> % (Lims)  [A]
 % to the front of the list (i.e. it should be listed last, immediately before
 % the goal formula).
 
-                  % Ctrl  % Invariant    % NewCert
-Type   start        ctrl                               -> cert.
-Type   induce       ctrl -> (i -> bool) -> (i -> cert) -> cert.
+                  % Ctrl  % Invariant    % Names    % NewCert
+Type   start        ctrl                                          -> cert.
+Type   induce       ctrl -> (i -> bool)            -> (i -> cert) -> cert.
 % May need a 'freeze' nesting to select the appropriate clause sometimes?
-Type   autoinduce   ctrl                -> (i -> cert) -> cert.
+Type   autoinduce   ctrl                -> boolidx -> (i -> cert) -> cert.
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 %                  % Ctrl  % Idx      % NewC1 % NewC2
@@ -166,14 +166,14 @@ Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
 Define getControl : cert -> ctrl -> prop by
 	getControl (start      Ctrl      ) Ctrl ;
 	getControl (induce     Ctrl   _ _) Ctrl ;
-	getControl (autoinduce Ctrl     _) Ctrl ;
+	getControl (autoinduce Ctrl   _ _) Ctrl ;
 	getControl (guideOr    Ctrl   _ _) Ctrl ;
 	getControl (guideLemma Ctrl _ _ _) Ctrl.
 
 Define setControl : cert -> ctrl -> cert -> prop by
 	setControl (start      _                   ) Ctrl (start      Ctrl                   ) ;
 	setControl (induce     _ S           Xi    ) Ctrl (induce     Ctrl S           Xi    ) ;
-	setControl (autoinduce _             Xi    ) Ctrl (autoinduce Ctrl             Xi    ) ;
+	setControl (autoinduce _       Names Xi    ) Ctrl (autoinduce Ctrl       Names Xi    ) ;
 	setControl (guideOr    _             Xi Xi') Ctrl (guideOr    Ctrl             Xi Xi') ;
 	setControl (guideLemma _   Idx Names Xi    ) Ctrl (guideLemma Ctrl   Idx Names Xi    ).
 
@@ -275,8 +275,9 @@ Define andClerkNames : cert -> cert -> prop by
 	andClerkNames Cert Cert' :=
 		getControl Cert (ctrl Limits (names ((split NameL    NameR) :: Delta) Goal)) /\
 		setControl Cert (ctrl Limits (names (       NameL :: NameR  :: Delta) Goal)) Cert' ;
-	andClerkNames Cert Cert :=
-		getControl Cert (ctrl _ (names ((name Name) :: _) _)).
+	andClerkNames Cert Cert' :=
+		getControl Cert (ctrl _ (names ((name Name) :: _) _)) /\
+		pushDelta Cert (name Name) Cert'.
 
 Define orClerkCert : cert -> cert -> cert -> prop by
 	orClerkCert Cert CertL CertR :=
@@ -286,7 +287,7 @@ Define orClerkCert : cert -> cert -> cert -> prop by
 	orClerkCert Cert Cert Cert :=
 		Cert = (start _)            \/
 		Cert = (induce _ _ _)       \/
-		Cert = (autoinduce _ _)     \/
+		Cert = (autoinduce _ _ _)   \/
 		Cert = (guideLemma _ _ _ _).
 
 % (assumes a copy or propagation... something to have there, at least)
@@ -331,22 +332,51 @@ Define impExpertNames' : cert -> cert -> cert -> prop by
 	impExpertNames' Cert Cert Cert :=
 		getControl Cert (ctrl _ (names ((name _             ) :: _) _)).
 
-%Define indClerkNames' : cert -> (i -> cert) -> prop by
-%	indClerkNames' Cert Cert' :=
-%		Cert = (autoinduce _ Cert'') /\
-%		getControl Cert (ctrl _ (names ((split NamesL NamesR) :: _) _)) /\
-%	
-%Define indClerk' : cert -> (i -> cert) -> prop by
-%	indClerk' Cert Cert' :=
-%	:= println "indClerk' (no bequest)"
-%	.
+%----%
+%    %
+%----%
 
-%	indInvariant' nil   (unk Goal) :=
-%		(imp (eq x T) Goal) ;
-%	indInvariant' Delta (unk Goal) :=
-%		Delta = (_ :: _) /\
-%		joinL and tt Delta Q /\
-%		(imp (eq x T) (imp Q Goal)).
+Define indInvariantDelta' : list boolidx -> boolidx -> prop by
+	indInvariantDelta'     (       Names            :: nil  ) Names ;
+	indInvariantDelta'     (       Names :: Names'  :: Delta) Delta' :=
+		indInvariantDelta' ((split Names    Names') :: Delta) Delta'.
+
+% use dummy for _?
+% important: make sure that Delta will work ONLY when it is not empty! mutex match
+% seeing associativity on the left around Delta doth make me wonder, Horatio...
+Define indInvariantNames' : names -> boolidx -> prop by
+	indInvariantNames' (names nil   Goal) (split _ Goal) ;
+	indInvariantNames' (names Delta Goal) (split _ (split Delta' Goal)) :=
+		Delta = (_ :: _) /\
+		indInvariantDelta' Delta Delta'.
+
+% This is a sort of grafting operation, actually
+% If this with a negative goal works, great...
+% Also, constant!!
+Define replaceName : boolidx -> boolidx -> boolidx -> prop by
+	replaceName (name "S") Names Names ;
+	replaceName (name Name) Names (name Name) :=
+		Name = "S" -> false ;
+	replaceName (split NamesL NamesR) Names (split NamesL' NamesR') :=
+		replaceName NamesL Names NamesL' /\
+		replaceName NamesR Names NamesR'.
+	%replaceName Base Names Result :=
+
+% Here I am assuming a vacuous abstraction!! (I know it's true, for me...)
+Define indClerkNames' : cert -> (i -> cert) -> prop by
+	indClerkNames' Cert SubCert := forall x,
+		% Pop current
+		popDelta Cert _ Cert' /\
+		% Decompose base certificate
+		Cert' = (autoinduce (ctrl _ Names) NamesB SubCert') /\
+		% Compute new naming structures
+		indInvariantNames' Names NamesSx /\
+		replaceName NamesB NamesSx NamesBSx /\
+		% Unmarshall, set naming structure and re-marshall final certificate
+		SubCert'' = (SubCert' x) /\
+		pushDelta SubCert''  NamesBSx SubCert''' /\ % Assuming Delta is empty!
+		setGoal   SubCert''' NamesSx  SubCert'''' /\
+		SubCert = (_\ SubCert'''').
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -478,9 +508,8 @@ Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 % A simplified scheme for immediate induction
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' Cert Cert' :=
-		Cert = (autoinduce _ Cert')
-		%Cert = (autoinduce _ _)/\
-		%indClerkNames' Cert Cert'
+		Cert = (autoinduce _ _ _) /\
+		indClerkNames' Cert Cert'
 	/\ println "indClerk' (no bequest)"
 	.
 
@@ -553,7 +582,7 @@ Define initLExpert : cert -> idx -> prop by initLExpert _ _ := false.
 Define storeLClerk : cert -> cert -> idx -> prop by
 	storeLClerk Cert Cert' (idx Next Names) := exists Cert'',
 		returnAndIncrementNext Cert Cert'' Next /\
-		popDelta Cert'' Names Cert
+		popDelta Cert'' Names Cert'
 	/\ print "storeLClerk" /\ println Next /\ print_cert Cert'
 	.
 
@@ -565,7 +594,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		Idx = (idx Last Names) /\
 		returnAndIncrementLast Cert Cert'' Last /\
 		resetUnfoldR Cert'' Cert''' /\
-		pushDelta Cert''' Names Cert
+		pushDelta Cert''' Names Cert'
 		 % can we trust this to be instanciated by the kernel?? if not, we need more information in the FPC!!
 	/\ print "decideLClerk" /\ println Last /\ print_cert Cert'
 	.

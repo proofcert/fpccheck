@@ -60,7 +60,7 @@ Define print_cert : cert -> prop by
 		printstr "  Ξ: simple  " /\ print_ctrl Ctrl /\ printstr "\n" ;
 	print_cert (induce     Ctrl _ _  ) :=
 		printstr "  Ξ: man-ind " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (autoinduce Ctrl   _  ) :=
+	print_cert (autoinduce Ctrl _ _  ) :=
 		printstr "  Ξ: imm-ind " /\ print_ctrl Ctrl /\ printstr "\n" ;
 	print_cert (guideLemma Ctrl _ _ _) := % not sure the alignment of _'s is meaningful
 		printstr "  Ξ: gLemma  " /\ print_ctrl Ctrl /\ printstr "\n" ;
