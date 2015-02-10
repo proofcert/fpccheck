@@ -11,19 +11,21 @@
 %			(eq Args (N ++ argv))
 %			(Plus (N ++ zero ++ N ++ argv)))
 %		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
-%
-%#assert plus_zero _
-%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
-%
+
+#assert plus_zero _
+	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
+
 %#assert plus_succ Plus
 %	(induce (ctrl (s z) z z z _ z _ _)
 %		(Args\ all K\ all M\ all N\ imp
 %			(eq Args (K ++ M ++ N ++ argv))
 %			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))
 %		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
-%
-%#assert plus_succ _
-%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
+
+#assert plus_succ _
+	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
 
 #assert plus_succ _
 	(autoinduce         (ctrl (limits    z  z z z z    z  z z) (names nil (split (name "H1") (name "G")))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
@@ -34,6 +36,7 @@
 	).
 
 %% Requires plus_zero as a lemma/embedded induction
+%% Recover the original, "blind" plus_comm... but wait, was there ever one?
 %#assert plus_comm _ _
 %	(autoinduce (ctrl z z z z z z z z)
 %		(dummy\ guideOr (ctrl z z z z z z z z)
@@ -81,10 +84,11 @@
 %			(eq Args (A ++ argv))
 %			(some C\ Plus (A ++ B ++ C ++ argv)))
 %		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
-%
-%#assert plus_total _
-%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
-%
+
+#assert plus_total _
+	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
+
 %#assert plus_det Plus
 %	(induce (ctrl (s z) z z z _ z _ _)
 %		(Args\ all A\ all B\ all C\ all D\ imp
@@ -92,10 +96,11 @@
 %			(Plus (A ++ B ++ D ++ argv))
 %			(eq C D)))
 %		(dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
-%
-%#assert plus_det _
-%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
-%
+
+#assert plus_det _
+	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))))).
+
 %#assert plus_assoc Plus
 %	(induce (ctrl (s z) z z z _ z _ _)
 %		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
@@ -105,19 +110,19 @@
 %				(Plus (l2 ++ l1 ++ l3 ++ argv))
 %				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
 %		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
-%
-%#assert plus_assoc _
-%	(autoinduce (ctrl z z z z _ z _ _)
-%		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
-%
-%#assert augend_nat
-%	(autoinduce (ctrl z z z z z z z z)
-%		(dummy\ guideOr (ctrl z z z z z z z z)
-%			(start (ctrl z z z z z (s z) z z))
-%			(start (ctrl (s z) z z (s z) z (s z) z z))
-%		)
-%	).
-%
+
+#assert plus_assoc _
+	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z (s z) z z) (names nil (name "X"))))).
+
+#assert augend_nat
+	(autoinduce         (ctrl (limits    z  z z    z  z    z  z z) (names nil (name "X"))) (name "X")
+		(dummy\ guideOr (ctrl (limits    z  z z    z  z    z  z z) (names nil (name "X")))
+			(start      (ctrl (limits    z  z z    z  z (s z) z z) (names nil (name "X"))))
+			(start      (ctrl (limits (s z) z z (s z) z (s z) z z) (names nil (name "X"))))
+		)
+	).
+
 %% Warning: plenty of backtracking on this one! (due to choice)
 %% (Increasing lemma counters are only keeping track of where we are)
 %#assert plus_assoc_rl

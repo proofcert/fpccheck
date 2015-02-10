@@ -50,14 +50,14 @@ Define times_total' : cert -> prop by
 		total' Plus IsNat PlusTotal /\
 		total' Times IsNat TimesTotal /\
 		prove_with_lemmas Cert TimesTotal
-			((lemma z "plus_total" PlusTotal) :: nil).
+			((lemma (name "plus_total") PlusTotal) :: nil).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 Define times_det : cert -> prop by
 	times_det Cert :=
 		times Times /\ plus Plus /\ deterministic Plus PlusDet /\
 		is_deterministic' Cert Times
-			((lemma z "plus_det" PlusDet) :: nil).
+			((lemma (name "plus_det") PlusDet) :: nil).
 
 %TODO temporarily not using templates to specialize
 Define times_comm_f : bool -> prop by
@@ -81,9 +81,9 @@ Define times_comm : cert -> prop by
 		times_comm_f TimesComm /\
 		% Proof statement
 		prove_with_lemmas Cert TimesComm
-			((lemma          z    "times_zero"  TimesZero ) ::
-			 (lemma       (s z)   "augend_nat"  AugendNat ) ::
-			 (lemma    (s (s z))  "times_succ'" TimesSucc') ::
-			 (lemma (s (s (s z))) "plus_det"    PlusDet   ) :: nil).
+			((lemma (name "times_zero" ) TimesZero ) ::
+			 (lemma (name "augend_nat" ) AugendNat ) ::
+			 (lemma (name "times_succ'") TimesSucc') ::
+			 (lemma (name "plus_det"   ) PlusDet   ) :: nil).
 
 %times_assoc
