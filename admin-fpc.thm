@@ -68,6 +68,8 @@ Type   x        numidx.
 Type   split   boolidx -> boolidx -> boolidx.
 Type   name    string -> boolidx.
 
+%% Possible syntactic improvements: when we don't care about one side of a split, make it splitl or splitr with a single argument; likewise, provide constructors for dummy names and invariant placeholders
+
 %%%%%%%%%%%%%%%%
 % Full indexes %
 %%%%%%%%%%%%%%%%
@@ -306,10 +308,11 @@ Define orClerkNames : cert -> cert -> cert -> cert -> cert -> prop by
 Define impClerkNames : cert -> cert -> prop by
 	impClerkNames Cert Cert' :=
 		getControl Cert (ctrl _ (names _ (split NamesL NamesR))) /\
-		pushDelta Cert   NamesL Cert'' /\
-		setGoal   Cert'' NamesR Cert' ;
-	impClerkNames Cert Cert :=
-		getControl Cert (ctrl _ (names _ (name _             ))).
+		pushDelta Cert   NamesL      Cert'' /\
+		setGoal   Cert'' NamesR      Cert' ;
+	impClerkNames Cert Cert' :=
+		getControl Cert (ctrl _ (names _ (name Name          ))) /\
+		pushDelta Cert   (name Name) Cert'.
 
 Define eqClerkNames : cert -> cert -> prop by
 	eqClerkNames Cert Cert' :=
