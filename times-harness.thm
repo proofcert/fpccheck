@@ -28,15 +28,15 @@
 				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X"))))))).
 
 % This one isn't working at the moment, but I believe it's the one that was horribly slow without any kind of naming support... now, why would it fail to finish? Is it perhaps because of the unified indexing scheme that is preventing it from selecting the right formulas when it used to do so before?
-%#assert times_comm
-%	(autoinduce         (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "X")
-%		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X")))
-%			(guideLemma (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "times_zero") (name "X")
-%				(start  (ctrl (limits    (s z)  z z    z  z z z             z    ) (names nil (name "X")))))
-%			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)   ) (names nil (name "X"))) (name "augend_nat") (name "X")
-%			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))  ) (names nil (name "X"))) (name "times_succ") (name "X")
-%			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z))) ) (names nil (name "X"))) (name "plus_det"  ) (name "X")
-%				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z))))) (names nil (name "X"))))))))).
+#assert times_comm
+	(autoinduce         (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "X")
+		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X")))
+			(guideLemma (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "times_zero") (name "X")
+				(start  (ctrl (limits    (s z)  z z    z  z z z             z    ) (names nil (name "X")))))
+			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)   ) (names nil (name "X"))) (name "augend_nat") (name "X")
+			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))  ) (names nil (name "X"))) (name "times_succ'") (name "X")
+			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z))) ) (names nil (name "X"))) (name "plus_det"  ) (name "X")
+				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z))))) (names nil (name "X"))))))))).
 
 % After this, it's straightforward (even though decision trees are deep enough that without resuming halfway from a saved state that we assume correct it will be very slow to prove and adjust optimality of subsequent phases! thankfully, here we got lucky
 %%
