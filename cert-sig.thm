@@ -8,24 +8,27 @@ Type   left, right   choice.
 % Store index
 Kind   idx           type.
 
+% Nested indexing for fixed points in a formula [is this its place?]
+Kind   boolidx       type.
+
 % A signature of clerks and experts (can we enforce it?)
 % No polymorphism here, at least yet
 
-%andClerk     cert ->       cert                                -> prop
-%orClerk      cert ->       cert  -> cert                       -> prop
-%impClerk     cert ->       cert                                -> prop
-%ffClerk      cert                                              -> prop
-%ttClerk      cert ->       cert                                -> prop
-%allClerk     cert -> (i -> cert)                               -> prop
-%someClerk    cert -> (i -> cert)                               -> prop
-%eqClerk      cert ->       cert                                -> prop
-%unfoldLClerk cert ->       cert                                -> prop
-%indClerk     cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop
-%indClerk'    cert -> (i -> cert)                               -> prop
-%freezeLClerk cert ->       cert                                -> prop
-%unfoldRClerk cert ->       cert                                -> prop
-%coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool) -> prop
-%freezeRClerk cert ->       cert                                -> prop
+%andClerk     cert ->       cert                                       -> prop
+%orClerk      cert ->       cert  -> cert                              -> prop
+%impClerk     cert ->       cert                                       -> prop
+%ffClerk      cert                                                     -> prop
+%ttClerk      cert ->       cert                                       -> prop
+%allClerk     cert -> (i -> cert)                                      -> prop
+%someClerk    cert -> (i -> cert)                                      -> prop
+%eqClerk      cert ->       cert                                       -> prop
+%unfoldLClerk cert ->       cert                                       -> prop
+%indClerk     cert ->       cert  -> (i -> cert) -> (i -> bool)        -> prop
+%indClerk'    cert -> (i -> cert)                                      -> prop
+%freezeLClerk cert ->       cert                                -> idx -> prop
+%unfoldRClerk cert ->       cert                                       -> prop
+%coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool)        -> prop
+%freezeRClerk cert ->       cert                                       -> prop
 
 %andExpert     cert -> cert -> cert   -> prop
 %orExpert      cert -> cert -> choice -> prop
@@ -35,9 +38,9 @@ Kind   idx           type.
 %allExpert     cert -> cert -> i      -> prop
 %someExpert    cert -> cert -> i      -> prop
 %eqExpert      cert                   -> prop
-%initLExpert   cert                   -> prop
+%initLExpert   cert         -> idx    -> prop
 %unfoldLExpert cert -> cert           -> prop
-%initRExpert   cert                   -> prop
+%initRExpert   cert         -> idx    -> prop
 %unfoldRExpert cert -> cert           -> prop
 
 %decideLClerk   cert -> cert -> idx -> prop
