@@ -35,37 +35,6 @@
 		)
 	).
 
-%% Requires plus_zero as a lemma/embedded induction
-%% Recover the original, "blind" plus_comm... but wait, was there ever one?
-%#assert plus_comm _ _
-%	(autoinduce (ctrl z z z z z z z z)
-%		(dummy\ guideOr (ctrl z z z z z z z z)
-%			(guideLemma (ctrl z z z z z z z z) z
-%				(start (ctrl (s z) z z z z z z z)))
-%			(guideLemma (ctrl (s z) z z (s z) z z z z) (s z)
-%				(start (ctrl (s z) z z z z z z z)))
-%		)
-%	).
-
-%NOTE if I debug and use don't care integers, and can't print them, I'll fail
-%#assert plus_comm _ _
-%	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (split (name "X2") (split (name "X3") (split (name "X4") (name "S"))))
-%		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
-%			(guideLemma (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (name "X") (name "plus_zero")
-%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
-%			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X")))   (name "X") (name "plus_succ")
-%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
-%		)
-%	).
-%#assert plus_comm _ _
-%	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (split (name "H1") (split (name "H2") (name "G"))))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
-%		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
-%			(guideLemma (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))   (name "plus_zero") (split (name "H2") (name "G"))
-%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
-%			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X")))   (name "plus_succ") (split (name "H1") (name "G"))
-%				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X")))))
-%		)
-%	).
 #assert plus_comm _ _
 	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (split (name "H1") (split (name "H2") (name "G"))))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
 		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
@@ -76,8 +45,6 @@
 		)
 	).
 
-%% (autoinduce (ctrl z z z z _ z z z) (dummy\ start (ctrl (s z) z z (s z) _ (s (s z)) z (s z)))) % Logical variable encountered on the left
-%
 %#assert plus_total Plus
 %	(induce (ctrl (s z) z z z _ z _ _)
 %		(Args\ all A\ all B\ imp
@@ -124,7 +91,7 @@
 	).
 
 %% Warning: plenty of backtracking on this one! (due to choice)
-%% (Increasing lemma counters are only keeping track of where we are)
+%% (To reconstruct, simply supply blind naming structures)
 %#assert plus_assoc_rl
 %	(guideLemma (ctrl    z  z z z z z z                      z       )    (s z)
 %	(guideLemma (ctrl (s z) z z z z z z                   (s z)      )       z

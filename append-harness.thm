@@ -26,8 +26,6 @@
 %			(some C\ Append (A ++ B ++ C ++ argv)))
 %		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 
-%#assert append_total _
-%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
 #assert append_total _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
@@ -44,8 +42,6 @@
 %		))
 %		(dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
 
-%#assert append_det _
-%	(autoinduce (ctrl z z z z _ z _ _) (dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
 #assert append_det _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))))).
@@ -62,9 +58,6 @@
 %		))
 %		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
 
-%#assert append_assoc _
-%	(autoinduce (ctrl z z z z _ z _ _)
-%		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
 #assert append_assoc _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s z) z z (s z) z (s z) z z) (names nil (name "X"))))).
