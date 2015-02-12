@@ -46,7 +46,7 @@
 				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z))))) (names nil (name "X"))))))))).
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% What if I don't know which lemma to pick?
+% What if I don't know which lemma to pick? (note the combination of buckets and lemma uncertainty can be costly indeed)... this one in particular needs to be checked just in case, but I think everything works
 #assert times_comm
 	(autoinduce         (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "X")
 		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X")))

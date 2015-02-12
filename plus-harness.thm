@@ -154,11 +154,14 @@
 		(name "plus_comm")
 		(split (name "H8") (split (name "H3") (name "H9")))                                            % plus BC1 C ABC
 	(guideLemma (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))  ) (names nil (name "X")))
-		(name Lemma1      )
-		(split (name H1_1) (split (name H1_2) (name H1_3 )))                                           % nat BC1
+		(name Lemma1)
+		(guess Guess1)                                                                                 % nat BC1
+%	(guideLemma (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))  ) (names nil (name "X")))
+%		(name "addend_nat")
+%		(split (name "H8") (split (name "H3") (name "H10")))                                           % nat BC1
 	(guideLemma (ctrl (limits (s z) z z z z z z    (s (s (s (s (s (s z)))))) ) (names nil (name "X")))
-		(name Lemma2     )
-		(split (name H2_1) (split (name H2_2 ) (name H2_3 )))                                          % plus A B BC1
+		(name Lemma2)
+		(guess Guess2)                                                                                 % plus A B BC1
 	(start      (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z)))))))) (names nil (name "X")))
 	)))))))).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
