@@ -25,6 +25,16 @@
 			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))) (name "plus_det") (name "X")
 				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X"))))))).
 
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% What if I don't know which lemma to pick?
+#assert times_det
+	(autoinduce         (ctrl (limits    z  z z    z  z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z) (names nil (name "X")))
+			(start      (ctrl (limits    z  z z (s z) z z z z) (names nil (name "X"))))
+			(guideLemma (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))) (name Lemma) (name "X")
+				(start  (ctrl (limits (s z) z z    z  z z z z) (names nil (name "X"))))))).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 #assert times_comm
 	(autoinduce         (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "X")
 		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X")))
@@ -34,6 +44,19 @@
 			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))  ) (names nil (name "X"))) (name "times_succ'") (name "X")
 			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z))) ) (names nil (name "X"))) (name "plus_det"  ) (name "X")
 				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z))))) (names nil (name "X"))))))))).
+
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% What if I don't know which lemma to pick?
+#assert times_comm
+	(autoinduce         (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "X")
+		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X")))
+			(guideLemma (ctrl (limits       z   z z    z  z z z             z    ) (names nil (name "X"))) (name "times_zero") (name "X")
+				(start  (ctrl (limits    (s z)  z z    z  z z z             z    ) (names nil (name "X")))))
+			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)   ) (names nil (name "X"))) (name "augend_nat") (name "X")
+			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))  ) (names nil (name "X"))) (name Lemma1       ) (name "X")
+			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z))) ) (names nil (name "X"))) (name Lemma2      ) (name "X")
+				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z))))) (names nil (name "X"))))))))).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 % Whenever we enter a lemma, we will need to escape it, and its continuation
 % needs to open one new bipole at least (and hopefully just one).
