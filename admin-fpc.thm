@@ -70,6 +70,7 @@ Type   x        numidx.
 %    of an unfolding), its value will be propagated to all children
 Type   split   boolidx -> boolidx -> boolidx.
 Type   name    string -> boolidx.
+Type   guess   boolidx -> boolidx.
 
 %TODO Possible syntactic improvements: when we don't care about one side of a
 % split, compact with a single-argument splitL/splitR; provide constructors for
@@ -290,7 +291,11 @@ Define orClerkNames : cert -> cert -> cert -> cert -> cert -> prop by
 	orClerkNames Cert CertL CertR CertL' CertR' :=
 		getControl Cert (ctrl _ (names ((name Name)           :: _) _)) /\
 		poppushDelta CertL (name Name  ) CertL' /\
-		poppushDelta CertR (name Name  ) CertR'.
+		poppushDelta CertR (name Name  ) CertR' ;
+	orClerkNames Cert CertL CertR CertL' CertR' :=
+		getControl Cert (ctrl _ (names ((guess (split (guess GuessL) (guess GuessR))) :: _) _)) /\
+		poppushDelta CertL (guess GuessL) CertL' /\
+		poppushDelta CertR (guess GuessR) CertR'.
 
 Define impClerkNames : cert -> cert -> prop by
 	impClerkNames Cert Cert' :=
@@ -299,7 +304,11 @@ Define impClerkNames : cert -> cert -> prop by
 		setGoal   Cert'' NamesR      Cert' ;
 	impClerkNames Cert Cert' :=
 		getControl Cert (ctrl _ (names _ (name Name          ))) /\
-		pushDelta Cert   (name Name) Cert'.
+		pushDelta Cert   (name Name) Cert' ;
+	impClerkNames Cert Cert' :=
+		getControl Cert (ctrl _ (names _ (guess (split (guess GuessL) (guess GuessR))))) /\
+		pushDelta Cert (guess GuessL) Cert'' /\
+		setGoal   Cert'' (guess GuessR) Cert'.
 
 Define eqClerkNames : cert -> cert -> prop by
 	eqClerkNames Cert Cert' :=
@@ -311,7 +320,11 @@ Define andExpertNames : cert -> cert -> cert -> prop by
 		setGoal Cert NamesL CertL /\
 		setGoal Cert NamesR CertR ;
 	andExpertNames Cert Cert Cert :=
-		getControl Cert (ctrl _ (names _ (name _             ))).
+		getControl Cert (ctrl _ (names _ (name _             ))) ;
+	andExpertNames Cert CertL CertR :=
+		getControl Cert (ctrl _ (names _ (guess (split (guess GuessL) (guess GuessR))))) /\
+		setGoal Cert (guess GuessL) CertL /\
+		setGoal Cert (guess GuessR) CertR.
 
 Define impExpertNames' : cert -> cert -> cert -> prop by
 	impExpertNames' Cert CertL CertR :=
@@ -319,11 +332,17 @@ Define impExpertNames' : cert -> cert -> cert -> prop by
 		poppushDelta Cert NamesR CertL /\
 		setGoal      Cert NamesL CertR ;
 	impExpertNames' Cert Cert Cert :=
-		getControl Cert (ctrl _ (names ((name _             ) :: _) _)).
+		getControl Cert (ctrl _ (names ((name _             ) :: _) _)) ;
+	impExpertNames' Cert CertL CertR :=
+		getControl Cert (ctrl _ (names ((guess (split (guess GuessL) (guess GuessR))) :: _) _)) /\
+		poppushDelta Cert (guess GuessR) CertL /\
+		setGoal      Cert (guess GuessL) CertR.
 
 %----------------------------------------%
 % Control structure - Naming - Induction %
 %----------------------------------------%
+
+%For now, and assuming that induction comes first and is hard to guess, let's try not doing anything here for 'guess'...
 
 Define indInvariantDelta' : list boolidx -> boolidx -> prop by
 	indInvariantDelta'     (       Names            :: nil  ) Names ;
@@ -539,18 +558,27 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 % also the flexibility required by typical proofs.
 
 Define freezeLClerk : cert -> cert -> idx -> prop by
-	freezeLClerk Cert Cert' (idx x Name) := (
+	freezeLClerk Cert Cert' (idx x (name Name)) := (
 		Cert = (start _)            \/
 		Cert = (guideOr _ _ _)      \/
-		Cert = (guideLemma _ _ _ _) ) /\
-		popDelta Cert Name Cert'
+		Cert = (guideLemma _ _ _ _) ) /\ (
+		popDelta Cert (name Name) Cert' \/
+		popDelta Cert (guess (name Name)) Cert')
 	/\ println "freezeLClerk" /\ print_cert Cert
 	.
 
 Define initRExpert : cert -> idx -> prop by
-	initRExpert Cert (idx x Name) :=
-		getControl Cert (ctrl _ (names _ Name))
-	/\ println "initRExpert" /\ print_cert Cert
+%	initRExpert Cert (idx x Name) :=
+%		getControl Cert (ctrl _ (names _ Name))
+%	/\ println "initRExpert" /\ print_cert Cert /\ println Name
+%% Quick and dirty, for now... and restricting to no splits (which makes little sense, but was implicitly "allowed"...
+	initRExpert Cert (idx x (name Name)) :=
+		getControl Cert (ctrl _ (names _ (name Name)))
+	/\ println "initRExpert with name" /\ print_cert Cert /\ println Name
+	;
+	initRExpert Cert (idx x (name Name)) :=
+		getControl Cert (ctrl _ (names _ (guess (name Name))))
+	/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name
 	.
 
 Define freezeRClerk : cert -> cert -> prop by freezeRClerk _ _ := false.
