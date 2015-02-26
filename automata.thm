@@ -1,0 +1,33 @@
+% States and transitions (very vague encoding!)
+Type   p0, p1, q0, q1   i.
+Type   a, b             i.
+
+Define step : (i -> bool) -> prop by
+	step (mu Pred\Args\
+		(some S0\ some T\ some S1\ (and (eq Args (S0 ++ T ++ S1 ++ argv))
+		(or
+			(and (eq S0 p0) (and (eq T a) (eq S1 p0))) (or
+			(and (eq S0 p0) (and (eq T b) (eq S1 p1))) (or
+			(and (eq S0 q0) (and (eq T a) (eq S1 q1)))
+			(and (eq S0 q1) (and (eq T a) (eq S1 q0))))))))).
+
+Define sim : (i -> bool) -> prop by
+	sim (nu Pred\Args\
+		(some P\ some Q\ (and (eq Args (P ++ Q ++ argv))
+		(all L\ all Pn\ (imp
+			(Step (P ++ L ++ Pn ++ argv))
+			(some Qn\ (and
+				(Step (Q ++ L ++ Qn ++ argv))
+				(Pred (Pn ++ Qn ++ argv)))))))))
+	:=
+	step Step.
+%Define sim : (i -> bool) -> prop by
+%	sim (nu Pred\Args\
+%		(some P\ some Q\ (and (eq Args (P ++ Q ++ argv))
+%		(all L\ all Pn\ (imp
+%			(Step (p0 ++ a ++ p0 ++ argv))
+%			(some Qn\ (and
+%				tt
+%				(Pred (Pn ++ Qn ++ argv)))))))))
+%	:=
+%	plus Step.
