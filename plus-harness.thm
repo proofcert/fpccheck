@@ -5,23 +5,29 @@
 #include "kernel.thm".              % Kernel
 #include "plus-examples.thm".       % Concrete examples
 
-%#assert plus_zero Plus
-%	(induce (ctrl (s z) z z z _ z _ _)
-%		(Args\ all N\ imp
-%			(eq Args (N ++ argv))
-%			(Plus (N ++ zero ++ N ++ argv)))
-%		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
+#assert plus_zero Plus
+	(induce
+		(ctrl (limits (s z) z z z z z z z) (names nil (name "X")))
+		(Args\ all N\ imp
+			(eq Args (N ++ argv))
+			(Plus (N ++ zero ++ N ++ argv)))
+		(split (name "X1") (split (name "X2") (name "S")))
+		(name "X")
+		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
 
 #assert plus_zero _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
 
-%#assert plus_succ Plus
-%	(induce (ctrl (s z) z z z _ z _ _)
-%		(Args\ all K\ all M\ all N\ imp
-%			(eq Args (K ++ M ++ N ++ argv))
-%			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))
-%		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
+#assert plus_succ Plus
+	(induce
+		(ctrl (limits (s z) z z z z z z z) (names nil (name "X")))
+		(Args\ all K\ all M\ all N\ imp
+			(eq Args (K ++ M ++ N ++ argv))
+			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))
+		(split (name "X1") (split (name "X2") (name "S")))
+		(name "X")
+		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
 
 #assert plus_succ _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
@@ -45,38 +51,47 @@
 		)
 	).
 
-%#assert plus_total Plus
-%	(induce (ctrl (s z) z z z _ z _ _)
-%		(Args\ all A\ all B\ imp
-%			(eq Args (A ++ argv))
-%			(some C\ Plus (A ++ B ++ C ++ argv)))
-%		(dummy\ start (ctrl (s z) z z z _ (s z) _ _))).
+#assert plus_total Plus
+	(induce
+		(ctrl (limits (s z) z z z z z z z) (names nil (name "X")))
+		(Args\ all A\ all B\ imp
+			(eq Args (A ++ argv))
+			(some C\ Plus (A ++ B ++ C ++ argv)))
+		(split (name "X1") (name "S"))
+		(name "X")
+		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
 
 #assert plus_total _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z) (names nil (name "X"))))).
 
-%#assert plus_det Plus
-%	(induce (ctrl (s z) z z z _ z _ _)
-%		(Args\ all A\ all B\ all C\ all D\ imp
-%			(eq Args (A ++ B ++ C ++ argv)) (imp
-%			(Plus (A ++ B ++ D ++ argv))
-%			(eq C D)))
-%		(dummy\ start (ctrl (s z) z z (s z) _ z _ _))).
+#assert plus_det Plus
+	(induce
+		(ctrl (limits (s z) z z z z z z z) (names nil (name "X")))
+		(Args\ all A\ all B\ all C\ all D\ imp
+			(eq Args (A ++ B ++ C ++ argv)) (imp
+			(Plus (A ++ B ++ D ++ argv))
+			(eq C D)))
+		(split (name "X1") (split (name "X2") (name "S")))
+		(name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))))).
 
 #assert plus_det _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))))).
 
-%#assert plus_assoc Plus
-%	(induce (ctrl (s z) z z z _ z _ _)
-%		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
-%			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
-%			(Plus (l6 ++ l1 ++ l7 ++ argv))
-%			(some l3\ and
-%				(Plus (l2 ++ l1 ++ l3 ++ argv))
-%				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
-%		(dummy\ start (ctrl (s z) z z (s z) _ (s z) _ _))).
+#assert plus_assoc Plus
+	(induce
+		(ctrl (limits (s z) z z z z z z z) (names nil (name "X")))
+		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
+			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
+			(Plus (l6 ++ l1 ++ l7 ++ argv))
+			(some l3\ and
+				(Plus (l2 ++ l1 ++ l3 ++ argv))
+				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
+		(split (name "X") (split (name "X") (name "S")))
+		(name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z (s z) z z) (names nil (name "X"))))).
 
 #assert plus_assoc _
 	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")

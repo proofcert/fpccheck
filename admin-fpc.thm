@@ -148,10 +148,10 @@ Type   ctrl   limits -> % (Lims)  [A]
 % the goal formula). The alternative may be a delay or nested "freeze".
 
 % Basic certificates
-                  % Ctrl  % Invariant    % Names    % NewCert
-Type   start        ctrl                                          -> cert.
-Type   induce       ctrl -> (i -> bool)            -> (i -> cert) -> cert.
-Type   autoinduce   ctrl                -> boolidx -> (i -> cert) -> cert.
+                  % Ctrl  % Invariant    % NamesB   % NamesS   % NewCert
+Type   start        ctrl                                                     -> cert.
+Type   induce       ctrl -> (i -> bool) -> boolidx -> boolidx -> (i -> cert) -> cert.
+Type   autoinduce   ctrl                -> boolidx            -> (i -> cert) -> cert.
 
 % Certificates for guided reasoning
                   % Ctrl  % Idx      % Names    % NewC1 % NewC2
@@ -170,18 +170,18 @@ Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
 %----------------------------------%
 
 Define getControl : cert -> ctrl -> prop by
-	getControl (start      Ctrl      ) Ctrl ;
-	getControl (induce     Ctrl   _ _) Ctrl ;
-	getControl (autoinduce Ctrl   _ _) Ctrl ;
-	getControl (guideOr    Ctrl   _ _) Ctrl ;
-	getControl (guideLemma Ctrl _ _ _) Ctrl.
+	getControl (start      Ctrl        ) Ctrl ;
+	getControl (induce     Ctrl _ _ _ _) Ctrl ;
+	getControl (autoinduce Ctrl   _   _) Ctrl ;
+	getControl (guideOr    Ctrl     _ _) Ctrl ;
+	getControl (guideLemma Ctrl   _ _ _) Ctrl.
 
 Define setControl : cert -> ctrl -> cert -> prop by
-	setControl (start      _                   ) Ctrl (start      Ctrl                   ) ;
-	setControl (induce     _ S           Xi    ) Ctrl (induce     Ctrl S           Xi    ) ;
-	setControl (autoinduce _       Names Xi    ) Ctrl (autoinduce Ctrl       Names Xi    ) ;
-	setControl (guideOr    _             Xi Xi') Ctrl (guideOr    Ctrl             Xi Xi') ;
-	setControl (guideLemma _   Idx Names Xi    ) Ctrl (guideLemma Ctrl   Idx Names Xi    ).
+	setControl (start      _                          ) Ctrl (start      Ctrl                          ) ;
+	setControl (induce     _ S     Names Names' Xi    ) Ctrl (induce     Ctrl S     Names Names' Xi    ) ;
+	setControl (autoinduce _       Names        Xi    ) Ctrl (autoinduce Ctrl       Names        Xi    ) ;
+	setControl (guideOr    _                    Xi Xi') Ctrl (guideOr    Ctrl                    Xi Xi') ;
+	setControl (guideLemma _   Idx Names        Xi    ) Ctrl (guideLemma Ctrl   Idx Names        Xi    ).
 
 Define gt : numidx -> numidx -> prop by
 	gt (s _) z ;
@@ -277,7 +277,7 @@ Define orClerkCert : cert -> cert -> cert -> prop by
 		bequest Cert CertR' CertR ;
 	orClerkCert Cert Cert Cert :=
 		Cert = (start _)            \/
-		Cert = (induce _ _ _)       \/
+		Cert = (induce _ _ _ _ _)   \/
 		Cert = (autoinduce _ _ _)   \/
 		Cert = (guideLemma _ _ _ _).
 
@@ -369,6 +369,20 @@ Define replaceName : boolidx -> boolidx -> boolidx -> prop by
 		replaceName NamesL Names NamesL' /\
 		replaceName NamesR Names NamesR'.
 	%replaceName Base Names Result :=
+
+Define indClerkNames : cert -> cert -> (i -> cert) -> prop by
+	indClerkNames Cert CertSt CertBSx := forall x,
+		% Pop current and decompose base certificate
+		popDelta Cert _ Cert' /\
+		Cert' = (induce Ctrl S NamesB NamesS SubCert) /\
+		% Compose first sub-certificate
+		pushDelta (start Ctrl) NamesS CertSt /\
+		% Compose second sub-certificate
+		replaceName NamesB NamesS NamesBSx /\
+		SubCert' = (SubCert x) /\
+		pushDelta SubCert'  NamesBSx SubCert'' /\ % Assuming Delta is empty!
+		setGoal   SubCert'' NamesS   SubCert''' /\
+		CertBSx = (_\ SubCert''').
 
 % Here I am assuming a vacuous abstraction!! (I know it's true, for me...)
 Define indClerkNames' : cert -> (i -> cert) -> prop by
@@ -505,9 +519,11 @@ Define someExpert : cert -> cert -> i -> prop by
 % continuation certificate and invariant for the induction branch.
 %TODO
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	indClerk (induce Ctrl S Cert') (start Ctrl) Cert' S
-	:= println "indClerk (no bequest)"
-	.
+	indClerk Cert Cert' Cert'' S :=
+		Cert = (induce _ S _ _ _) /\
+		indClerkNames Cert Cert' Cert''
+/\ println "indClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x)
+.
 
 %NOTE No bequest! If inductions do not occur right at the start, buggy
 %NOTE Handle lemma naming too
@@ -518,8 +534,8 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' Cert Cert' :=
 		Cert = (autoinduce _ _ _) /\
 		indClerkNames' Cert Cert'
-	/\ println "indClerk' (no bequest)"
-	.
+/\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x)
+.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk _ _ _ _ := false.
