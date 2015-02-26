@@ -384,6 +384,19 @@ Define indClerkNames : cert -> cert -> (i -> cert) -> prop by
 		setGoal   SubCert'' NamesS   SubCert''' /\
 		CertBSx = (_\ SubCert''').
 
+Define coindClerkNames : cert -> cert -> (i -> cert) -> prop by
+	coindClerkNames Cert CertSt CertBSx := forall x,
+		% Decompose base certificate
+		Cert = (induce Ctrl S NamesB NamesS SubCert) /\
+		% Compose first sub-certificate
+		setGoal (start Ctrl) NamesS CertSt /\
+		% Compose second sub-certificate
+		replaceName NamesB NamesS NamesBSx /\
+		SubCert' = (SubCert x) /\
+		pushDelta SubCert'  NamesS   SubCert'' /\ % Assuming Delta is empty!
+		setGoal   SubCert'' NamesBSx SubCert''' /\
+		CertBSx = (_\ SubCert''').
+
 % Here I am assuming a vacuous abstraction!! (I know it's true, for me...)
 Define indClerkNames' : cert -> (i -> cert) -> prop by
 	indClerkNames' Cert SubCert := forall x,
@@ -537,8 +550,18 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 /\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x)
 .
 
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+%TODO Sharing the certificate with induction is looking for trouble, but for the sake of rapidity... let's use it TEMPORARILY as a proof of concept
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	coindClerk _ _ _ _ := false.
+	coindClerk Cert Cert' Cert'' S :=
+println "Try coind" /\
+		Cert = (induce _ S _ _ _) /\
+println "Pattern matching ok" /\
+		coindClerkNames Cert Cert' Cert''
+/\ println "coindClerkNames ok"
+/\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x)
+.
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 %----------------------%
 % Fixed points: unfold %
@@ -561,6 +584,7 @@ Define unfoldRExpert : cert -> cert -> prop by
 	.
 
 % Greatest fixed points
+%NOTE These will, initially, use the same bounds as least fixed points, but may be refined if needed...
 Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := false.
 Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 
@@ -597,8 +621,31 @@ Define initRExpert : cert -> idx -> prop by
 	/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name
 	.
 
-Define freezeRClerk : cert -> cert -> prop by freezeRClerk _ _ := false.
-Define initLExpert : cert -> idx -> prop by initLExpert _ _ := false.
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% Greatest fixed points replicate the conventions initially developed for least fixed points, with similar strategies and potential limitations (prioritize and consume all allowed inductions first, etc.)
+% Note, for example, that we could define a predicate that tells us if a certificate is not an induction, and refactor throughout. The similarities are now apparent
+%NOTE I think nothing else is needed, no control management, no naming bookkeeping...
+Define freezeRClerk : cert -> cert -> prop by
+	freezeRClerk Cert Cert := (
+		Cert = (start _)            \/
+		Cert = (guideOr _ _ _)      \/
+		Cert = (guideLemma _ _ _ _) )
+/\ println "freezeLClerk" /\ print_cert Cert
+.
+
+%NOTE Do I need to return an index? If not, simplify the interface!
+%Probably pop delta (no pop: it's the end of the line) and equalize
+%(idx x (name Name))
+Define initLExpert : cert -> idx -> prop by
+	initLExpert Cert _ :=
+		getControl Cert (ctrl _ (names ((name Name)         :: _) (name Name)))
+/\ println "initRExpert with name" /\ print_cert Cert /\ println Name
+ ;
+	initLExpert Cert _ :=
+		getControl Cert (ctrl _ (names ((guess (name Name)) :: _) (name Name)))
+/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name
+.
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 %------------------%
 % Structural rules %
