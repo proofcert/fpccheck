@@ -46,7 +46,8 @@ Define print_bool : bool -> prop by
 		(mu B) = (mu B') /\
 		printstr Name /\ print_argv T ;
 	print_bool (nu B T) := exists Name,
-		name_mnu Name (nu B) /\
+		name_mnu Name (nu B') /\
+		(nu B) = (nu B') /\
 		printstr Name /\ print_argv T.
 
 % The following list printers follow a very clear pattern and should be

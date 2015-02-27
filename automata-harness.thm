@@ -5,6 +5,9 @@
 #include "kernel.thm".                  % Kernel
 #include "automata-examples.thm".       % Concrete examples
 
+#assert nu_trivial
+	(start (ctrl (limits z z z z z z z z) (names nil (name "X")))).
+
 #assert_not q0_sim_p0
 	(start (ctrl (limits z z z z z z z z) (names nil (name "X")))).
 
