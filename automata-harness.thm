@@ -6,16 +6,37 @@
 #include "automata-examples.thm".       % Concrete examples
 
 #assert nu_trivial
-	(start (ctrl (limits z z z z z z z z) (names nil (name "X")))).
+	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
 
 #assert_not q0_sim_p0
-	(start (ctrl (limits z z z z z z z z) (names nil (name "X")))).
+	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
 
+% With SOME, both approaches fail:
+% - AND gets to something like this on syncR: (h=(++) H2 ((++) H3 argv))
+% - IMP does it on the left on async, and: Logic variable encountered on the left: H.
+% My addition of existentials and equality complicates things, now
 #assert q0_sim_p0
 	(induce
-		(ctrl (limits (s z) z z z z z z z) (names nil (name "X")))
-		(Args\ (eq Args (q0 ++ p0 ++ argv)))
+		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
+		(Args\ tt)
 		(name "X")
 		(name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z z z z) (names nil (name "X"))))).
+		(dummy\ start (ctrl (limits (s z) z z (s z) z (s z) z z (s z)) (names nil (name "X"))))).
 % Delta!
+
+#assert sim_refl
+	(induce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X")))
+		(Args\ some P\ some Q\ and (eq Args (P ++ Q ++ argv)) (eq P Q))
+		(name "X")
+		(name "X")
+		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
+
+#assert sim_trans Sim
+	(induce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X")))
+		(Args\ some P\ some R\ and (eq Args (P ++ R ++ argv))
+			(some Q\ and (Sim (P ++ Q ++ argv)) (Sim (Q ++ R ++ argv))))
+		(name "X")
+		(name "X")
+		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).

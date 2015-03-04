@@ -96,9 +96,10 @@ Type   idx   numidx -> boolidx -> idx.
 %       6. Maximum allowed RE-unfoldings in unfoldRExpert per synchronous phase
 %       7. Next lemma index to try in decideLClerk' (passive, unused)
 %       8. Last lemma index to try in decideLClerk' (passive, unused)
+%       9. Permission to release in releaseRClerk for greatest fixed points
 %  B. Formula structures and names (guided hypothetical reasoning)
-%       9. List of naming structures for the formulas in Delta
-%      10. List of naming structures for the formula in Goal
+%      10. List of naming structures for the formulas in Delta
+%      11. List of naming structures for the formula in Goal
 
 Kind   limits   type.
 Type   limits   numidx -> % (Depth) [1]
@@ -109,11 +110,12 @@ Type   limits   numidx -> % (Depth) [1]
                 numidx -> % (SMax)  [6]
                 numidx -> % (LNext) [7]
                 numidx -> % (LLast) [8]
+                numidx -> % (RRel)  [9]
                 limits.
 
 Kind   names   type.
-Type   names   list boolidx -> % (Delta) [9]
-               boolidx      -> % (Goal)  [10]
+Type   names   list boolidx -> % (Delta) [10]
+               boolidx      -> % (Goal)  [11]
                names.
 
 Kind   ctrl   type.
@@ -193,34 +195,39 @@ Define gt : numidx -> numidx -> prop by
 
 Define decrementDepth : cert -> cert -> prop by
 	decrementDepth Cert Cert' :=
-		getControl Cert (ctrl (limits (s D) N L UL UR UM LN LL) Names) /\
-		setControl Cert (ctrl (limits    D  N L UL UR UM LN LL) Names) Cert'.
+		getControl Cert (ctrl (limits (s D) N L UL UR UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits    D  N L UL UR UM LN LL RR) Names) Cert'.
 
 Define decrementUnfoldL : cert -> cert -> prop by
 	decrementUnfoldL Cert Cert' :=
-		getControl Cert (ctrl (limits D N L (s UL) UR UM LN LL) Names) /\
-		setControl Cert (ctrl (limits D N L    UL  UR UM LN LL) Names) Cert'.
+		getControl Cert (ctrl (limits D N L (s UL) UR UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits D N L    UL  UR UM LN LL RR) Names) Cert'.
 
 Define decrementUnfoldR : cert -> cert -> prop by
 	decrementUnfoldR Cert Cert' :=
-		getControl Cert (ctrl (limits D N L UL (s UR) UM LN LL) Names) /\
-		setControl Cert (ctrl (limits D N L UL    UR  UM LN LL) Names) Cert'.
+		getControl Cert (ctrl (limits D N L UL (s UR) UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits D N L UL    UR  UM LN LL RR) Names) Cert'.
+
+Define decrementRRelease : cert -> cert -> prop by
+	decrementRRelease Cert Cert' :=
+		getControl Cert (ctrl (limits D N L UL UR UM LN LL (s RR)) Names) /\
+		setControl Cert (ctrl (limits D N L UL UR UM LN LL    RR ) Names) Cert'.
 
 Define returnAndIncrementNext : cert -> cert -> numidx -> prop by
 	returnAndIncrementNext Cert Cert' N :=
-		getControl Cert (ctrl (limits D    N  L UL UR UM LN LL) Names) /\
-		setControl Cert (ctrl (limits D (s N) L UL UR UM LN LL) Names) Cert'.
+		getControl Cert (ctrl (limits D    N  L UL UR UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits D (s N) L UL UR UM LN LL RR) Names) Cert'.
 
 Define returnAndIncrementLast : cert -> cert -> numidx -> prop by
 	returnAndIncrementLast Cert Cert' L :=
-		getControl Cert (ctrl (limits D N    L  UL UR UM LN LL) Names) /\
-		setControl Cert (ctrl (limits D N (s L) UL UR UM LN LL) Names) Cert' /\
+		getControl Cert (ctrl (limits D N    L  UL UR UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits D N (s L) UL UR UM LN LL RR) Names) Cert' /\
 		gt N L.
 
 Define resetUnfoldR : cert -> cert -> prop by
 	resetUnfoldR Cert Cert' :=
-		getControl Cert (ctrl (limits D N L UL _  UM LN LL) Names) /\
-		setControl Cert (ctrl (limits D N L UL UM UM LN LL) Names) Cert'.
+		getControl Cert (ctrl (limits D N L UL _  UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits D N L UL UM UM LN LL RR) Names) Cert'.
 
 % Transfer the global, shared parts of a certificate to its successor (note the
 % base naming structure is taken from the bequeather, which seems adequate...
@@ -228,9 +235,9 @@ Define resetUnfoldR : cert -> cert -> prop by
 %NOTE This is added manually to each instance of succession, and thus is at risk
 Define bequest : cert -> cert -> cert -> prop by
 	bequest Bequeather Heir Inheritor :=
-		getControl Bequeather (ctrl (limits _ N L _  _  _  _  _ ) Names) /\
-		getControl Heir       (ctrl (limits D _ _ UL UR UM LN LL) _    ) /\
-		setControl Heir       (ctrl (limits D N L UL UR UM LN LL) Names) Inheritor.
+		getControl Bequeather (ctrl (limits _ N L _  _  _  _  _  _ ) Names) /\
+		getControl Heir       (ctrl (limits D _ _ UL UR UM LN LL RR) _    ) /\
+		setControl Heir       (ctrl (limits D N L UL UR UM LN LL RR) Names) Inheritor.
 
 %-------------------------------------------%
 % Control structure - Naming - Generalities %
@@ -425,7 +432,10 @@ Define indClerkNames' : cert -> (i -> cert) -> prop by
 %----------------------------------%
 
 Define ffClerk : cert -> prop by ffClerk _ := false.
-Define ttClerk : cert -> cert -> prop by ttClerk _ _ := false.
+Define ttClerk : cert -> cert -> prop by
+	ttClerk Cert Cert
+:= println "ttClerk"
+.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert' :=
@@ -457,7 +467,10 @@ Define eqClerk : cert -> cert -> prop by
 % Propositional synchronous phase %
 %---------------------------------%
 
-Define ttExpert : cert -> prop by ttExpert _ := false.
+Define ttExpert : cert -> prop by
+	ttExpert Cert
+:= println "ttExpert"
+.
 
 Define andExpert : cert -> cert -> cert -> prop by
 	andExpert Cert CertL CertR :=
@@ -699,4 +712,9 @@ Define releaseLExpert : cert -> cert -> prop by
 	/\ println "releaseLExpert" /\ print_cert Cert'
 	.
 
-Define releaseRExpert : cert -> cert -> prop by releaseRExpert _ _ := false.
+%NOTE This could conceivably re-use Depth, but it is probably messier and we will seldom wanting, so for now, a finer control is given
+Define releaseRExpert : cert -> cert -> prop by
+	releaseRExpert Cert Cert' :=
+		decrementRRelease Cert Cert'
+/\ println "releaseRExpert" /\ print_cert Cert'
+.
