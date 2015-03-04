@@ -34,7 +34,7 @@
 
 #assert sim_trans Sim
 	(induce
-		(ctrl (limits z z z z z z z z z) (names nil (name "X")))
+		(ctrl (limits z z z z z z z z (s z)) (names nil (name "X")))
 		(Args\ some P\ some R\ and (eq Args (P ++ R ++ argv))
 			(some Q\ and (Sim (P ++ Q ++ argv)) (Sim (Q ++ R ++ argv))))
 		(name "X")
