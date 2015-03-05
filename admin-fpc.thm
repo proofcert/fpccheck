@@ -229,6 +229,11 @@ Define resetUnfoldR : cert -> cert -> prop by
 		getControl Cert (ctrl (limits D N L UL _  UM LN LL RR) Names) /\
 		setControl Cert (ctrl (limits D N L UL UM UM LN LL RR) Names) Cert'.
 
+Define resetLast : cert -> cert -> prop by
+	resetLast Cert Cert' :=
+		getControl Cert (ctrl (limits D N _ UL UR UM LN LL RR) Names) /\
+		setControl Cert (ctrl (limits D N z UL UR UM LN LL RR) Names) Cert'.
+
 % Transfer the global, shared parts of a certificate to its successor (note the
 % base naming structure is taken from the bequeather, which seems adequate...
 % but pay attention to fringe cases, in case they come up).
@@ -586,7 +591,7 @@ Define unfoldLClerk : cert -> cert -> prop by
 	unfoldLClerk Cert Cert' :=
 		decrementUnfoldL Cert Cert'
 	/\ println "unfoldLClerk" /\ print_cert Cert'
-	.	
+	.
 
 % On the right, we expect purely positive, terminating computation (but bounds
 % are needed because this may not happen if logic variables are involved).
@@ -598,7 +603,12 @@ Define unfoldRExpert : cert -> cert -> prop by
 
 % Greatest fixed points
 %NOTE These will, initially, use the same bounds as least fixed points, but may be refined if needed...
-Define unfoldLExpert : cert -> cert -> prop by unfoldLExpert _ _ := false.
+Define unfoldLExpert : cert -> cert -> prop by
+	unfoldLExpert Cert Cert' :=
+		decrementUnfoldL Cert Cert'
+/\ println "unfoldLExpert" /\ print_cert Cert'
+.
+
 Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 
 %----------------------------------%
@@ -681,8 +691,13 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert' (idx Last Names) :=
 		returnAndIncrementLast Cert Cert'' Last /\
 		resetUnfoldR Cert'' Cert''' /\
-		pushDelta Cert''' Names Cert'
+resetLast Cert''' Cert'''' /\ pushDelta Cert'''' Names Cert'
+%%		pushDelta Cert''' Names Cert'
 	/\ print "decideLClerk" /\ println Last /\ print_cert Cert'
+;
+	decideLClerk Cert Cert' (idx Last Names) :=
+		returnAndIncrementLast Cert Cert'' _ /\
+		decideLClerk Cert'' Cert' (idx Last Names)
 	.
 
 % "Global" decide (on lemmas), by name: the numeric index is always a don't care
