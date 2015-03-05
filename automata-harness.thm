@@ -32,6 +32,11 @@
 		(name "X")
 		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
 
+#assert sim_refl
+	(autoinduce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
+
 #assert_not sim_trans Sim
 	(induce
 		(ctrl (limits z z z z z z z z (s z)) (names nil (name "X")))
@@ -49,4 +54,9 @@
 			(and (Sim (P ++ Q ++ argv)) (Sim (Q ++ R ++ argv))))
 		(name "X")
 		(name "X")
+		(dummy\ start (ctrl (limits (s (s z)) z z (s (s z)) z z z z (s z)) (names nil (name "X"))))).
+
+#assert sim_trans _
+	(autoinduce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits (s (s z)) z z (s (s z)) z z z z (s z)) (names nil (name "X"))))).

@@ -113,6 +113,33 @@ by
 		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
 		R = (all S).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Compute a trivial invariant for immediate application of coinduction.
+%NOTE Note entirely sure about the first case...
+%TODO Refactor common code, introduce e.g. quantifier parameters...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Define coabst : list i -> list imap -> bool -> bool -> prop by
+	coabst (X :: Sigma) Theta S (some R) := forall x,
+		coabst Sigma ((imap X x) :: Theta) S (R x) ;
+	coabst nil Theta S R :=
+		copy_bool Theta S R.
+
+Define ctx2bool : list ctx -> list bool -> prop by
+	ctx2bool nil nil ;
+	ctx2bool ((kvp _ F) :: Ctx) (F :: Bool) :=
+		ctx2bool Ctx Bool.
+
+Define coindInvariant' : list i -> list ctx -> i -> (i -> bool) -> prop by
+	coindInvariant' Sigma nil   T S := forall x, exists R,
+		coabst (x :: Sigma) nil      (eq x T)    R /\
+		R = (some S) ;
+	coindInvariant' Sigma Gamma T S := forall x, exists R,
+		Gamma = (_ :: _) /\
+		ctx2bool Gamma Gamma' /\
+		joinL and tt Gamma' Q /\
+		coabst (x :: Sigma) nil (and (eq x T) Q) R /\
+		R = (some S).
+
 %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%
 %% Proof system %%
@@ -191,7 +218,7 @@ async Debug Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' Xi'' S
 async Debug Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
 	indInvariant' Sigma Delta G T S /\
-	forall x, spy_async Debug Lambda (Xi' x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
+	forall x, spy_async Debug Lambda (Xi'  x) (x :: nil) Phi Gamma ((B S x) :: nil) (unk (S x)) ;
 
 async Debug Lambda Xi Sigma Phi Gamma ((mu B T) :: Delta) G := exists Xi',
 	freezeLClerk Xi Xi' Idx /\
@@ -208,7 +235,11 @@ async Debug Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi' Xi'' S,
 	          spy_async Debug Lambda  Xi'     Sigma      Phi Gamma nil            (unk (S T)) /\
 	forall x, spy_async Debug Lambda (Xi'' x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
-% Immediate coinduction: not implemented
+% Immediate coinduction (document, see immediate induction above for details)
+async Debug Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi' S,
+	coindClerk' Xi Xi' /\
+	coindInvariant' Sigma Gamma T S /\
+	forall x, spy_async Debug Lambda (Xi'  x) (x :: nil) Phi nil   ((S x) :: nil) (unk (B S x)) ;
 
 async Debug Lambda Xi Sigma Phi Gamma nil (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\

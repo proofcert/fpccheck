@@ -425,8 +425,27 @@ Define indClerkNames' : cert -> (i -> cert) -> prop by
 		setGoal   SubCert''' NamesSx  SubCert'''' /\
 		SubCert = (_\ SubCert'''').
 
-%Define indClerkNames :  cert -> cert -> (i -> cert) -> prop by
-%	indClerkNames Cert SubCert1 SubCert2 :=
+% Same concerns as previous cases, with the important LIMITATION of being
+% currently restricted to blind search (we would need to access the naming
+% information in Gamma to correctly assign names, but we are not privy to it:
+% only the kernel has it!)
+Define coindClerkNames' : cert -> (i -> cert) -> prop by
+	coindClerkNames' Cert SubCert := forall x,
+		% Decompose base certificate
+		Cert = (autoinduce (ctrl _ Names) NamesB SubCert') /\
+		% Compute new naming structures
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+%TODO
+%		coindInvariantNames' Names NamesSx /\
+%		replaceName NamesB NamesSx NamesBSx /\
+		NamesSx = (name "X") /\
+		NamesBSx = (name "X") /\
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		% Unmarshall, set naming structure and re-marshall final certificate
+		SubCert'' = (SubCert' x) /\
+		pushDelta SubCert''  NamesSx  SubCert''' /\ % Assuming Delta is empty!
+		setGoal   SubCert''' NamesBSx SubCert'''' /\
+		SubCert = (_\ SubCert'''').
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -578,6 +597,15 @@ println "Pattern matching ok" /\
 		coindClerkNames Cert Cert' Cert''
 /\ println "coindClerkNames ok"
 /\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x)
+.
+
+%TODO reset Next?
+Define coindClerk' : cert -> (i -> cert) -> prop by
+	coindClerk' Cert Cert' :=
+println "Try coind'" /\
+		Cert = (autoinduce _ _ _) /\
+		coindClerkNames' Cert Cert'
+/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x)
 .
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

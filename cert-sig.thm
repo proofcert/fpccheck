@@ -28,6 +28,7 @@ Kind   boolidx       type.
 %freezeLClerk cert ->       cert                                -> idx -> prop
 %unfoldRClerk cert ->       cert                                       -> prop
 %coindClerk   cert ->       cert  -> (i -> cert) -> (i -> bool)        -> prop
+%coindClerk'  cert -> (i -> cert)                                      -> prop
 %freezeRClerk cert ->       cert                                       -> prop
 
 %andExpert     cert -> cert -> cert   -> prop
