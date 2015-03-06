@@ -1,0 +1,4 @@
+Define step : (i -> bool) -> prop by
+	step (mu Pred\Args\ ff).
+
+#include "sim.thm".

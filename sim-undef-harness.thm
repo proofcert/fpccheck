@@ -1,36 +1,9 @@
-#include "logic.thm".                   % First-order logic syntax
-#include "cert-sig.thm".                % Certificate declarations
-#include "admin-fpc.thm".               % Concrete FPC (needed before kernel!)
-#include "automata-examples-sig.thm".   % Concrete signature (needed before kernel!)
-#include "kernel.thm".                  % Kernel
-#include "automata-examples.thm".       % Concrete examples
-
-#assert nu_trivial
-	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
-
-#assert_not q0_sim_p0
-	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
-
-% With SOME, both approaches fail:
-% - AND gets to something like this on syncR: (h=(++) H2 ((++) H3 argv))
-% - IMP does it on the left on async, and: Logic variable encountered on the left: H.
-% My addition of existentials and equality complicates things, now
-#assert q0_sim_p0
-	(induce
-		(ctrl (limits z z z z z z z z z) (names nil (name "X")))
-		(Args\ or
-			(eq Args (q0 ++ p0 ++ argv))
-			(eq Args (q1 ++ p0 ++ argv)))
-		(name "X")
-		(name "X")
-		(dummy\ start (ctrl (limits z z z (s z) z (s z) z z z) (names nil (name "X"))))).
-% Delta!
-
-% The trivial invariant doesn't work here
-#assert_not q0_sim_p0
-	(autoinduce
-		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits z z z (s z) z (s z) z z z) (names nil (name "X"))))).
+#include "logic.thm".                    % First-order logic syntax
+#include "cert-sig.thm".                 % Certificate declarations
+#include "admin-fpc.thm".                % Concrete FPC (needed before kernel!)
+#include "sim-undef-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".                   % Kernel
+#include "sim-undef-examples.thm".       % Concrete examples
 
 #assert sim_refl
 	(induce
