@@ -12,3 +12,18 @@
 #assert mu_id_step_absurd
 	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
+
+% This is a good example where additional guided certificates could supply more
+% information about the proof and reduce choice; because we are currently
+% sharing a counter for both asynchronous unfolding types, the problem is
+% exacerbated.
+%   In addition, 'step' has a complex definition which could be guided, perhaps,
+% more optimally, as most cases probably do not require as much computation. But
+% interestingly, in this case we need less than the Abella proof supplies.
+#assert sim_mu_par_ext
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits z z z (s (s z)) z z z z z) (names nil (name "X"))))).
+
+#assert sim_mu_par
+	(guideLemma (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "mu_par_ext") (name "X")
+		(start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).

@@ -637,7 +637,15 @@ Define unfoldLExpert : cert -> cert -> prop by
 /\ println "unfoldLExpert" /\ print_cert Cert'
 .
 
-Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
+% Similarly, for now, let us unify the bound and use it for both types of
+% asynchronous unfolding, even though this can increase choice in certain
+% circumstances, which in our tyrannical mentality is a bad thing (thankfully,
+% for now, greatest fixed points are rare).
+Define unfoldRClerk : cert -> cert -> prop by
+	unfoldRClerk Cert Cert' :=
+		decrementUnfoldL Cert Cert'
+/\ println "unfoldRClerk" /\ print_cert Cert'
+.
 
 %----------------------------------%
 % Fixed points: freeze and initial %

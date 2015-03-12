@@ -56,7 +56,7 @@ Define step : (i -> bool) -> prop by
 			(some P1\ and
 				(eq P (pmu x\ P1))
 				(Pred (((x\ P1) (pmu x\ P1)) ++ A ++ Q ++ argv)))
-			(some P1\ some P2\ some Q1\ some Q2\ and
+			(some P1\ some P2\ some Q1\ some Q2\ some B\ and
 				(eq P (par P1 P2)) (and
 				(eq P (par Q1 Q2)) (and
 				(eq A tau) (and
@@ -66,3 +66,5 @@ Define step : (i -> bool) -> prop by
 	)))))))))
 	:=
 	comp Comp.
+
+#include "sim.thm".

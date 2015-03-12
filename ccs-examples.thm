@@ -8,3 +8,24 @@ Define mu_id_step_absurd_f : bool -> prop by
 Define mu_id_step_absurd : cert -> prop by
 	mu_id_step_absurd Cert :=
 		mu_id_step_absurd_f MuIdStepAbsurd /\ prove Cert MuIdStepAbsurd.
+
+Define sim_mu_par_ext_f : bool -> prop by
+	sim_mu_par_ext_f F :=
+		step Step /\ sim Sim /\ F =
+		(all Q\ all Q1\ (imp
+			(Step (Q ++ a ++ (par Q Q1) ++ argv))
+			(Sim ((pmu x\ out a x) ++ Q ++ argv)))).
+
+Define sim_mu_par_ext : cert -> prop by
+	sim_mu_par_ext Cert :=
+		sim_mu_par_ext_f SimMuParExt /\ prove Cert SimMuParExt.
+
+Define sim_mu_par_f : bool -> prop by
+	sim_mu_par_f F :=
+		sim Sim /\ F =
+		(Sim ((pmu x\ out a x) ++ (pmu x\ par (out a x) (out a x)) ++ argv)).
+
+Define sim_mu_par : cert -> prop by
+	sim_mu_par Cert :=
+		sim_mu_par_ext_f SimMuParExt /\ sim_mu_par_f SimMuPar /\
+		prove_with_lemmas Cert SimMuPar ((lemma (name "mu_par_ext") SimMuParExt) :: nil).
