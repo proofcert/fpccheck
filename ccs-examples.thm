@@ -1,0 +1,10 @@
+Define mu_id_step_absurd_f : bool -> prop by
+	mu_id_step_absurd_f F :=
+		step Step /\ F =
+		(all A\ all Q\ (imp
+			(Step ((pmu x\ x) ++ A ++ Q ++ argv))
+			ff)).
+
+Define mu_id_step_absurd : cert -> prop by
+	mu_id_step_absurd Cert :=
+		mu_id_step_absurd_f MuIdStepAbsurd /\ prove Cert MuIdStepAbsurd.

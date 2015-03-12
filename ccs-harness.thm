@@ -1,0 +1,14 @@
+#include "logic.thm".              % First-order logic syntax
+#include "cert-sig.thm".           % Certificate declarations
+#include "admin-fpc.thm".          % Concrete FPC (needed before kernel!)
+#include "ccs-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".             % Kernel
+#include "ccs-examples.thm".       % Concrete examples
+
+% A simple smoke test for the basic encoding
+#assert_not mu_id_step_absurd
+	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
+
+#assert mu_id_step_absurd
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
