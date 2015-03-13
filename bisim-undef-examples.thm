@@ -1,0 +1,19 @@
+Define bisim_refl : cert -> prop by
+	bisim_refl Cert :=
+		bisim Bisim /\
+		prove Cert (all P\ Bisim (P ++ P ++ argv)).
+
+Define bisim_symm : cert -> prop by
+	bisim_symm Cert :=
+		bisim Bisim /\
+		prove Cert (all P\ all Q\ imp
+			(Bisim (P ++ Q ++ argv))
+			(Bisim (Q ++ P ++ argv))).
+
+Define bisim_trans : cert -> prop by
+	bisim_trans Cert :=
+		bisim Bisim /\
+		prove Cert (all P\ all Q\ all R\ (imp
+			(Bisim (P ++ Q ++ argv)) (imp
+			(Bisim (Q ++ R ++ argv))
+			(Bisim (P ++ R ++ argv))))).

@@ -1,0 +1,30 @@
+#include "logic.thm".                      % First-order logic syntax
+#include "cert-sig.thm".                   % Certificate declarations
+#include "admin-fpc.thm".                  % Concrete FPC (needed before kernel!)
+#include "bisim-undef-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".                     % Kernel
+#include "bisim-undef-examples.thm".       % Concrete examples
+
+#assert bisim_refl
+	(autoinduce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits z z z (s z) z z z z (s z)) (names nil (name "X"))))).
+
+% Mimicking the Abella proof here is a bit more delicate, partly because we are
+% not nesting certificates, but also because our "translation patterns" are very
+% different when greatest fixed points (as opposed to least fixed points) are
+% involved. Note also that two events now cause our bipoles under the present
+% encoding and we are forced to discriminate (should they be expected to be
+% coupled?). In addition, we now have to release on the right in circumstances
+% where, previously, a terminating computation was expected to take place, if
+% the proof was at all possible: such is the nature of the interaction between
+% both types of fixed points.
+#assert bisim_symm
+	(autoinduce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s (s z)) z z (s z) z z z z (s (s z))) (names nil (name "X"))))).
+
+#assert bisim_trans
+	(autoinduce
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s (s (s (s z)))) z z (s (s z)) z z z z (s (s z))) (names nil (name "X"))))).
