@@ -32,3 +32,13 @@
 	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
 		(dummy\ guideLemma (ctrl (limits (s z) z z (s z) z (s (s z)) z z z) (names nil (name "X"))) (name "ctx_sum_free") (name "X")
 			(start (ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))))).
+
+% For multiplication... and again, this should be refactored
+#assert ctx_mult_free
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
+
+#assert mult_ctx_indep
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ guideLemma (ctrl (limits (s z) z z (s z) z (s (s z)) z z z) (names nil (name "X"))) (name "ctx_mult_free") (name "X")
+			(start (ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))))).
