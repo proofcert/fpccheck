@@ -1,0 +1,84 @@
+% Note: in a way, we are putting together pieces (about the natural numbers, about lists) that we have considered before... so there is some refactoring to be done here
+
+%%%%%%%%%%%%%%%%%%%%%
+% Type constructors %
+%%%%%%%%%%%%%%%%%%%%%
+
+% Object logic (basis for 'prop')
+Type   tti, ffi          i.
+Type   andi, ori, impi   i -> i -> i.
+
+% Number objects and arithmetic atoms (basis for 'atom')
+% For now, I can get away without an explicit <> converter
+Type   zi                i.
+Type   si                i -> i.
+Type   sumi, multi       i -> i -> i -> i.
+
+% Lists of atoms
+Type   nili              i.
+Type   &&                i -> i -> i.
+
+%%%%%%%%%%%%%%%%%%%
+% List membership %
+%%%%%%%%%%%%%%%%%%%
+
+Define memb : (i -> bool) -> prop by
+	memb (mu Pred\Args\
+		(some E\ some L\ (and (eq Args (E ++ L ++ argv))
+		(or
+			(some L'\ (eq L (E && L')))
+			(some F\ some L'\ (and
+				(eq L (F && L'))
+				(Pred (E ++ L' ++ argv)))))))).
+
+%%%%%%%%%%%%
+% Programs %
+%%%%%%%%%%%%
+
+% Currently no logic for 'multi'...
+Define prog : (i -> bool) -> prop by
+	prog (mu Pred\Args\
+		(some A\ some G\ (and (eq Args (A ++ G ++ argv)) (or
+			(some N\ and (eq A (sumi zi N N)) (eq G tti))
+			(some N\ some M\ some P\ and (eq A (sumi (si N) M (si P))) (eq G (sumi N M P)))
+	)))).
+%prog (sum z N N) True.
+%prog (sum (s N) M (s P)) <(sum N M P)>.
+
+%%%%%%%%%%%%
+% Contexts %
+%%%%%%%%%%%%
+
+% Is this the encoding I want for 'sumi'? Compare with Dale's board notes prior to expansion!
+% It is critical that "predicates" defined in prog and ctx be mutually exclusive!
+Define ctx : (i -> bool) -> prop by
+	ctx (mu Pred\Args\
+		(some L\ (and (eq Args (L ++ argv)) (or
+			(eq L nili)
+			(some X\ some Y\ some Z\ some L'\ and (eq L ((multi X Y Z) && L')) (Pred (L' ++ argv)))
+	)))).
+
+%%%%%%%%%%%%
+% Sequents %
+%%%%%%%%%%%%
+
+% Should I reuse my logical connectives here? No, I think I need i-level connectives to represent the object logic
+% Also note: the system isn't complete yet!
+Define seq : (i -> bool) -> prop by
+	seq (mu Pred\Args\
+		(some L\ some G\ (and (eq Args (L ++ G ++ argv)) (or
+			(Memb (G ++ L ++ argv)) (or
+			(and (eq G tti) tt) (or
+			(some G1\ some G2\ and (eq G (andi G1 G2)) (and (Pred (L ++ G1 ++ argv)) (Pred (L ++ G2 ++ argv)))) (or
+			(some G1\ some G2\ and (eq G (ori  G1 G2)) (or  (Pred (L ++ G1 ++ argv)) (Pred (L ++ G2 ++ argv)))) (or
+			(some G1\ some G2\ and (eq G (impi G1 G2)) (Pred ((G1 && L) ++ G2 ++ argv)))
+			(some G1\ and (Prog (G ++ G1 ++ argv)) (Pred (L ++ G1 ++ argv)))
+	))))))))
+	:=
+	memb Memb /\ prog Prog.
+%seq L <A> ::= memb A L.
+%seq L (G ^ H) ::= seq L G ^ seq L H
+%same for v...
+%seq L (A imp B) ::= seq (A :: L) B
+%seq L <A> ::= prog A G ^ seq L G.
+

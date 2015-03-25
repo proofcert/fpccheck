@@ -1,0 +1,34 @@
+#include "logic.thm".               % First-order logic syntax
+#include "cert-sig.thm".            % Certificate declarations
+#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
+#include "prog-examples-sig.thm".   % Concrete signature (needed before kernel!)
+#include "kernel.thm".              % Kernel
+#include "prog-examples.thm".       % Concrete examples
+
+#assert ctx_sum_free
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
+
+% An explicit case analysis with clear, independent bounds
+#assert sum_ctx_indep
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+			(guideLemma (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "ctx_sum_free") (name "X")
+				(start (ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))))
+		(       guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+			(start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))
+		(       guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+			(start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))
+		(       guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+			(start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))
+		(       guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+			(start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))
+			(start (ctrl (limits (s z) z z (s z) z (s (s z)) z z z) (names nil (name "X"))))
+		)))))
+	).
+
+% More compact, less efficient: each step is the maximum of all sequential paths
+#assert sum_ctx_indep
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ guideLemma (ctrl (limits (s z) z z (s z) z (s (s z)) z z z) (names nil (name "X"))) (name "ctx_sum_free") (name "X")
+			(start (ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))))).

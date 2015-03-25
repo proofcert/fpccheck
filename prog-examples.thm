@@ -1,0 +1,26 @@
+Define ctx_sum_free_f : bool -> prop by
+	ctx_sum_free_f F :=
+		ctx Ctx /\ memb Memb /\ F =
+		(all L\ imp
+			(Ctx (L ++ argv)) (all X\ all Y\ all Z\ imp
+			(Memb ((sumi X Y Z) ++ L ++ argv))
+			ff)).
+
+Define ctx_sum_free : cert -> prop by
+	ctx_sum_free Cert :=
+		ctx_sum_free_f CtxSumFree /\
+		prove Cert CtxSumFree.
+
+Define sum_ctx_indep_f : bool -> prop by
+	sum_ctx_indep_f F :=
+		ctx Ctx /\ seq Seq /\ F =
+		(all L\ all X\ all Y\ all Z\ imp
+			(Seq (L    ++ (sumi X Y Z) ++ argv)) (imp
+			(Ctx (L                    ++ argv))
+			(Seq (nili ++ (sumi X Y Z) ++ argv)))).
+
+Define sum_ctx_indep : cert -> prop by
+	sum_ctx_indep Cert :=
+		ctx_sum_free_f CtxSumFree /\ sum_ctx_indep_f SumCtxIndep /\
+		prove_with_lemmas Cert SumCtxIndep ((lemma (name "ctx_sum_free") CtxSumFree) :: nil).
+

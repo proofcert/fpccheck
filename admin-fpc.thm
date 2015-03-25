@@ -455,7 +455,10 @@ Define coindClerkNames' : cert -> (i -> cert) -> prop by
 % Propositional asynchronous phase %
 %----------------------------------%
 
-Define ffClerk : cert -> prop by ffClerk _ := false.
+Define ffClerk : cert -> prop by
+	ffClerk Cert
+:= println "ffClerk"
+.
 Define ttClerk : cert -> cert -> prop by
 	ttClerk Cert Cert
 := println "ttClerk"
