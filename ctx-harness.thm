@@ -14,8 +14,8 @@
 %		(dummy\ start (ctrl (limits (s z) z z (s z) _ z z z) _))).
 
 #assert ctx1_struct _ _
-	(autoinduce (ctrl (limits z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z) (names nil (name "X"))))).
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
 
 %#assert ctx1_length Length
 %	(induce (ctrl (limits (s z) z z z _ (s z) z z) _)
@@ -27,5 +27,5 @@
 %		(dummy\ start (ctrl (limits (s z) z z (s z) _ (s (s z)) z z) _))).
 
 #assert ctx1_length _
-	(autoinduce (ctrl (limits z z z z z (s z) z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z (s z) z (s (s z)) z z) (names nil (name "X"))))).
+	(autoinduce (ctrl (limits z z z z z (s z) z z z) (names nil (name "X"))) (name "X")
+		(dummy\ start (ctrl (limits (s z) z z (s z) z (s (s z)) z z z) (names nil (name "X"))))).
