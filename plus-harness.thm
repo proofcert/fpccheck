@@ -51,6 +51,46 @@
 		)
 	).
 
+#assert plus_comm Plus _
+	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+			% plus_zero
+			(induce
+				(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
+				(Args\ all N\ imp
+					(eq Args (N ++ argv))
+					(Plus (N ++ zero ++ N ++ argv)))
+				(split (name "X1") (split (name "X2") (name "S")))
+				(name "X")
+				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+			% plus_succ
+			(induce
+				(ctrl (limits (s (s z)) z z (s z) z z z z z) (names nil (name "X")))
+				(Args\ all X\ all Y\ all Z\ imp
+					(eq Args (X ++ Y ++ Z ++ argv))
+					(Plus (X ++ (succ Y) ++ (succ Z) ++ argv)))
+				(split (name "X1") (split (name "X2") (name "S")))
+				(name "X")
+				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+		)
+	).
+
+%#assert plus_comm Plus _
+%	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+%		(dummy\ guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+%			% plus_zero
+%			(autoinduce
+%				(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
+%				(name "X")
+%				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+%			% plus_succ
+%			(autoinduce
+%				(ctrl (limits (s (s z)) z z (s z) z z z z z) (names nil (name "X")))
+%				(name "X")
+%				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+%		)
+%	).
+
 #assert plus_total Plus
 	(induce
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
