@@ -652,10 +652,11 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 % also the flexibility required by typical proofs.
 
 Define freezeLClerk : cert -> cert -> idx -> prop by
-	freezeLClerk Cert Cert' (idx x (name Name)) := (
-		Cert = (start _)            \/
-		Cert = (guideOr _ _ _)      \/
-		Cert = (guideLemma _ _ _ _) ) /\ (
+	freezeLClerk Cert Cert' (idx x (name Name)) := %(
+		%Cert = (start _)            \/
+		%Cert = (guideOr _ _ _)      \/
+		%Cert = (guideLemma _ _ _ _) ) /\
+		(
 		popDelta Cert (name Name) Cert' \/
 		popDelta Cert (guess (name Name)) Cert')
 	/\ println "freezeLClerk" /\ print_cert Cert
