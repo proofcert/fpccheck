@@ -14,6 +14,7 @@ Kind   boolidx       type.
 % A signature of clerks and experts (can we enforce it?)
 % No polymorphism here, at least yet
 
+%TODO This informal signature might contain minor inaccuracies. Autosync.
 %andClerk     cert ->       cert                                       -> prop
 %orClerk      cert ->       cert  -> cert                              -> prop
 %impClerk     cert ->       cert                                       -> prop

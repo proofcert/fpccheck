@@ -5,17 +5,13 @@
 % lemmas.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%NOTE These notes must be updated, though most concerns still apply to unguided
-% search. The standard proving procedure is described.
-% tl;dr Indexing (and the kernel) needs to be thoroughly tested and streamlined
-%
-%TODO At present there is still a moderate amount of cleanup and design to do
-% Certificate templates with the appropriate structure can be offered here. In
+%TODO At present there is still a moderate amount of cleanup and design to do.
+%   Certificate templates with the appropriate structure can be offered here. In
 % particular, getting indexes right (esp. re.: unfolding) is important and is
-% not always crystal clear; (apparently) nonterminating backtracking in the
-% kernel makes this choice critical to avoid looping computations, barring a
-% desirable redesign to avoid as much as possible this situation during proof
-% search. More sophisticated refactoring is likewise possible.
+% not always crystal clear (nor does the current encoding help!). Being too
+% generous with our allowances may well cause running time to explode. In
+% principle search as constrained by the bounds should always terminate and be
+% sound, but not complete.
 %   An interesting point is that currently each, possible nested, certificate
 % has its own set of storage and unfolding indexes. The properties that we have
 % verified so far have yielded to this (first, simple) approach, but indexing
@@ -26,17 +22,18 @@
 % with a null counter of allowed unfolding operations). The simple-ish search
 % after the induction may allow zero or now unfoldings depending on the property
 % to check; the choice is relevant to avoid loops in the search.
-% Storage indexes are also choice-sensitive, and no formula will be selected
-% more than once to avoid yet another type of endless recursion: the formulas
-% remain in storage ad aeternum, which does not mean that we should be reckless
-% when picking (in fact, Bedwyr always seems to decide on the same formula).
-% There are risks and untested cases: consider, for example, an attempt to read
-% index N when this has not yet been stored; this will nonetheless increment the
-% counter and possibly make future operations fail.
+%   Storage indexes are also choice-sensitive. There may remain some risks and
+% untested cases: consider, for example, an attempt to read index N when this
+% has not yet been stored; this would nonetheless increment the counter and
+% possibly make future operations fail. (I think we're safe now.)
 %   Consider alternative indexing schemes, such as counters propagated down the
 % chain of certificates. Also keep in mind that branches duplicate indexes
-% independently along each branch.
-%   Random idea: do random starting indexes, e.g. _, make any sense?
+% independently along each branch. However, from the point of view of proof
+% script translation, the choice to make each certificate (mostly) self-
+% contained seems a good choice.
+%   Random starting indexes, e.g. _, are generally a bad idea, but one such
+% scheme might be added to support a kind of Breadth First Search within
+% increasing depths. (There are many dimensions to this: it is not simple.)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Indexes as enumerations %
@@ -62,12 +59,12 @@ Type   x        numidx.
 % A simple branching structure reproduces the branching pattern of a theorem or
 % lemma and assigns a (possibly/usually/hopefully?) unique index to each leaf
 % i.e. fixed point expression for guidance in the application of lemmas and
-% partial results
+% partial results.
 %  - A boolidx structure must match the decision points that lead to the atoms
 %    of the formula it annotates, however linear sequences of decisions need not
-%    be reflected in it
+%    be reflected in it.
 %  - If a leaf is reached before the atoms of the formula (or, say, in the event
-%    of an unfolding), its value will be propagated to all children
+%    of an unfolding), its value will be propagated to all children.
 Type   split   boolidx -> boolidx -> boolidx.
 Type   name    string -> boolidx.
 Type   guess   boolidx -> boolidx.
@@ -126,11 +123,12 @@ Type   ctrl   limits -> % (Lims)  [A]
 %NOTE Partly deprecated; the lemma counters are currently being used for
 % signaling purposes only. Because currently they must be applied with guidance,
 % consumption is not of direct concern.
-% Note: the naming conventions of Next/Last and LNext/LLast are inverted because
-% locally stored formulas grow dynamically (so we need to know the next index to
-% assign and the last index we tried using), whereas globally stored formulas
-% a.k.a. lemmas are, at least currently, static (and thus we need to know the
-% last valid lemma and the next lemma that we have to try, subject to resets).
+%   Note: the naming conventions of Next/Last and LNext/LLast are inverted
+% because locally stored formulas grow dynamically (so we need to know the next
+% index to assign and the last index we tried using), whereas globally stored
+% formulas a.k.a. lemmas are, at least currently, static (and thus we need to
+% know the last valid lemma and the next lemma that we have to try, subject to
+% resets).
 %   Also, the current convention of potentially applying all lemmas at all
 % decision points, without consuming copies of these, simplifies operation while
 % ignoring potential reductions in the number of choices, which could indeed be
@@ -141,7 +139,7 @@ Type   ctrl   limits -> % (Lims)  [A]
 % Certificate constructors %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Note that currently:
+% Note that:
 %  - Induction has independent certificates with separate unfolding counters
 %  - Branching "duplicates" the unfolding allowance for each branch
 %   Guided induction operates, at least for now, blindly on the first hypothesis
@@ -237,7 +235,7 @@ Define resetLast : cert -> cert -> prop by
 % Transfer the global, shared parts of a certificate to its successor (note the
 % base naming structure is taken from the bequeather, which seems adequate...
 % but pay attention to fringe cases, in case they come up).
-%NOTE This is added manually to each instance of succession, and thus is at risk
+%NOTE This is added manually to each instance of succession, and thus at risk.
 Define bequest : cert -> cert -> cert -> prop by
 	bequest Bequeather Heir Inheritor :=
 		getControl Bequeather (ctrl (limits _ N L _  _  _  _  _  _ ) Names) /\
@@ -272,7 +270,7 @@ Define setGoal : cert -> boolidx -> cert -> prop by
 % Control structure - Naming - Clerks and expert support %
 %--------------------------------------------------------%
 
-%TODO Refactor for style and recurring expressions, e.g. getControl patterns
+%TODO Refactor for style and recurring expressions, e.g. getControl patterns.
 
 Define andClerkNames : cert -> cert -> prop by
 	andClerkNames Cert Cert' :=
@@ -354,25 +352,25 @@ Define impExpertNames' : cert -> cert -> cert -> prop by
 % Control structure - Naming - Induction %
 %----------------------------------------%
 
-%For now, and assuming that induction comes first and is hard to guess, let's try not doing anything here for 'guess'...
+%TODO For now, and assuming that induction comes first and is hard to guess,
+% let's try not doing anything here for the 'guess' tactic...
 
 Define indInvariantDelta' : list boolidx -> boolidx -> prop by
 	indInvariantDelta'     (       Names            :: nil  ) Names ;
 	indInvariantDelta'     (       Names :: Names'  :: Delta) Delta' :=
 		indInvariantDelta' ((split Names    Names') :: Delta) Delta'.
 
-% use dummy for _?
-% important: make sure that Delta will work ONLY when it is not empty! mutex match
-% seeing associativity on the left around Delta doth make me wonder, Horatio...
+% Important: ensure that Delta will work ONLY if it is not empty (mutex-match)!
+% Seeing associativity on the left around Delta doth make me wonder, Horatio...
 Define indInvariantNames' : names -> boolidx -> prop by
 	indInvariantNames' (names nil   Goal) (split _ Goal) ;
 	indInvariantNames' (names Delta Goal) (split _ (split Delta' Goal)) :=
 		Delta = (_ :: _) /\
 		indInvariantDelta' Delta Delta'.
 
-% This is a sort of grafting operation, actually
-% If this with a negative goal works, great...
-% Also, constant!!
+% This is a sort of grafting operation, actually.
+%TODO Check if this with a negative goal. If it does, great.
+%NOTE "S" is reserved naming for the invariant. Use it elsewhere and suffer.
 Define replaceName : boolidx -> boolidx -> boolidx -> prop by
 	replaceName (name "S") Names Names ;
 	replaceName (name Name) Names (name Name) :=
@@ -380,7 +378,6 @@ Define replaceName : boolidx -> boolidx -> boolidx -> prop by
 	replaceName (split NamesL NamesR) Names (split NamesL' NamesR') :=
 		replaceName NamesL Names NamesL' /\
 		replaceName NamesR Names NamesR'.
-	%replaceName Base Names Result :=
 
 Define indClerkNames : cert -> cert -> (i -> cert) -> prop by
 	indClerkNames Cert CertSt CertBSx := forall x,
@@ -409,7 +406,8 @@ Define coindClerkNames : cert -> cert -> (i -> cert) -> prop by
 		setGoal   SubCert'' NamesBSx SubCert''' /\
 		CertBSx = (_\ SubCert''').
 
-% Here I am assuming a vacuous abstraction!! (I know it's true, for me...)
+% Here I am assuming a vacuous abstraction! (I know it's true at the moment, and
+% according to Dale only exceptionally used.)
 Define indClerkNames' : cert -> (i -> cert) -> prop by
 	indClerkNames' Cert SubCert := forall x,
 		% Pop current
@@ -457,38 +455,39 @@ Define coindClerkNames' : cert -> (i -> cert) -> prop by
 
 Define ffClerk : cert -> prop by
 	ffClerk Cert
-:= println "ffClerk"
-.
+	:= println "ffClerk" %DEBUG
+	.
+
 Define ttClerk : cert -> cert -> prop by
 	ttClerk Cert Cert
-:= println "ttClerk"
-.
+	:= println "ttClerk" %DEBUG
+	.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert' :=
 		andClerkNames Cert Cert'
-	/\ println "andClerk" /\ print_cert Cert'
-	.
+		/\ println "andClerk" /\ print_cert Cert' %DEBUG
+		.
 
 % The good, the bad and the ugly (all in one)
 Define orClerk : cert -> cert -> cert -> prop by
 	orClerk Cert CertL CertR :=
 		orClerkCert  Cert CertL' CertR' /\
 		orClerkNames Cert CertL' CertR' CertL CertR
-	/\ println "orClerk" /\ print_cert CertL /\ print_cert CertR
-	.
+		/\ println "orClerk" /\ print_cert CertL /\ print_cert CertR %DEBUG
+		.
 
 Define impClerk : cert -> cert -> prop by
 	impClerk Cert Cert' :=
 		impClerkNames Cert Cert'
-	/\ println "impClerk" /\ print_cert Cert'
-	.
+		/\ println "impClerk" /\ print_cert Cert' %DEBUG
+		.
 
 Define eqClerk : cert -> cert -> prop by
 	eqClerk Cert Cert' :=
 		eqClerkNames Cert Cert'
-	/\ println "eqClerk" /\ print_cert Cert'
-	.
+		/\ println "eqClerk" /\ print_cert Cert' %DEBUG
+		.
 
 %---------------------------------%
 % Propositional synchronous phase %
@@ -496,24 +495,24 @@ Define eqClerk : cert -> cert -> prop by
 
 Define ttExpert : cert -> prop by
 	ttExpert Cert
-:= println "ttExpert"
-.
+	:= println "ttExpert" %DEBUG
+	.
 
 Define andExpert : cert -> cert -> cert -> prop by
 	andExpert Cert CertL CertR :=
 		andExpertNames Cert CertL CertR
-	/\ println "andExpert" /\ print_cert CertL /\ print_cert CertR
-	.
+		/\ println "andExpert" /\ print_cert CertL /\ print_cert CertR %DEBUG
+		.
 
 % Assuming that in a fixed point the base cases are given first, we prioritize
 % these before successive unfoldings: therefore, first try on the left and, if
 % this fails, on the right.
 Define orExpert : cert -> cert -> choice -> prop by
 	orExpert Cert Cert left 
-	:= println "orExpert left" /\ print_cert Cert
+	:= println "orExpert left" /\ print_cert Cert %DEBUG
 	;
 	orExpert Cert Cert right
-	:= println "orExpert right" /\ print_cert Cert
+	:= println "orExpert right" /\ print_cert Cert %DEBUG
 	.
 
 % "Standard-order" implication is forbidden
@@ -526,14 +525,14 @@ Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 Define impExpert' : cert -> cert -> cert -> prop by
 	impExpert' Cert CertL CertR :=
 		impExpertNames' Cert CertL CertR
-	/\ println "impExpert'" /\ print_cert Cert
-	.
+		/\ println "impExpert'" /\ print_cert Cert %DEBUG
+		.
 
 %NOTE It is tempting to restrict this to initial certificates, but this doesn't
 % match our general model.
 Define eqExpert : cert -> prop by
 	eqExpert Cert
-	:= println "eqExpert" /\ print_cert Cert
+	:= println "eqExpert" /\ print_cert Cert %DEBUG
 	.
 
 %-------------%
@@ -543,74 +542,73 @@ Define eqExpert : cert -> prop by
 % Clerks: new eigenvariables
 Define allClerk : cert -> (i -> cert) -> prop by
 	allClerk Cert (_\ Cert)
-	:= println "allClerk" /\ print_cert Cert
+	:= println "allClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define someClerk : cert -> (i -> cert) -> prop by
 	someClerk Cert (_\ Cert)
-	:= println "someClerk" /\ print_cert Cert
+	:= println "someClerk" /\ print_cert Cert %DEBUG
 	.
 
 % Experts: new logic variables ("holes" in the proof)
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
-	:= println "allExpert" /\ print_cert Cert
+	:= println "allExpert" /\ print_cert Cert %DEBUG
 	.
 
 Define someExpert : cert -> cert -> i -> prop by
 	someExpert Cert Cert _
-	:= println "someExpert" /\ print_cert Cert
+	:= println "someExpert" /\ print_cert Cert %DEBUG
 	.
 
 %-------------------------%
 % Fixed points: induction %
 %-------------------------%
 
-%NOTE No bequest! If inductions do not occur right at the start, buggy
-%NOTE Handle lemma naming too
 % Perform a simple search on the base branch (propagating indexes!) and extract
 % continuation certificate and invariant for the induction branch.
-%TODO
+%TODO No bequest! If inductions do not occur right at the start, buggy.
+%TODO The base branch's sharing the bounds with the base certificate is ugly.
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk Cert Cert' Cert'' S :=
 		Cert = (induce _ S _ _ _) /\
 		indClerkNames Cert Cert' Cert''
-/\ println "indClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x)
-.
+		/\ println "indClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
+		.
 
-%NOTE No bequest! If inductions do not occur right at the start, buggy
-%NOTE Handle lemma naming too
-%NOTE From the POV of naming, this also represents a problem, since an invariant will not be accompanied by an annotation... what to do? a transfer of labels would be appropriate, but here we have no access to the invariant! that's the kernel's business
-%TODO
 % A simplified scheme for immediate induction
+%NOTE From the POV of naming, this represents a problem, since an invariant will
+% not be accompanied by an annotation... so what to do? A transfer of labels
+% would be appropriate, but here we have no access to the invariant! That's the
+% kernel's business.
+%TODO No bequest! If inductions do not occur right at the start, buggy.
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' Cert Cert' :=
 		Cert = (autoinduce _ _ _) /\
 		indClerkNames' Cert Cert'
-/\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x)
-.
+		/\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
+		.
 
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-%TODO Sharing the certificate with induction is looking for trouble, but for the sake of rapidity... let's use it TEMPORARILY as a proof of concept
+%TODO Sharing the certificate with induction is kind of looking for trouble. We
+% use it TEMPORARILY as a proof of concept.
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk Cert Cert' Cert'' S :=
-println "Try coind" /\
+		println "Try coind" /\ %DEBUG
 		Cert = (induce _ S _ _ _) /\
-println "Pattern matching ok" /\
+		println "Pattern matching ok" /\ %DEBUG
 		coindClerkNames Cert Cert' Cert''
-/\ println "coindClerkNames ok"
-/\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x)
-.
+		/\ println "coindClerkNames ok" %DEBUG
+		/\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
+		.
 
-%TODO reset Next?
+%TODO Reset Next?
 Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' Cert Cert' :=
-println "Try coind'" /\
+		println "Try coind'" /\ %DEBUG
 		Cert = (autoinduce _ _ _) /\
 		coindClerkNames' Cert Cert'
-/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x)
-.
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
+		.
 
 %----------------------%
 % Fixed points: unfold %
@@ -621,24 +619,26 @@ println "Try coind'" /\
 Define unfoldLClerk : cert -> cert -> prop by
 	unfoldLClerk Cert Cert' :=
 		decrementUnfoldL Cert Cert'
-	/\ println "unfoldLClerk" /\ print_cert Cert'
-	.
+		/\ println "unfoldLClerk" /\ print_cert Cert' %DEBUG
+		.
 
 % On the right, we expect purely positive, terminating computation (but bounds
-% are needed because this may not happen if logic variables are involved).
+% are needed because this may not happen if logic variables are involved). [This
+% is true in most cases; exceptionally, we may want to release one such focus.]
 Define unfoldRExpert : cert -> cert -> prop by
 	unfoldRExpert Cert Cert' :=
 		decrementUnfoldR Cert Cert'
-	/\ println "unfoldRExpert" /\ print_cert Cert'
-	.
+		/\ println "unfoldRExpert" /\ print_cert Cert' %DEBUG
+		.
 
 % Greatest fixed points
-%NOTE These will, initially, use the same bounds as least fixed points, but may be refined if needed...
+%NOTE These will, initially, use the same bounds as least fixed points, but may
+% be refined if needed.
 Define unfoldLExpert : cert -> cert -> prop by
 	unfoldLExpert Cert Cert' :=
 		decrementUnfoldL Cert Cert'
-/\ println "unfoldLExpert" /\ print_cert Cert'
-.
+		/\ println "unfoldLExpert" /\ print_cert Cert' %DEBUG
+		.
 
 Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 
@@ -651,56 +651,57 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 % given to either rule, which retains choice (computationally suboptimal) but
 % also the flexibility required by typical proofs.
 
+% Freezing is always allowed. Previously, heuristics on induction led us to
+% discard that case, but when nested inductions appear this is no longer
+% possible in general, not without sacrificing certificates to extend across
+% multiple branches (that is, without mandating all splits to be given).
 Define freezeLClerk : cert -> cert -> idx -> prop by
-	freezeLClerk Cert Cert' (idx x (name Name)) := %(
-		%Cert = (start _)            \/
-		%Cert = (guideOr _ _ _)      \/
-		%Cert = (guideLemma _ _ _ _) ) /\
-		(
+	freezeLClerk Cert Cert' (idx x (name Name)) := (
 		popDelta Cert (name Name) Cert' \/
-		popDelta Cert (guess (name Name)) Cert')
-	/\ println "freezeLClerk" /\ print_cert Cert
-	.
+		popDelta Cert (guess (name Name)) Cert' )
+		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
+		.
 
+%NOTE Rather quick and dirty in spirit. Restricted to no splits in naming
+% structures, a case that would make little sense but used to be implicitly
+% allowed (by lack of an explicit prohibition).
 Define initRExpert : cert -> idx -> prop by
-%	initRExpert Cert (idx x Name) :=
-%		getControl Cert (ctrl _ (names _ Name))
-%	/\ println "initRExpert" /\ print_cert Cert /\ println Name
-%% Quick and dirty, for now... and restricting to no splits (which makes little sense, but was implicitly "allowed"...
 	initRExpert Cert (idx x (name Name)) :=
 		getControl Cert (ctrl _ (names _ (name Name)))
-	/\ println "initRExpert with name" /\ print_cert Cert /\ println Name
-	;
+		/\ println "initRExpert with name" /\ print_cert Cert /\ println Name %DEBUG
+		;
 	initRExpert Cert (idx x (name Name)) :=
 		getControl Cert (ctrl _ (names _ (guess (name Name))))
-	/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name
-	.
+		/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
+		.
 
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% Greatest fixed points replicate the conventions initially developed for least fixed points, with similar strategies and potential limitations (prioritize and consume all allowed inductions first, etc.)
-% Note, for example, that we could define a predicate that tells us if a certificate is not an induction, and refactor throughout. The similarities are now apparent
-%NOTE I think nothing else is needed, no control management, no naming bookkeeping...
+% Greatest fixed points replicate the conventions initially developed for least
+% fixed points, with similar strategies and potential limitations (prioritize
+% and consume all allowed inductions first, etc.).
+%NOTE We could define a predicate that tells us if a certificate is not an
+% induction, and refactor throughout. The similarities are now apparent.
+%NOTE I think nothing else is needed, no control management, no naming
+% bookkeeping...
 Define freezeRClerk : cert -> cert -> prop by
 	freezeRClerk Cert Cert := (
 		Cert = (start _)            \/
 		Cert = (guideOr _ _ _)      \/
 		Cert = (guideLemma _ _ _ _) )
-/\ println "freezeLClerk" /\ print_cert Cert
-.
+		/\ println "freezeLClerk" /\ print_cert Cert
+		.
 
-%NOTE Do I need to return an index? If not, simplify the interface!
-%Probably pop delta (no pop: it's the end of the line) and equalize
-%(idx x (name Name))
+%NOTE Do I ever need to return an index? If not, simplify the interface.
+%NOTE To pop Delta or not to pop (no pop: it's the end of the line) and equalize
+% (idx x (name Name)).
 Define initLExpert : cert -> idx -> prop by
 	initLExpert Cert _ :=
 		getControl Cert (ctrl _ (names ((name Name)         :: _) (name Name)))
-/\ println "initRExpert with name" /\ print_cert Cert /\ println Name
- ;
+		/\ println "initRExpert with name" /\ print_cert Cert /\ println Name %DEBUG
+		;
 	initLExpert Cert _ :=
 		getControl Cert (ctrl _ (names ((guess (name Name)) :: _) (name Name)))
-/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name
-.
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
+		.
 
 %------------------%
 % Structural rules %
@@ -712,25 +713,22 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 	storeLClerk Cert Cert' (idx Next Names) :=
 		returnAndIncrementNext Cert Cert'' Next /\
 		popDelta Cert'' Names Cert'
-	/\ print "storeLClerk" /\ println Next /\ print_cert Cert'
-	.
+		/\ print "storeLClerk" /\ println Next /\ print_cert Cert' %DEBUG
+		.
 
-% Local decide, on  on the earliest index that has not been read yet
-% Note that Names is, throughout the predicate, a placeholder that will be
-% filled with the kernel reads the index based on Last.
-%NOTE This simple strategy may not work 100%, e.g. for multiple decides
+% Local decide, on an arbitrary stored index (in order of storage). Costlier
+% than the old heuristic (oldest unused index), but complete.
 Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert' (idx Last Names) :=
 		returnAndIncrementLast Cert Cert'' Last /\
 		resetUnfoldR Cert'' Cert''' /\
-resetLast Cert''' Cert'''' /\ pushDelta Cert'''' Names Cert'
-%%		pushDelta Cert''' Names Cert'
-	/\ print "decideLClerk" /\ println Last /\ print_cert Cert'
-;
+		resetLast Cert''' Cert'''' /\
+		pushDelta Cert'''' Names Cert'
+		/\ print "decideLClerk" /\ println Last /\ print_cert Cert' %DEBUG
+		;
 	decideLClerk Cert Cert' (idx Last Names) :=
 		returnAndIncrementLast Cert Cert'' _ /\
-		decideLClerk Cert'' Cert' (idx Last Names)
-	.
+		decideLClerk Cert'' Cert' (idx Last Names).
 
 % "Global" decide (on lemmas), by name: the numeric index is always a don't care
 Define decideLClerk' : cert -> cert -> idx -> prop by
@@ -738,30 +736,31 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 		Cert = (guideLemma _ (name Idx) Names Cert'') /\
 		bequest Cert Cert'' Cert''' /\
 		pushDelta Cert''' Names Cert'
-	/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert'
-	.
+		/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert' %DEBUG
+		.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
 	storeRClerk Cert Cert
-	:= println "storeRClerk" /\ print_cert Cert
+	:= println "storeRClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert' :=
 		resetUnfoldR Cert Cert'
-	/\ println "decideRClerk" /\ print_cert Cert'
-	.
+		/\ println "decideRClerk" /\ print_cert Cert' %DEBUG
+		.
 
 Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert' :=
 		decrementDepth Cert Cert'
-	/\ println "releaseLExpert" /\ print_cert Cert'
-	.
+		/\ println "releaseLExpert" /\ print_cert Cert' %DEBUG
+		.
 
-%NOTE This could conceivably re-use Depth, but it is probably messier and we will seldom wanting, so for now, a finer control is given
+%NOTE This could conceivably re-use Depth, but it is probably messier and we
+% will seldom intend to do so, so separate control is reasonable.
 Define releaseRExpert : cert -> cert -> prop by
 	releaseRExpert Cert Cert' :=
 		decrementRRelease Cert Cert'
-/\ println "releaseRExpert" /\ print_cert Cert'
-.
+		/\ println "releaseRExpert" /\ print_cert Cert' %DEBUG
+		.
