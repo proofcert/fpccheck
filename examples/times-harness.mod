@@ -6,56 +6,56 @@
 #include "times-examples.mod".
 
 #assert times_zero
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s (s z)) z z z z (s (s z)) z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s (s z)) z z z z (s (s z)) z z z) (names nil (name "X"))))).
 
 #assert times_total'
-	(autoinduce         (ctrl (limits    z  z z z z    z  z z z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits    z  z z z z    z  z z z) (names nil (name "X")))
-			(start      (ctrl (limits    z  z z z z (s z) z z z) (names nil (name "X"))))
-			(guideLemma (ctrl (limits (s z) z z z z    z  z z z) (names nil (name "X"))) (name "plus_total") (name "X")
-				(start  (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+	(induction          (ctrl (limits    z  z z z z    z  z z z) (names nil (name "X"))) (name "X")
+		(dummy\ case    (ctrl (limits    z  z z z z    z  z z z) (names nil (name "X")))
+			(search     (ctrl (limits    z  z z z z (s z) z z z) (names nil (name "X"))))
+			(apply      (ctrl (limits (s z) z z z z    z  z z z) (names nil (name "X"))) (name "plus_total") (name "X")
+				(search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
 		)
 	).
 
 #assert times_det
-	(autoinduce         (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))
-			(start      (ctrl (limits    z  z z (s z) z z z z z) (names nil (name "X"))))
-			(guideLemma (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))) (name "plus_det") (name "X")
-				(start  (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X"))))))).
+	(induction          (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ case    (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))
+			(search     (ctrl (limits    z  z z (s z) z z z z z) (names nil (name "X"))))
+			(apply      (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))) (name "plus_det") (name "X")
+				(search (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X"))))))).
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % What if I don't know which lemma to pick?
 #assert times_det
-	(autoinduce         (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))
-			(start      (ctrl (limits    z  z z (s z) z z z z z) (names nil (name "X"))))
-			(guideLemma (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))) (name Lemma) (name "X")
-				(start  (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X"))))))).
+	(induction          (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ case    (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))
+			(search     (ctrl (limits    z  z z (s z) z z z z z) (names nil (name "X"))))
+			(apply      (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))) (name Lemma) (name "X")
+				(search (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X"))))))).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #assert times_comm
-	(autoinduce         (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X")))
-			(guideLemma (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "times_zero") (name "X")
-				(start  (ctrl (limits    (s z)  z z    z  z z z             z     z) (names nil (name "X")))))
-			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)    z) (names nil (name "X"))) (name "augend_nat") (name "X")
-			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (names nil (name "X"))) (name "times_succ'") (name "X")
-			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (names nil (name "X"))) (name "plus_det"  ) (name "X")
-				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z) (names nil (name "X"))))))))).
+	(induction          (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "X")
+		(dummy\ case    (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X")))
+			(apply      (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "times_zero") (name "X")
+				(search (ctrl (limits    (s z)  z z    z  z z z             z     z) (names nil (name "X")))))
+			(apply      (ctrl (limits       z   z z (s z) z z z          (s z)    z) (names nil (name "X"))) (name "augend_nat") (name "X")
+			(apply      (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (names nil (name "X"))) (name "times_succ'") (name "X")
+			(apply      (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (names nil (name "X"))) (name "plus_det"  ) (name "X")
+				(search (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z) (names nil (name "X"))))))))).
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % What if I don't know which lemma to pick? (note the combination of buckets and lemma uncertainty can be costly indeed)... this one in particular needs to be checked just in case, but I think everything works
 #assert times_comm
-	(autoinduce         (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X")))
-			(guideLemma (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "times_zero") (name "X")
-				(start  (ctrl (limits    (s z)  z z    z  z z z             z     z) (names nil (name "X")))))
-			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)    z) (names nil (name "X"))) (name "augend_nat") (name "X")
-			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (names nil (name "X"))) (name Lemma1       ) (name "X")
-			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (names nil (name "X"))) (name Lemma2      ) (name "X")
-				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z) (names nil (name "X"))))))))).
+	(induction          (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "X")
+		(dummy\ case    (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X")))
+			(apply      (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "times_zero") (name "X")
+				(search (ctrl (limits    (s z)  z z    z  z z z             z     z) (names nil (name "X")))))
+			(apply      (ctrl (limits       z   z z (s z) z z z          (s z)    z) (names nil (name "X"))) (name "augend_nat") (name "X")
+			(apply      (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (names nil (name "X"))) (name Lemma1       ) (name "X")
+			(apply      (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (names nil (name "X"))) (name Lemma2      ) (name "X")
+				(search (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z) (names nil (name "X"))))))))).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 % Whenever we enter a lemma, we will need to escape it, and its continuation
