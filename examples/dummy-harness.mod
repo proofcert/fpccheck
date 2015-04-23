@@ -4,6 +4,13 @@
 #include "kernel.thm".            % Kernel
 %#include "dummy-examples.thm".    % Concrete examples
 
+%#include "logic.mod".          % First-order logic syntax
+%#include "cert.sig".           % Certificate declarations
+%#include "admin-fpc.mod".      % Concrete FPC (needed before kernel!)
+%#include "XXX-examples.sig".   % Concrete signature (needed before kernel!)
+%#include "kernel.mod".         % Kernel
+%#include "XXX-examples.mod".   % Concrete examples
+
 %%%%%%%%%%%%%%%%%%%%
 % Basic test suite %
 %%%%%%%%%%%%%%%%%%%%

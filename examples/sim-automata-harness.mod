@@ -1,9 +1,9 @@
-#include "logic.mod".                   % First-order logic syntax
-#include "cert.sig".                    % Certificate declarations
-#include "admin-fpc.mod".               % Concrete FPC (needed before kernel!)
-#include "sim-automata-examples.sig".   % Concrete signature (needed before kernel!)
-#include "kernel.mod".                  % Kernel
-#include "sim-automata-examples.mod".   % Concrete examples
+#include "../kernel/logic.mod".
+#include "../kernel/cert.sig".
+#include "../fpc/admin-fpc.mod".
+#include "sim-automata-examples.sig".
+#include "../kernel/kernel.mod".
+#include "sim-automata-examples.mod".
 
 #assert nu_trivial
 	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).

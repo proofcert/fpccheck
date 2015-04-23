@@ -1,9 +1,9 @@
-#include "logic.mod".                % First-order logic syntax
-#include "cert.sig".                 % Certificate declarations
-#include "admin-fpc.mod".            % Concrete FPC (needed before kernel!)
-#include "sim-undef-examples.sig".   % Concrete signature (needed before kernel!)
-#include "kernel.mod".               % Kernel
-#include "sim-undef-examples.".      % Concrete examples
+#include "../kernel/logic.mod".
+#include "../kernel/cert.sig".
+#include "../fpc/admin-fpc.mod".
+#include "sim-undef-examples.sig".
+#include "../kernel/kernel.mod".
+#include "sim-undef-examples.mod".
 
 #assert sim_refl
 	(induce

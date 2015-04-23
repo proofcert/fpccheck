@@ -1,9 +1,9 @@
-#include "logic.mod".           % First-order logic syntax
-#include "cert.sig".            % Certificate declarations
-#include "admin-fpc.mod".       % Concrete FPC (needed before kernel!)
-#include "plus-examples.sig".   % Concrete signature (needed before kernel!)
-#include "kernel.mod".          % Kernel
-#include "plus-examples.mod".   % Concrete examples
+#include "../kernel/logic.mod".
+#include "../kernel/cert.sig".
+#include "../fpc/admin-fpc.mod".
+#include "plus-examples.sig".
+#include "../kernel/kernel.mod".
+#include "plus-examples.mod".
 
 #assert plus_zero Plus
 	(induce
