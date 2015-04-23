@@ -11,4 +11,4 @@ Define step : (i -> bool) -> prop by
 			(and (eq S0 q0) (and (eq T a) (eq S1 q1)))
 			(and (eq S0 q1) (and (eq T a) (eq S1 q0))))))))).
 
-#include "sim.thm".
+#include "sim.mod".

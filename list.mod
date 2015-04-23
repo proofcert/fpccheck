@@ -1,4 +1,4 @@
-#include "nat.thm".
+#include "nat.mod".
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Type module: item lists %

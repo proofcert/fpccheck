@@ -1,19 +1,20 @@
-#include "ctx.thm".
+#include "append.mod".
 
 Define copy_i : list imap -> i -> i -> prop by
 	copy_i Theta argv argv ;
 	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
 	%
-	copy_i Theta zero zero ;
-	copy_i Theta (succ X) (succ U) := copy_i Theta X U ;
+	copy_i Theta a a ;
+	copy_i Theta b b ;
+	copy_i Theta c c ;
+	copy_i Theta d d ;
+	copy_i Theta e e ;
+	copy_i Theta f f ;
 	copy_i Theta null null ;
 	copy_i Theta (cons X Y) (cons U V) := copy_i Theta X U /\ copy_i Theta Y V ;
 	%
 	copy_i Theta X U := member (imap X U) Theta.
 
 Define name_mnu : string -> (i -> bool) -> prop by
-	name_mnu "ctx"  Ctx    := ctx1 Ctx ;
-	name_mnu "memb" Member := memb Member ;
-	name_mnu "nat"  IsNat  := is_nat IsNat ;
-	name_mnu "ctx=" CtxEq  := ctx1_equal CtxEq ;
-	name_mnu "len"  Length := length Length.
+	name_mnu "append" Append := append Append ;
+	name_mnu "list"   IsList  := is_list IsList.

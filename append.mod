@@ -1,4 +1,4 @@
-#include "list.thm".
+#include "list.mod".
 
 % Some elements to build concrete lists
 Type   a, b, c, d, e, f   i.

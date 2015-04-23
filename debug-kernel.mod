@@ -1,4 +1,4 @@
-#include "debug-logic.thm".
+#include "debug-logic.mod".
 
 % Some helper predicates for the kernel, possibly to be restructured and
 % relocated in whole or in part. Exactly where this module will fit in the

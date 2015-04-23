@@ -1,9 +1,9 @@
-#include "logic.thm".               % First-order logic syntax
-#include "cert-sig.thm".            % Certificate declarations
-#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
-#include "times-examples-sig.thm".  % Concrete signature (needed before kernel!)
-#include "kernel.thm".              % Kernel
-#include "times-examples.thm".      % Concrete examples
+#include "logic.mod".            % First-order logic syntax
+#include "cert.sig".             % Certificate declarations
+#include "admin-fpc.mod".        % Concrete FPC (needed before kernel!)
+#include "times-examples.sig".   % Concrete signature (needed before kernel!)
+#include "kernel.mod".           % Kernel
+#include "times-examples.mod".   % Concrete examples
 
 #assert times_zero
 	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")

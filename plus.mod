@@ -1,4 +1,4 @@
-#include "nat.thm".
+#include "nat.mod".
 
 Define plus : (i -> bool) -> prop by
 	plus (mu Pred\Args\

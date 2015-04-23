@@ -159,7 +159,7 @@ Type   guideOr      ctrl                       -> cert -> cert -> cert.
 Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
 % Here, a "case by fixed point" could be given as an alternative to unfoldL
 
-#include "debug-admin-fpc.thm".
+#include "debug-admin-fpc.mod".
 
 %%%%%%%%%%%%%%%%%%%%%
 % Helper predicates %

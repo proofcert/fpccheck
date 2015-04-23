@@ -1,9 +1,9 @@
-#include "logic.thm".               % First-order logic syntax
-#include "cert-sig.thm".            % Certificate declarations
-#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
-#include "prog-examples-sig.thm".   % Concrete signature (needed before kernel!)
-#include "kernel.thm".              % Kernel
-#include "prog-examples.thm".       % Concrete examples
+#include "logic.mod".           % First-order logic syntax
+#include "cert.sig".            % Certificate declarations
+#include "admin-fpc.mod".       % Concrete FPC (needed before kernel!)
+#include "prog-examples.sig".   % Concrete signature (needed before kernel!)
+#include "kernel.mod".          % Kernel
+#include "prog-examples.mod".   % Concrete examples
 
 #assert ctx_sum_free
 	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")

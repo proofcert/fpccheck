@@ -1,8 +1,15 @@
-#include "sim-undef.thm".
+#include "sim-automata.mod".
 
 Define copy_i : list imap -> i -> i -> prop by
 	copy_i Theta argv argv ;
 	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	copy_i Theta p0 p0 ;
+	copy_i Theta p1 p1 ;
+	copy_i Theta q0 q0 ;
+	copy_i Theta q1 q1 ;
+	copy_i Theta a a ;
+	copy_i Theta b b ;
 	%
 	copy_i Theta X U := member (imap X U) Theta.
 

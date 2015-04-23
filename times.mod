@@ -1,4 +1,4 @@
-#include "plus.thm".
+#include "plus.mod".
 
 Define times : (i -> bool) -> prop by
 	times (mu Pred\Args\

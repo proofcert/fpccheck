@@ -1,9 +1,9 @@
-#include "logic.thm".              % First-order logic syntax
-#include "cert-sig.thm".           % Certificate declarations
-#include "admin-fpc.thm".          % Concrete FPC (needed before kernel!)
-#include "ctx-examples-sig.thm".   % Concrete signature (needed before kernel!)
-#include "kernel.thm".             % Kernel
-#include "ctx-examples.thm".       % Concrete examples
+#include "logic.mod".          % First-order logic syntax
+#include "cert.sig".           % Certificate declarations
+#include "admin-fpc.mod".      % Concrete FPC (needed before kernel!)
+#include "ctx-examples.sig".   % Concrete signature (needed before kernel!)
+#include "kernel.mod".         % Kernel
+#include "ctx-examples.mod".   % Concrete examples
 
 %#assert ctx1_struct Member IsNat
 %	(induce (ctrl (limits (s z) z z z _ z z z) _)

@@ -1,4 +1,4 @@
-#include "template.thm".
+#include "template.mod".
 
 Define plus_zero : (i -> bool) -> cert -> prop by
 	plus_zero Plus Cert :=

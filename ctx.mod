@@ -1,5 +1,5 @@
-#include "nat.thm".
-#include "list.thm".
+#include "nat.mod".
+#include "list.mod".
 
 % A simple context
 Define ctx1 : (i -> bool) -> prop by

@@ -1,6 +1,6 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "dummy-fpc.thm".         % Concrete FPC (needed before kernel!)
+#include "logic.mod".             % First-order logic syntax
+#include "cert.sig".              % Certificate declarations
+#include "dummy-fpc.mod".         % Concrete FPC (needed before kernel!)
 #include "kernel.thm".            % Kernel
 %#include "dummy-examples.thm".    % Concrete examples
 

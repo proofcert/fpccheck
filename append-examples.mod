@@ -1,4 +1,4 @@
-#include "template.thm".
+#include "template.mod".
 
 Define appendable : cert -> i -> i -> i -> prop by
 	appendable Cert L1 L2 L3 :=

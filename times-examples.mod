@@ -1,5 +1,5 @@
-#include "template.thm".
-#include "plus-examples.thm".
+#include "template.mod".
+#include "plus-examples.mod".
 
 Define times_zero_f : bool -> prop by
 	times_zero_f F :=

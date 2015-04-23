@@ -1,4 +1,4 @@
-#include "times.thm".
+#include "times.mod".
 
 Define copy_i : list imap -> i -> i -> prop by
 	copy_i Theta argv argv ;

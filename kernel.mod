@@ -1,6 +1,6 @@
-#include "kernel-sig.thm".
-#include "debug.thm".
-#include "debug-kernel.thm".
+#include "kernel.sig".
+#include "debug.mod".
+#include "debug-kernel.mod".
 
 % Notes:
 %  - Ensure soundness of immediate induction!!

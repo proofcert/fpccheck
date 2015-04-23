@@ -1,4 +1,4 @@
-#include "plus.thm".
+#include "plus.mod".
 
 % Evaluate risk of unbounded backtracking
 % Refactor common fragment to logic.thm

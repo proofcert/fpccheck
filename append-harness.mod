@@ -1,9 +1,9 @@
-#include "logic.thm".               % First-order logic syntax
-#include "cert-sig.thm".            % Certificate declarations
-#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
-#include "append-examples-sig.thm". % Concrete signature (needed before kernel!)
-#include "kernel.thm".              % Kernel
-#include "append-examples.thm".     % Concrete examples
+#include "logic.mod".             % First-order logic syntax
+#include "cert.sig".              % Certificate declarations
+#include "admin-fpc.mod".         % Concrete FPC (needed before kernel!)
+#include "append-examples.sig".   % Concrete signature (needed before kernel!)
+#include "kernel.mod".            % Kernel
+#include "append-examples.mod".   % Concrete examples
 
 #assert appendable (start (ctrl (limits z z z z _ (s z) _ _ z) _))
 	null null null.
