@@ -337,8 +337,12 @@ async Debug Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 % readability can be improved through refactoring their composition.
 async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
-	decideLClerk' Xi Xi' (idx _ Idx) /\
-	member (lemma Idx C) Lambda /\
+%HACK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO We are relying on the representation of different types of indexes,
+% whereas interface functions should be defined to keep this transparent!!
+	decideLClerk' Xi Xi' (idx Idx) /\
+	member (lemma (name Idx) C) Lambda /\
+%HACK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 println "Lemma" /\
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
