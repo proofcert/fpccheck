@@ -19,7 +19,17 @@
 
 #assert augend_nat (induction 1 1 1 1 1).
 
-#assert plus_assoc_rl (apply 7 0 0 0 0).
+#assert plus_assoc_rl
+	(apply? 0 0 (idx "plus_comm")
+	(apply? 0 0 (idx "addend_nat")
+	(apply? 0 0 (idx "plus_comm")
+	(apply? 0 0 (idx "plus_assoc")
+	(apply? 0 0 (idx "plus_comm")
+	(apply? 0 0 (idx "addend_nat")
+	(apply? 0 0 (idx "plus_comm")
+	search))))))).
+
+%#assert plus_assoc_rl (apply 7 0 0 0 0).
 %#assert plus_assoc_rl
 %	(guideLemma (ctrl (limits    z  z z z z z z                      z        z) (name "plus_comm")
 %	(guideLemma (ctrl (limits (s z) z z z z z z                   (s z)       z) (name "addend_nat")

@@ -11,7 +11,18 @@
 
 #assert times_det (induction 2 1 0 1 0).
 
-#assert times_comm (induction 4 1 0 1 0).
+#assert times_comm
+	(induction?
+	(case? 0
+		(apply? 0 0 (idx "times_zero")
+		search)
+		(apply? 1 0 (idx "augend_nat")
+		(apply? 0 0 (idx "local")
+		(apply? 0 0 (idx "times_succ'")
+		(apply? 0 0 (idx "plus_det")
+		search)))))).
+
+%#assert times_comm (induction 4 1 0 1 0).
 %#assert times_comm
 %	(autoinduce         (ctrl (limits       z   z z    z  z z z             z     z)
 %		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z     z)

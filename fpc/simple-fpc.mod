@@ -36,13 +36,34 @@ Type   idx   string -> idx.
 % Certificate constructors %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-                 % Bipoles % AsyncUnfolds % SyncUnfolds % AUCurrent % SUCurrent
+% Self-contained certificates: they end a chain or constitute one unto
+% themselves. May generally comprise several bipoles, so the following numeric
+% parameters are given:
+%  - number of bipoles;
+%  - number of asynchronous unfolds per bipole;
+%  - number of synchronous unfolds per bipole;
+%  - number of asynchronous unfolds left in current bipole; and
+%  - number of asynchronous unfolds left in current bipole.
+% In principle, the last two should be initialized to be equal to the full
+% counts and are meant to be passive: one should not try to mess with them.
+% The search certificate simply tries to end this within the current bipole
+% without doing anything particularly smart.
 Type   induction   nat -> nat -> nat -> nat -> nat -> cert.
 Type   apply       nat -> nat -> nat -> nat -> nat -> cert.
 Type   search                                         cert.
 
-%Type   induction    ctrl -> (i -> bool) -> boolidx -> boolidx -> (i -> cert) -> cert.
-%Type   guideOr      ctrl                       -> cert -> cert -> cert.
+% Chained certificates: they perform their mandate and proceed to the next
+% continuation certificate(s) when they are done; a chain or branch thereof will
+% end with a self-contained certificate. The current certificates are:
+%  - induction, to be applied immediately, without doing anything smart;
+%  - case, an asynchronous split, possible involving a number of allowed
+%    asynchronous unfolds, and yielding certificates for both sides; and
+%  - apply, which represents a bipole with concrete allowances for both kinds of
+%    unfolding operations and ends upon release; the index directs whether a
+%    local or a global decide will be performed.
+Type   induction?                         cert -> cert.
+Type   case?        nat        -> cert -> cert -> cert.
+Type   apply?       nat -> nat -> idx  -> cert -> cert.
 
 #include "debug-simple-fpc.mod".
 
@@ -55,14 +76,25 @@ Type   search                                         cert.
 %----------------------------------------%
 
 Define unfoldAsync : cert -> cert -> prop by
-	unfoldAsync (apply N AU SU AC SC) (apply N AU SU AC' SC) := dec AC AC'.
+	unfoldAsync (apply N AU SU AC SC) (apply N AU SU AC' SC) := dec AC AC' ;
+	unfoldAsync (apply? AC SC I C) (apply? AC' SC I C) := dec AC AC' ;
+	unfoldAsync (case? AC CL CR) (case? AC' CL CR) := dec AC AC'.
 
 Define unfoldSync : cert -> cert -> prop by
-	unfoldSync (apply N AU SU AC SC) (apply N AU SU AC SC') := dec SC SC'.
+	unfoldSync (apply N AU SU AC SC) (apply N AU SU AC SC') := dec SC SC' ;
+	unfoldSync (apply? AC SC I C) (apply? AC SC' I C) := dec SC SC'.
 
 Define endBipole : cert -> cert -> prop by
 	endBipole (apply N AU SU _ _) (apply N' AU SU AU SU) := dec N N' ;
-	endBipole (apply 0 _  _  _ _) search.
+	endBipole (apply 0 _  _  _ _) search ;
+	endBipole (apply? _ _ _ C) C.
+
+Define isNotCase? : cert -> prop by
+	isNotCase? (induction _ _ _ _ _) ;
+	isNotCase? (apply _ _ _ _ _) ;
+	isNotCase? search ;
+	isNotCase? (induction? _) ;
+	isNotCase? (apply? _ _ _ _).
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -88,8 +120,12 @@ Define andClerk : cert -> cert -> prop by
 	.
 
 Define orClerk : cert -> cert -> cert -> prop by
-	orClerk Cert Cert Cert
-	:= println "orClerk" %DEBUG
+	orClerk Cert Cert Cert :=
+		isNotCase? Cert
+		/\ println "orClerk not case?" %DEBUG
+		;
+	orClerk (case? _ CertL CertR) CertL CertR
+	:= println "orClerk case?" %DEBUG
 	.
 
 Define impClerk : cert -> cert -> prop by
@@ -169,7 +205,10 @@ Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
-	:=  println "indClerk'" %DEBUG
+	:= println "indClerk' induction" %DEBUG
+	;
+	indClerk' (induction? Cert) (_\ Cert)
+	:= println "indClerk' induction?" %DEBUG
 	.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
@@ -238,14 +277,22 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert (idx "local") :=
 		Cert = (apply _ _ _ _ _)
-		/\ print "decideLClerk" %DEBUG
+		/\ print "decideLClerk apply" %DEBUG
+		;
+	decideLClerk Cert Cert Idx :=
+		Cert = (apply? _ _ Idx _)
+		/\ print "decideLClerk apply?" %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
 Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert Idx :=
 		Cert = (apply _ _ _ _ _)
-		/\ print "decideLClerk'" /\ println Idx %DEBUG
+		/\ print "decideLClerk' apply" /\ println Idx %DEBUG
+		;
+	decideLClerk' Cert Cert Idx :=
+		Cert = (apply? _ _ Idx _)
+		/\ print "decideLClerk' apply?" /\ println Idx %DEBUG
 		.
 
 Define storeRClerk : cert -> cert -> prop by
@@ -253,9 +300,12 @@ Define storeRClerk : cert -> cert -> prop by
 	:= println "storeRClerk" %DEBUG
 	.
 
+% In this case, adding apply? is not so clear because we can do it without giving a name, which would make no sense if we have lemmas there... so possibly modify this!
 Define decideRClerk : cert -> cert -> prop by
-	decideRClerk Cert Cert :=
-		Cert = (apply _ _ _ _ _)
+	decideRClerk Cert Cert := (
+		Cert = (apply _ _ _ _ _) \/
+		Cert = (apply? _ _ _ _) \/
+		Cert = search)
 		/\ println "decideRClerk" %DEBUG
 		.
 
