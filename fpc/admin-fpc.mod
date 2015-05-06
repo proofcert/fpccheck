@@ -687,7 +687,7 @@ Define freezeRClerk : cert -> cert -> prop by
 		Cert = (start _)            \/
 		Cert = (guideOr _ _ _)      \/
 		Cert = (guideLemma _ _ _ _) )
-		/\ println "freezeLClerk" /\ print_cert Cert
+		/\ println "freezeRClerk" /\ print_cert Cert
 		.
 
 %NOTE Do I ever need to return an index? If not, simplify the interface.
@@ -696,11 +696,11 @@ Define freezeRClerk : cert -> cert -> prop by
 Define initLExpert : cert -> idx -> prop by
 	initLExpert Cert _ :=
 		getControl Cert (ctrl _ (names ((name Name)         :: _) (name Name)))
-		/\ println "initRExpert with name" /\ print_cert Cert /\ println Name %DEBUG
+		/\ println "initLExpert with name" /\ print_cert Cert /\ println Name %DEBUG
 		;
 	initLExpert Cert _ :=
 		getControl Cert (ctrl _ (names ((guess (name Name)) :: _) (name Name)))
-		/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
+		/\ println "initLExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
 		.
 
 %------------------%
