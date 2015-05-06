@@ -1,8 +1,8 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% FPC for administrative lemmas %
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Simple, TAC-like FPC %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A reusable FPC that enables automatic derivation of common administrative
-% lemmas.
+% A reusable FPC that aims for compact, readable certificates while retaining
+% much of the flexibility of administrative FPCs.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %TODO Configurable limits and programmatic predicates or given by Bedwyr (best).
@@ -280,18 +280,18 @@ Define initLExpert : cert -> idx -> prop by
 
 Define storeLClerk : cert -> cert -> idx -> prop by
 	storeLClerk Cert Cert (idx "local")
-	:= print "storeLClerk" %DEBUG
+	:= println "storeLClerk" %DEBUG
 	.
 
 %TODO Return singleton index?
 Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert (idx "local") :=
 		Cert = (apply _ _ _ _ _)
-		/\ print "decideLClerk apply" %DEBUG
+		/\ println "decideLClerk apply" %DEBUG
 		;
 	decideLClerk Cert Cert Idx :=
 		Cert = (apply? _ _ Idx _)
-		/\ print "decideLClerk apply?" %DEBUG
+		/\ println "decideLClerk apply?" %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
@@ -310,7 +310,11 @@ Define storeRClerk : cert -> cert -> prop by
 	:= println "storeRClerk" %DEBUG
 	.
 
-% In this case, adding apply? is not so clear because we can do it without giving a name, which would make no sense if we have lemmas there... so possibly modify this!
+% 'apply' makes sense here in the sense that we want to finish in N bipoles or
+% fewer; 'search' also contributes to the end of the derivation. 'apply?' is
+% however not so clear because it can specify a lemma, in which case it would
+% not apply in principle, or a local formula, where the indexing discipline does
+% not affect the right hand side, but would be in some sense subsumed by it.
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert := (
 		Cert = (apply _ _ _ _ _) \/
