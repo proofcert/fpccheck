@@ -214,7 +214,13 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk _ _ _ _ := false.
 
-Define coindClerk' : cert -> (i -> cert) -> prop by coindClerk' _ _ := false.
+Define coindClerk' : cert -> (i -> cert) -> prop by
+	coindClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
+	:= println "coindClerk' induction" %DEBUG
+	;
+	coindClerk' (induction? Cert) (_\ Cert)
+	:= println "coindClerk' induction?" %DEBUG
+	.
 
 %----------------------%
 % Fixed points: unfold %
@@ -238,7 +244,11 @@ Define unfoldLExpert : cert -> cert -> prop by
 		/\ println "unfoldLExpert" %DEBUG
 		.
 
-Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
+Define unfoldRClerk : cert -> cert -> prop by
+	unfoldRClerk Cert Cert' :=
+		unfoldAsync Cert Cert'
+		/\ println "unfoldRClerk" %DEBUG
+		.
 
 %----------------------------------%
 % Fixed points: freeze and initial %
