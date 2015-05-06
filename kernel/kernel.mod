@@ -343,7 +343,7 @@ async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	decideLClerk' Xi Xi' (idx Idx) /\
 	member (lemma (name Idx) C) Lambda /\
 %HACK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-println "Lemma" /\
+	print "Lemma" /\ println Idx /\ %DEBUG
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma C G := exists Xi',
