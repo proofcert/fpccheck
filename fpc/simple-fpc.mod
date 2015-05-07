@@ -6,11 +6,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %TODO Configurable limits and programmatic predicates or given by Bedwyr (best).
-%Define inc : nat -> nat -> prop by
-%	inc  0  1 ; inc  1  2 ; inc  2  3 ; inc  3  4 ; inc  4  5 ; inc  5  6 ;
-%	inc  6  7 ; inc  7  8 ; inc  8  9 ; inc  9 10 ; inc 10 11 ; inc 11 12 ;
-%	inc 12 13 ; inc 13 14 ; inc 14 15 ; inc 15 16 ; inc 16 17 ; inc 17 18 ;
-%	inc 18 19 ; inc 19 20.
+Define inc : nat -> nat -> prop by
+	inc  0  1 ; inc  1  2 ; inc  2  3 ; inc  3  4 ; inc  4  5 ; inc  5  6 ;
+	inc  6  7 ; inc  7  8 ; inc  8  9 ; inc  9 10 ; inc 10 11 ; inc 11 12 ;
+	inc 12 13 ; inc 13 14 ; inc 14 15 ; inc 15 16 ; inc 16 17 ; inc 17 18 ;
+	inc 18 19 ; inc 19 20.
 
 Define dec : nat -> nat -> prop by
 	dec  1  0 ; dec  2  1 ; dec  3  2 ; dec  4  3 ; dec  5  4 ; dec  6  5 ;
@@ -65,6 +65,8 @@ Type   induction?                         cert -> cert.
 Type   case?        nat        -> cert -> cert -> cert.
 Type   apply?       nat -> nat -> idx  -> cert -> cert.
 
+Type   pair#   cert -> cert -> nat -> nat -> idx -> cert.
+
 #include "debug-simple-fpc.mod".
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -78,23 +80,32 @@ Type   apply?       nat -> nat -> idx  -> cert -> cert.
 Define unfoldAsync : cert -> cert -> prop by
 	unfoldAsync (apply N AU SU AC SC) (apply N AU SU AC' SC) := dec AC AC' ;
 	unfoldAsync (apply? AC SC I C) (apply? AC' SC I C) := dec AC AC' ;
-	unfoldAsync (case? AC CL CR) (case? AC' CL CR) := dec AC AC'.
+	unfoldAsync (case? AC CL CR) (case? AC' CL CR) := dec AC AC' ;
+	unfoldAsync (pair# C1 C2 AC SC I) (pair# C1 C2 AC' SC I) := inc AC AC'.
 
 Define unfoldSync : cert -> cert -> prop by
 	unfoldSync (apply N AU SU AC SC) (apply N AU SU AC SC') := dec SC SC' ;
-	unfoldSync (apply? AC SC I C) (apply? AC SC' I C) := dec SC SC'.
+	unfoldSync (apply? AC SC I C) (apply? AC SC' I C) := dec SC SC' ;
+	unfoldSync (pair# C1 C2 AC SC I) (pair# C1 C2 AC SC' I) := inc SC SC'.
 
+% Currently, we are assuming that init rules don't close certificates entirely,
+% but as we get mixed results, e.g. unexhausted bipole depths, this may well be
+% different.
 Define endBipole : cert -> cert -> prop by
 	endBipole (apply N AU SU _ _) (apply N' AU SU AU SU) := dec N N' ;
 	endBipole (apply 0 _  _  _ _) search ;
-	endBipole (apply? _ _ _ C) C.
+	endBipole (apply? _ _ _ C) C ;
+	endBipole (pair# (apply N AU SU _ _) (apply? AC SC I Cert) AC SC I)
+	          (pair# (apply N' AU SU AU SU) Cert 0 0 _) := dec N N' ;
+	endBipole (pair# (apply 0 _ _ _ _) (apply? AC SC I search) AC SC I)
+	          (pair# search _ _ _ _).
 
-Define isNotCase? : cert -> prop by
-	isNotCase? (induction _ _ _ _ _) ;
-	isNotCase? (apply _ _ _ _ _) ;
-	isNotCase? search ;
-	isNotCase? (induction? _) ;
-	isNotCase? (apply? _ _ _ _).
+Define isSimpleCase : cert -> prop by
+	isSimpleCase (induction _ _ _ _ _) ;
+	isSimpleCase (apply _ _ _ _ _) ;
+	isSimpleCase search ;
+	isSimpleCase (induction? _) ;
+	isSimpleCase (apply? _ _ _ _).
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -119,13 +130,20 @@ Define andClerk : cert -> cert -> prop by
 	:= println "andClerk" %DEBUG
 	.
 
+% Be careful with apply? and induction (does the latter make sense?)
+% Ensure proper case splitting
 Define orClerk : cert -> cert -> cert -> prop by
 	orClerk Cert Cert Cert :=
-		isNotCase? Cert
-		/\ println "orClerk not case?" %DEBUG
+		isSimpleCase Cert
+		/\ println "orClerk simple case" %DEBUG
 		;
 	orClerk (case? _ CertL CertR) CertL CertR
 	:= println "orClerk case?" %DEBUG
+	;
+	orClerk (pair# (apply N AU SU AC SC) (case? AC' CertL CertR) AC' _ _)
+	        (pair# (apply N AU SU AC SC) CertL 0 0 _)
+	        (pair# (apply N AU SU AC SC) CertR 0 0 _)
+	:= println "orClerk pair#" %DEBUG
 	.
 
 Define impClerk : cert -> cert -> prop by
@@ -135,7 +153,7 @@ Define impClerk : cert -> cert -> prop by
 
 Define eqClerk : cert -> cert -> prop by
 	eqClerk Cert Cert
-	:= println "eqClerk" %DEBUG
+	:= println "eqClerk" /\ print_cert Cert %DEBUG
 	.
 
 %---------------------------------%
@@ -209,6 +227,10 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 	;
 	indClerk' (induction? Cert) (_\ Cert)
 	:= println "indClerk' induction?" %DEBUG
+	;
+	indClerk' (pair# (induction N AU SU AC SC) (induction? Cert) _ _ _)
+	       (x\ pair# (apply     N AU SU AC SC) Cert              0 0 _)
+	:= println "indClerk' pair#" %DEBUG
 	.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
@@ -220,6 +242,10 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 	;
 	coindClerk' (induction? Cert) (_\ Cert)
 	:= println "coindClerk' induction?" %DEBUG
+	;
+	coindClerk' (pair# (induction N AU SU AC SC) (induction? Cert) _ _ _)
+	         (x\ pair# (apply     N AU SU AC SC)             Cert  0 0 _)
+	:= println "coindClerk' pair#" %DEBUG
 	.
 
 %----------------------%
@@ -292,6 +318,10 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert Idx :=
 		Cert = (apply? _ _ Idx _)
 		/\ println "decideLClerk apply?" %DEBUG
+		;
+	decideLClerk Cert Cert (idx "local") :=
+		Cert = (pair# _ _ _ _ (idx "local"))
+		/\ println "decideLClerk pair#" %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
@@ -303,6 +333,10 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert Idx :=
 		Cert = (apply? _ _ Idx _)
 		/\ print "decideLClerk' apply?" /\ println Idx %DEBUG
+		;
+	decideLClerk' Cert Cert Idx :=
+		Cert = (pair# _ _ _ _ Idx)
+		/\ print "decideLClerk' pair#" /\ println Idx %DEBUG
 		.
 
 Define storeRClerk : cert -> cert -> prop by
@@ -315,11 +349,13 @@ Define storeRClerk : cert -> cert -> prop by
 % however not so clear because it can specify a lemma, in which case it would
 % not apply in principle, or a local formula, where the indexing discipline does
 % not affect the right hand side, but would be in some sense subsumed by it.
+% And what about pair# and its index?
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert := (
 		Cert = (apply _ _ _ _ _) \/
 		Cert = (apply? _ _ _ _) \/
-		Cert = search)
+		Cert = search \/
+		Cert = (pair# _ _ _ _ _))
 		/\ println "decideRClerk" %DEBUG
 		.
 

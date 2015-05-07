@@ -57,8 +57,9 @@ Define print_idx : numidx -> prop by
 %		printstr "\n  Ω: " /\ print Goal.
 
 %% WARNING: Infinite backtracking risk on don't cares: use with caution!
-%Define print_cert : cert -> prop by
-%%	print_cert Cert.
+Define print_cert : cert -> prop by
+	print_cert Cert := println Cert.
+%%print_cert Cert.
 %	print_cert (start      Ctrl        ) :=
 %		printstr "  Ξ: simple  " /\ print_ctrl Ctrl /\ printstr "\n" ;
 %	print_cert (induce     Ctrl _ _ _ _) :=
