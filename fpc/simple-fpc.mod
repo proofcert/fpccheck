@@ -39,10 +39,10 @@ Type   name    string -> boolidx.
 Type   idx   string -> idx.
 
 % Binare trees of indexes
-Kind   bt     type.
-Type   null   bt.
-Type   leaf   idx -> bt.
-Type   node   bt -> bt -> bt.
+Kind   bt             type.
+Type   btinit           bt.
+Type   btlemma, btlocal   idx -> bt -> bt.
+Type   btbranch         bt -> bt -> bt.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Certificate constructors %
@@ -178,7 +178,7 @@ Define orClerk : cert -> cert -> cert -> prop by
 %println "step 2" /\
 %		CertR = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxR) 0 0 _)
 %		/\ println "orClerk pair#" /\ println Cert /\ println CertL /\ println CertR %DEBUG
-		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (node IdxL IdxR))) /\
+		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btbranch IdxL IdxR))) /\
 		CertL = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxL)) /\
 		CertR = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxR))
 		/\ println "orClerk pair#" /\ println Cert /\ println CertL /\ println CertR %DEBUG
@@ -367,10 +367,12 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		Cert = (apply? _ _ Idx _)
 		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
 		;
-	decideLClerk Cert Cert (idx "local") :=
-		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local"))))
+%TODO Is this sort of local unification correct? Do we provide full certs...?
+	decideLClerk Cert Cert' (idx "local") :=
+		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlocal (idx "local") Idx))) /\
+		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx))
 %		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local"))) _ _ (idx "local"))
-		/\ println "decideLClerk pair#" /\ print_cert Cert %DEBUG
+		/\ println "decideLClerk pair#" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
@@ -383,10 +385,11 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 		Cert = (apply? _ _ Idx _)
 		/\ print "decideLClerk' apply?" /\ println Idx /\ print_cert Cert %DEBUG
 		;
-	decideLClerk' Cert Cert Idx :=
-		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf Idx)))
+	decideLClerk' Cert Cert' Idx :=
+		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlemma Idx Idx'))) /\
+		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx'))
 %		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf Idx)) _ _ Idx)
-		/\ print "decideLClerk' pair#" /\ println Idx /\ print_cert Cert %DEBUG
+		/\ print "decideLClerk' pair#" /\ println Idx /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 Define storeRClerk : cert -> cert -> prop by
@@ -404,10 +407,14 @@ Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert := (
 		Cert = (apply _ _ _ _ _) \/
 		Cert = (apply? _ _ _ _) \/
-		Cert = search \/
-		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local")))))
-%		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local"))) _ _ _))
+		Cert = search )
 		/\ println "decideRClerk" /\ print_cert Cert %DEBUG
+		;
+	decideRClerk Cert Cert' :=
+		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlocal (idx "local") Idx))) /\
+		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx))
+%		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local"))) _ _ _))
+		/\ println "decideRClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 Define releaseLExpert : cert -> cert -> prop by
