@@ -6,10 +6,13 @@
 #include "times-examples.mod".
 
 #assert times_zero (induction 2 0 2 0 2).
+#assert times_zero (pair# (induction 2 0 2 0 2) (induction# 2 0 2 0 2 Idx)).
 
 #assert times_total' (induction 2 0 1 0 1).
+#assert times_total' (pair# (induction 2 0 1 0 1) (induction# 2 0 1 0 1 Idx)).
 
 #assert times_det (induction 2 1 0 1 0).
+#assert times_det (pair# (induction 2 1 0 1 0) (induction# 2 1 0 1 0 Idx)).
 
 #assert times_comm
 	(induction?
