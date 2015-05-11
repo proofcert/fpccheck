@@ -165,11 +165,15 @@ Define orClerk : cert -> cert -> cert -> prop by
 	orClerk (case? _ CertL CertR) CertL CertR
 	:= println "orClerk case?" /\ print_cert CertL /\ print_cert CertR %DEBUG
 	;
-	orClerk Cert CertL CertR :=
-		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btbranch IdxL IdxR))) /\
-		CertL = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxL)) /\
-		CertR = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxR))
-		/\ println "orClerk pair#" /\ println Cert /\ println CertL /\ println CertR %DEBUG
+	orClerk (apply# N AU SU AC SC (btbranch IdxL IdxR))
+	        (apply# N AU SU AC SC IdxL)
+	        (apply# N AU SU AC SC IdxR)
+	:= println "orClerk apply#" %DEBUG
+	;
+	orClerk (pair# Cert1 Cert2) (pair# CertL1 CertL2) (pair# CertR1 CertR2) :=
+		orClerk Cert1 CertL1 CertR1 /\
+		orClerk Cert2 CertL2 CertR2
+		/\ println "orClerk pair#" %DEBUG
 	.
 
 Define impClerk : cert -> cert -> prop by
@@ -345,10 +349,15 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		Cert = (apply? _ _ Idx _)
 		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
 		;
-	decideLClerk Cert Cert' (idx "local") :=
-		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlocal (idx "local") Idx))) /\
-		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx))
-		/\ println "decideLClerk pair#" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+	decideLClerk (apply# N AU SU AC SC (btlocal (idx "local") Idx))
+	             (apply# N AU SU AC SC Idx)
+	             (idx "local")
+	:= println "decideLClerk apply#" %DEBUG
+	;
+	decideLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') Idx :=
+		decideLClerk Cert1 Cert1' Idx /\
+		decideLClerk Cert2 Cert2' Idx
+		/\ print "decideLClerk pair#" /\ println Idx %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
@@ -361,10 +370,13 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 		Cert = (apply? _ _ Idx _)
 		/\ print "decideLClerk' apply?" /\ println Idx /\ print_cert Cert %DEBUG
 		;
-	decideLClerk' Cert Cert' Idx :=
-		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlemma Idx Idx'))) /\
-		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx'))
-		/\ print "decideLClerk' pair#" /\ println Idx /\ print_cert Cert /\ print_cert Cert' %DEBUG
+	decideLClerk' (apply# N AU SU AC SC (btlemma Idx Idx')) (apply# N AU SU AC SC Idx') Idx
+	:= println "decideLClerk' apply#"
+	;
+	decideLClerk' (pair# Cert1 Cert2) (pair# Cert1' Cert2') Idx :=
+		decideLClerk' Cert1 Cert1' Idx /\
+		decideLClerk' Cert2 Cert2' Idx
+		/\ print "decideLClerk' pair#" /\ println Idx %DEBUG
 		.
 
 Define storeRClerk : cert -> cert -> prop by
@@ -378,6 +390,12 @@ Define storeRClerk : cert -> cert -> prop by
 % not apply in principle, or a local formula, where the indexing discipline does
 % not affect the right hand side, but would be in some sense subsumed by it.
 % And what about pair# and its index?
+%NOTE See e.g.
+%	times_det (pair# (induction 2 1 0 1 0) (induction# 2 1 0 1 0 Idx)).
+% This causes a reordering in the list which seems out of place! Maybe there is
+% more than one similar variation?
+%TODO Compare with previous version, everything else looks ok... checking the
+% resulting elaboration certificates is what would be needed.
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert := (
 		Cert = (apply _ _ _ _ _) \/
@@ -385,10 +403,14 @@ Define decideRClerk : cert -> cert -> prop by
 		Cert = search )
 		/\ println "decideRClerk" /\ print_cert Cert %DEBUG
 		;
-	decideRClerk Cert Cert' :=
-		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlocal (idx "local") Idx))) /\
-		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx))
-		/\ println "decideRClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+	decideRClerk (apply# N AU SU AC SC (btlocal (idx "local") Idx))
+	             (apply# N AU SU AC SC Idx)
+	:= println "decideRClerk apply#" %DEBUG
+	;
+	decideRClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') :=
+		decideRClerk Cert1 Cert1' /\
+		decideRClerk Cert2 Cert2'
+		/\ println "decideRClerk" %DEBUG
 		.
 
 Define releaseLExpert : cert -> cert -> prop by
