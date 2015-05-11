@@ -123,10 +123,6 @@ Define endBipole : cert -> cert -> prop by
 	          (pair# (apply N' AU SU AU SU) (apply# N' AU SU AU SU Idx)) := dec N N' ;
 	endBipole (pair# (apply 0 _ _ _ _) (apply# 0 _ _ _ _ Idx))
 	          (pair# search search).
-%	endBipole (pair# (apply N  AU SU _  _ ) (apply# N  AU SU _  _  Idx) _ _ _)
-%	          (pair# (apply N' AU SU AU SU) (apply# N' AU SU AU SU Idx) 0 0 _) := dec N N' ;
-%	endBipole (pair# (apply 0 _ _ _ _) (apply# 0 _ _ _ _ Idx) _ _ _)
-%	          (pair# search search _ _ _).
 
 Define isSimpleCase : cert -> prop by
 	isSimpleCase (induction _ _ _ _ _) ;
@@ -169,25 +165,11 @@ Define orClerk : cert -> cert -> cert -> prop by
 	orClerk (case? _ CertL CertR) CertL CertR
 	:= println "orClerk case?" /\ print_cert CertL /\ print_cert CertR %DEBUG
 	;
-%%%%
 	orClerk Cert CertL CertR :=
-%println "step 0" /\
-%		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (node IdxL IdxR)) _ _ _) /\
-%println "step 1" /\
-%		CertL = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxL) 0 0 _) /\
-%println "step 2" /\
-%		CertR = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxR) 0 0 _)
-%		/\ println "orClerk pair#" /\ println Cert /\ println CertL /\ println CertR %DEBUG
 		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btbranch IdxL IdxR))) /\
 		CertL = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxL)) /\
 		CertR = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC IdxR))
 		/\ println "orClerk pair#" /\ println Cert /\ println CertL /\ println CertR %DEBUG
-%%%%
-%	orClerk (pair# (apply N AU SU AC SC) (case? AC' CertL CertR) AC' _ _)
-%	        (pair# (apply N AU SU AC SC) CertL 0 0 IdxL)
-%	        (pair# (apply N AU SU AC SC) CertR 0 0 IdxR)
-%	:= println "orClerk pair#" %DEBUG
-%%%%
 	.
 
 Define impClerk : cert -> cert -> prop by
@@ -274,8 +256,6 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 	;
 	indClerk' (pair# (induction N AU SU AC SC) (induction# N AU SU AC SC Idx))
 	       (_\ pair# (apply     N AU SU AC SC) (apply#     N AU SU AC SC Idx))
-%	indClerk' (pair# (induction N AU SU AC SC) (induction# N AU SU AC SC Idx) _ _ _)
-%	       (x\ pair# (apply     N AU SU AC SC) (apply#     N AU SU AC SC Idx) 0 0 _)
 	:= println "indClerk' pair#" %DEBUG
 	.
 
@@ -291,8 +271,6 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 	;
 	coindClerk' (pair# (induction N AU SU AC SC) (induction# N AU SU AC SC Idx))
 	         (_\ pair# (apply     N AU SU AC SC) (apply#     N AU SU AC SC Idx))
-%	coindClerk' (pair# (induction N AU SU AC SC) (induction# N AU SU AC SC Idx) _ _ _)
-%	         (x\ pair# (apply     N AU SU AC SC) (apply#     N AU SU AC SC Idx) 0 0 _)
 	:= println "coindClerk' pair#" %DEBUG
 	.
 
@@ -367,11 +345,9 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		Cert = (apply? _ _ Idx _)
 		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
 		;
-%TODO Is this sort of local unification correct? Do we provide full certs...?
 	decideLClerk Cert Cert' (idx "local") :=
 		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlocal (idx "local") Idx))) /\
 		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx))
-%		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local"))) _ _ (idx "local"))
 		/\ println "decideLClerk pair#" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
@@ -388,7 +364,6 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert' Idx :=
 		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlemma Idx Idx'))) /\
 		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx'))
-%		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf Idx)) _ _ Idx)
 		/\ print "decideLClerk' pair#" /\ println Idx /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
@@ -413,7 +388,6 @@ Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert' :=
 		Cert =  (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC (btlocal (idx "local") Idx))) /\
 		Cert' = (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx))
-%		Cert = (pair# (apply _ _ _ _ _) (apply# _ _ _ _ _ (leaf (idx "local"))) _ _ _))
 		/\ println "decideRClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
