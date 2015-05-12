@@ -258,10 +258,14 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (induction? Cert) (_\ Cert)
 	:= println "indClerk' induction?" %DEBUG
 	;
-	indClerk' (pair# (induction N AU SU AC SC) (induction# N AU SU AC SC Idx))
-	       (_\ pair# (apply     N AU SU AC SC) (apply#     N AU SU AC SC Idx))
-	:= println "indClerk' pair#" %DEBUG
-	.
+	indClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
+	:= println "indClerk' induction#" %DEBUG
+	;
+	indClerk' (pair# Cert1 Cert2) (_\ pair# Cert1' Cert2') := forall x,
+		indClerk' Cert1 Cert1Abs /\ Cert1' = (Cert1Abs x) /\
+		indClerk' Cert2 Cert2Abs /\ Cert2' = (Cert2Abs x)
+		/\ println "indClerk' pair#" %DEBUG
+		.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk _ _ _ _ := false.
@@ -273,10 +277,14 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' (induction? Cert) (_\ Cert)
 	:= println "coindClerk' induction?" %DEBUG
 	;
-	coindClerk' (pair# (induction N AU SU AC SC) (induction# N AU SU AC SC Idx))
-	         (_\ pair# (apply     N AU SU AC SC) (apply#     N AU SU AC SC Idx))
-	:= println "coindClerk' pair#" %DEBUG
-	.
+	coindClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
+	:= println "coindClerk' induction#" %DEBUG
+	;
+	coindClerk' (pair# Cert1 Cert2) (_\ pair# Cert1' Cert2') := forall x,
+		coindClerk' Cert1 Cert1Abs /\ Cert1' = (Cert1Abs x) /\
+		coindClerk' Cert2 Cert2Abs /\ Cert2' = (Cert2Abs x)
+		/\ println "coindClerk' pair#" %DEBUG
+		.
 
 %----------------------%
 % Fixed points: unfold %
