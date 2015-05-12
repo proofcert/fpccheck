@@ -131,6 +131,16 @@ Define isSimpleCase : cert -> prop by
 	isSimpleCase (induction? _) ;
 	isSimpleCase (apply? _ _ _ _).
 
+Define isNotPair : cert -> prop by
+	isNotPair (induction _ _ _ _ _) ;
+	isNotPair (apply _ _ _ _ _) ;
+	isNotPair search ;
+	isNotPair (induction? _) ;
+	isNotPair (case? _ _ _) ;
+	isNotPair (apply? _ _ _ _) ;
+	isNotPair (induction# _ _ _ _ _ _) ;
+	isNotPair (apply# _ _ _ _ _ _).
+
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
 %%%%%%%%%%%%%%%%%%%%%%
@@ -225,14 +235,26 @@ Define eqExpert : cert -> prop by
 %-------------%
 
 Define allClerk : cert -> (i -> cert) -> prop by
-	allClerk Cert (_\ Cert)
-	:= println "allClerk" /\ print_cert Cert %DEBUG
-	.
+	allClerk Cert (_\ Cert) :=
+		isNotPair Cert
+		/\ println "allClerk" /\ print_cert Cert %DEBUG
+		;
+	allClerk (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
+		allClerk Cert1 Cert1' /\
+		allClerk Cert2 Cert2'
+		/\ println "allClerk pair#" %DEBUG
+		.
 
 Define someClerk : cert -> (i -> cert) -> prop by
-	someClerk Cert (_\ Cert)
-	:= println "someClerk" /\ print_cert Cert %DEBUG
-	.
+	someClerk Cert (_\ Cert) :=
+		isNotPair Cert
+		/\ println "someClerk" /\ print_cert Cert %DEBUG
+		;
+	someClerk (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
+		someClerk Cert1 Cert1' /\
+		someClerk Cert2 Cert2'
+		/\ println "someClerk pair#" %DEBUG
+		.
 
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
@@ -261,9 +283,9 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
 	:= println "indClerk' induction#" %DEBUG
 	;
-	indClerk' (pair# Cert1 Cert2) (_\ pair# Cert1' Cert2') := forall x,
-		indClerk' Cert1 Cert1Abs /\ Cert1' = (Cert1Abs x) /\
-		indClerk' Cert2 Cert2Abs /\ Cert2' = (Cert2Abs x)
+	indClerk' (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
+		indClerk' Cert1 Cert1' /\
+		indClerk' Cert2 Cert2'
 		/\ println "indClerk' pair#" %DEBUG
 		.
 
@@ -280,9 +302,9 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
 	:= println "coindClerk' induction#" %DEBUG
 	;
-	coindClerk' (pair# Cert1 Cert2) (_\ pair# Cert1' Cert2') := forall x,
-		coindClerk' Cert1 Cert1Abs /\ Cert1' = (Cert1Abs x) /\
-		coindClerk' Cert2 Cert2Abs /\ Cert2' = (Cert2Abs x)
+	coindClerk' (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
+		coindClerk' Cert1 Cert1' /\
+		coindClerk' Cert2 Cert2'
 		/\ println "coindClerk' pair#" %DEBUG
 		.
 
