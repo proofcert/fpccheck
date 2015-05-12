@@ -36,7 +36,8 @@ Type   s        numidx -> numidx.
 %HACK Yet 'nother
 Type   name    string -> boolidx.
 
-Type   idx   string -> idx.
+Type   idx    string -> idx.
+Type   idx2   idx -> idx -> idx.
 
 % Binare trees of indexes
 Kind   bt             type.
@@ -341,14 +342,26 @@ Define unfoldRClerk : cert -> cert -> prop by
 %----------------------------------%
 
 Define freezeLClerk : cert -> cert -> idx -> prop by
-	freezeLClerk Cert Cert (idx "atom")
-	:= println "freezeLClerk" /\ print_cert Cert %DEBUG
-	.
+	freezeLClerk Cert Cert (idx "atom") :=
+		isNotPair Cert
+		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
+		;
+	freezeLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
+		freezeLClerk Cert1 Cert1' Idx1 /\
+		freezeLClerk Cert2 Cert2' Idx2
+		/\ println "freezeLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+		.
 
 Define initRExpert : cert -> idx -> prop by
-	initRExpert Cert (idx "atom")
-	:= println "initRExpert" /\ print_cert Cert %DEBUG
-	.
+	initRExpert Cert (idx "atom") :=
+		isNotPair Cert
+		/\ println "initRExpert" /\ print_cert Cert %DEBUG
+		;
+	initRExpert (pair# Cert1 Cert2) (idx2 Idx1 Idx2) :=
+		initRExpert Cert1 Idx1 /\
+		initRExpert Cert2 Idx2
+		/\ println "initRExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+		.
 
 Define freezeRClerk : cert -> cert -> prop by
 	freezeRClerk Cert Cert
@@ -356,18 +369,30 @@ Define freezeRClerk : cert -> cert -> prop by
 	.
 
 Define initLExpert : cert -> idx -> prop by
-	initLExpert Cert _
-	:= println "initLExpert" /\ print_cert Cert %DEBUG
-	.
+	initLExpert Cert _ :=
+		isNotPair Cert
+		/\ println "initLExpert" /\ print_cert Cert %DEBUG
+		;
+	initLExpert (pair# Cert1 Cert2) (idx2 Idx1 Idx2) :=
+		initLExpert Cert1 Idx1 /\
+		initLExpert Cert2 Idx2
+		/\ println "initLExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+		.
 
 %------------------%
 % Structural rules %
 %------------------%
 
 Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk Cert Cert (idx "local")
-	:= println "storeLClerk" /\ print_cert Cert %DEBUG
-	.
+	storeLClerk Cert Cert (idx "local") :=
+		isNotPair Cert
+		/\ println "storeLClerk" /\ print_cert Cert %DEBUG
+		;
+	storeLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
+		storeLClerk Cert1 Cert1' Idx1 /\
+		storeLClerk Cert2 Cert2' Idx2
+		/\ println "storeLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+		.
 
 %TODO Return singleton index?
 Define decideLClerk : cert -> cert -> idx -> prop by
@@ -384,13 +409,16 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 	             (idx "local")
 	:= println "decideLClerk apply#" %DEBUG
 	;
-	decideLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') Idx :=
-		decideLClerk Cert1 Cert1' Idx /\
-		decideLClerk Cert2 Cert2' Idx
-		/\ print "decideLClerk pair#" /\ println Idx %DEBUG
+	decideLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
+		decideLClerk Cert1 Cert1' Idx1 /\
+		decideLClerk Cert2 Cert2' Idx2
+		/\ print "decideLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
+%NOTE Whereas we have extended all local indexes to account for pairs, this
+% elaboration does not transcend to lemmas, at least yet! This is the only
+% exception in the scheme.
 Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert Idx :=
 		Cert = (apply _ _ _ _ _)
