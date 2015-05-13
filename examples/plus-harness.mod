@@ -6,72 +6,72 @@
 #include "plus-examples.mod".
 
 #assert plus_zero Plus
-	(induce
+	(inductionS
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
 		(Args\ all N\ imp
 			(eq Args (N ++ argv))
 			(Plus (N ++ zero ++ N ++ argv)))
 		(split (name "X1") (split (name "X2") (name "S")))
 		(name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_zero _
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_succ Plus
-	(induce
+	(inductionS
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
 		(Args\ all K\ all M\ all N\ imp
 			(eq Args (K ++ M ++ N ++ argv))
 			(Plus (K ++ (succ M) ++ (succ N) ++ argv)))
 		(split (name "X1") (split (name "X2") (name "S")))
 		(name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_succ _
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_succ _
-	(autoinduce         (ctrl (limits    z  z z z z    z  z z z) (names nil (split (name "H1") (name "G")))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
-		(dummy\ guideOr (ctrl (limits    z  z z z z    z  z z z) (names nil (name "X")))
-			(start      (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))
-			(start      (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))
+	(induction          (ctrl (limits    z  z z z z    z  z z z) (names nil (split (name "H1") (name "G")))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
+		(dummy\ case    (ctrl (limits    z  z z z z    z  z z z) (names nil (name "X")))
+			(search     (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))
+			(search     (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))
 		)
 	).
 
 #assert plus_comm _ _
-	(autoinduce         (ctrl (limits    z  z z    z  z z z z z) (names nil (split (name "H1") (split (name "H2") (name "G"))))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
-		(dummy\ guideOr (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))
-			(guideLemma (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))   (name "plus_zero") (split (name "H2") (name "G"))
-				(start  (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X")))))
-			(guideLemma (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X")))   (name "plus_succ") (split (name "G") (name "G"))
-				(start  (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X")))))
+	(induction          (ctrl (limits    z  z z    z  z z z z z) (names nil (split (name "H1") (split (name "H2") (name "G"))))) (split (name "X1") (split (name "X2") (split (name "X3") (name "S"))))
+		(dummy\ case    (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))
+			(apply      (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X")))   (name "plus_zero") (split (name "H2") (name "G"))
+				(search (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X")))))
+			(apply      (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X")))   (name "plus_succ") (split (name "G") (name "G"))
+				(search (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X")))))
 		)
 	).
 
 #assert plus_comm Plus _
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ case (ctrl (limits z z z z z z z z z) (names nil (name "X")))
 			% plus_zero
-			(induce
+			(inductionS
 				(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
 				(Args\ all N\ imp
 					(eq Args (N ++ argv))
 					(Plus (N ++ zero ++ N ++ argv)))
 				(split (name "X1") (split (name "X2") (name "S")))
 				(name "X")
-				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+				(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
 			% plus_succ
-			(induce
+			(inductionS
 				(ctrl (limits (s (s z)) z z (s z) z z z z z) (names nil (name "X")))
 				(Args\ all X\ all Y\ all Z\ imp
 					(eq Args (X ++ Y ++ Z ++ argv))
 					(Plus (X ++ (succ Y) ++ (succ Z) ++ argv)))
 				(split (name "X1") (split (name "X2") (name "S")))
 				(name "X")
-				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
+				(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
 		)
 	).
 
@@ -92,21 +92,21 @@
 %	).
 
 #assert plus_total Plus
-	(induce
+	(inductionS
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
 		(Args\ all A\ all B\ imp
 			(eq Args (A ++ argv))
 			(some C\ Plus (A ++ B ++ C ++ argv)))
 		(split (name "X1") (name "S"))
 		(name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_total _
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_det Plus
-	(induce
+	(inductionS
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
 		(Args\ all A\ all B\ all C\ all D\ imp
 			(eq Args (A ++ B ++ C ++ argv)) (imp
@@ -114,14 +114,14 @@
 			(eq C D)))
 		(split (name "X1") (split (name "X2") (name "S")))
 		(name "X")
-		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
 
 #assert plus_det _
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))))).
 
 #assert plus_assoc Plus
-	(induce
+	(inductionS
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
 		(x\ all l1\ all l2\ all l4\ all l6\ all l7\ imp
 			(eq x (l4 ++ l2 ++ l6 ++ argv)) (imp
@@ -131,17 +131,17 @@
 				(Plus (l4 ++ l3 ++ l7 ++ argv)))))
 		(split (name "X") (split (name "X") (name "S")))
 		(name "X")
-		(dummy\ start (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))).
 
 #assert plus_assoc _
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))).
 
 #assert augend_nat
-	(autoinduce         (ctrl (limits    z  z z    z  z    z  z z z) (names nil (name "X"))) (name "X")
-		(dummy\ guideOr (ctrl (limits    z  z z    z  z    z  z z z) (names nil (name "X")))
-			(start      (ctrl (limits    z  z z    z  z (s z) z z z) (names nil (name "X"))))
-			(start      (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))
+	(induction       (ctrl (limits    z  z z    z  z    z  z z z) (names nil (name "X"))) (name "X")
+		(dummy\ case (ctrl (limits    z  z z    z  z    z  z z z) (names nil (name "X")))
+			(search  (ctrl (limits    z  z z    z  z (s z) z z z) (names nil (name "X"))))
+			(search  (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))
 		)
 	).
 
@@ -164,59 +164,59 @@
 %(names nil (split (name "H1") (split (name "H2") (split (name "H3") (name "G"))))) I need to split the goal too
 % goals can be specified or left to search, as well
 #assert plus_assoc_rl
-	(guideLemma (ctrl (limits    z  z z z z z z                      z        z)
+	(apply  (ctrl (limits    z  z z z z z z                      z        z)
 		(names nil (split (name "H1") (split (name "H2") (split (name "H3") (split (name G1) (name G2)))))))
 		(name "plus_comm")
 		(split (name "H2") (split (name "H3") (name "H4")))                                            % plus BC A ABC
-	(guideLemma (ctrl (limits (s z) z z z z z z                   (s z)       z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z                   (s z)       z) (names nil (name "X")))
 		(name "addend_nat")
 		(split (name "H2") (split (name "H3") (name "H5")))                                            % nat BC
-	(guideLemma (ctrl (limits (s z) z z z z z z                (s (s z))      z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z                (s (s z))      z) (names nil (name "X")))
 		(name "plus_comm")
 		(split (name "H1") (split (name "H5") (name "H6")))                                            % plus C B BC
-	(guideLemma (ctrl (limits (s z) z z z z z z             (s (s (s z)))     z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z             (s (s (s z)))     z) (names nil (name "X")))
 		(name "plus_assoc")
 		(split (name "H6") (split (name "H4") (split (name "H7") (name "H8"))))                        % plus B A BC1 ^ plus C BC1 ABC
-	(guideLemma (ctrl (limits (s z) z z z z z z          (s (s (s (s z))))    z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z          (s (s (s (s z))))    z) (names nil (name "X")))
 		(name "plus_comm")
 		(split (name "H8") (split (name "H3") (name "H9")))                                            % plus BC1 C ABC
-	(guideLemma (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
 		(name "addend_nat")
 		(split (name "H8") (split (name "H3") (name "H10")))                                           % nat BC1
-	(guideLemma (ctrl (limits (s z) z z z z z z    (s (s (s (s (s (s z))))))  z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z    (s (s (s (s (s (s z))))))  z) (names nil (name "X")))
 		(name "plus_comm")
 		(split (name "H7") (split (name "H10") (name "H11")))                                          % plus A B BC1
-	(start      (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z))))))) z) (names nil (name "X")))
+	(search (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z))))))) z) (names nil (name "X")))
 	)))))))).
 
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % Leaving holes that are more or less "well-defined" works and yields results... the challenge is in predicting the structure of the lemma that will be picked, or not restricting it
 #assert plus_assoc_rl
-	(guideLemma (ctrl (limits    z  z z z z z z                      z        z)
+	(apply  (ctrl (limits    z  z z z z z z                      z        z)
 		(names nil (split (name "H1") (split (name "H2") (split (name "H3") (split (name G1) (name G2)))))))
 		(name "plus_comm")
 		(split (name "H2") (split (name "H3") (name "H4")))                                            % plus BC A ABC
-	(guideLemma (ctrl (limits (s z) z z z z z z                   (s z)       z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z                   (s z)       z) (names nil (name "X")))
 		(name "addend_nat")
 		(split (name "H2") (split (name "H3") (name "H5")))                                            % nat BC
-	(guideLemma (ctrl (limits (s z) z z z z z z                (s (s z))      z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z                (s (s z))      z) (names nil (name "X")))
 		(name "plus_comm")
 		(split (name "H1") (split (name "H5") (name "H6")))                                            % plus C B BC
-	(guideLemma (ctrl (limits (s z) z z z z z z             (s (s (s z)))     z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z             (s (s (s z)))     z) (names nil (name "X")))
 		(name "plus_assoc")
 		(split (name "H6") (split (name "H4") (split (name "H7") (name "H8"))))                        % plus B A BC1 ^ plus C BC1 ABC
-	(guideLemma (ctrl (limits (s z) z z z z z z          (s (s (s (s z))))    z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z          (s (s (s (s z))))    z) (names nil (name "X")))
 		(name "plus_comm")
 		(split (name "H8") (split (name "H3") (name "H9")))                                            % plus BC1 C ABC
-	(guideLemma (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
 		(name Lemma1)
 		(guess Guess1)                                                                                 % nat BC1
-%	(guideLemma (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
+%	(apply  (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
 %		(name "addend_nat")
 %		(split (name "H8") (split (name "H3") (name "H10")))                                           % nat BC1
-	(guideLemma (ctrl (limits (s z) z z z z z z    (s (s (s (s (s (s z))))))  z) (names nil (name "X")))
+	(apply  (ctrl (limits (s z) z z z z z z    (s (s (s (s (s (s z))))))  z) (names nil (name "X")))
 		(name Lemma2)
 		(guess Guess2)                                                                                 % plus A B BC1
-	(start      (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z))))))) z) (names nil (name "X")))
+	(search (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z))))))) z) (names nil (name "X")))
 	)))))))).
 %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

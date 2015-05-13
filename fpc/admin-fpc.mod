@@ -149,14 +149,14 @@ Type   ctrl   limits -> % (Lims)  [A]
 
 % Basic certificates
                   % Ctrl  % Invariant    % NamesB   % NamesS   % NewCert
-Type   start        ctrl                                                     -> cert.
-Type   induce       ctrl -> (i -> bool) -> boolidx -> boolidx -> (i -> cert) -> cert.
-Type   autoinduce   ctrl                -> boolidx            -> (i -> cert) -> cert.
+Type   search       ctrl                                                     -> cert.
+Type   inductionS   ctrl -> (i -> bool) -> boolidx -> boolidx -> (i -> cert) -> cert.
+Type   induction    ctrl                -> boolidx            -> (i -> cert) -> cert.
 
 % Certificates for guided reasoning
                   % Ctrl  % Idx      % Names    % NewC1 % NewC2
-Type   guideOr      ctrl                       -> cert -> cert -> cert.
-Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
+Type   case         ctrl                       -> cert -> cert -> cert.
+Type   apply        ctrl -> boolidx -> boolidx -> cert         -> cert.
 % Here, a "case by fixed point" could be given as an alternative to unfoldL
 
 #include "debug-admin-fpc.mod".
@@ -170,18 +170,18 @@ Type   guideLemma   ctrl -> boolidx -> boolidx -> cert         -> cert.
 %----------------------------------%
 
 Define getControl : cert -> ctrl -> prop by
-	getControl (start      Ctrl        ) Ctrl ;
-	getControl (induce     Ctrl _ _ _ _) Ctrl ;
-	getControl (autoinduce Ctrl   _   _) Ctrl ;
-	getControl (guideOr    Ctrl     _ _) Ctrl ;
-	getControl (guideLemma Ctrl   _ _ _) Ctrl.
+	getControl (search     Ctrl        ) Ctrl ;
+	getControl (inductionS Ctrl _ _ _ _) Ctrl ;
+	getControl (induction  Ctrl   _   _) Ctrl ;
+	getControl (case       Ctrl     _ _) Ctrl ;
+	getControl (apply      Ctrl   _ _ _) Ctrl.
 
 Define setControl : cert -> ctrl -> cert -> prop by
-	setControl (start      _                          ) Ctrl (start      Ctrl                          ) ;
-	setControl (induce     _ S     Names Names' Xi    ) Ctrl (induce     Ctrl S     Names Names' Xi    ) ;
-	setControl (autoinduce _       Names        Xi    ) Ctrl (autoinduce Ctrl       Names        Xi    ) ;
-	setControl (guideOr    _                    Xi Xi') Ctrl (guideOr    Ctrl                    Xi Xi') ;
-	setControl (guideLemma _   Idx Names        Xi    ) Ctrl (guideLemma Ctrl   Idx Names        Xi    ).
+	setControl (search     _                          ) Ctrl (search     Ctrl                          ) ;
+	setControl (inductionS _ S     Names Names' Xi    ) Ctrl (inductionS Ctrl S     Names Names' Xi    ) ;
+	setControl (induction  _       Names        Xi    ) Ctrl (induction  Ctrl       Names        Xi    ) ;
+	setControl (case       _                    Xi Xi') Ctrl (case       Ctrl                    Xi Xi') ;
+	setControl (apply      _   Idx Names        Xi    ) Ctrl (apply      Ctrl   Idx Names        Xi    ).
 
 Define gt : numidx -> numidx -> prop by
 	gt (s _) z ;
@@ -282,14 +282,14 @@ Define andClerkNames : cert -> cert -> prop by
 
 Define orClerkCert : cert -> cert -> cert -> prop by
 	orClerkCert Cert CertL CertR :=
-		Cert = (guideOr _ CertL' CertR') /\
+		Cert = (case _ CertL' CertR') /\
 		bequest Cert CertL' CertL /\
 		bequest Cert CertR' CertR ;
 	orClerkCert Cert Cert Cert :=
-		Cert = (start _)            \/
-		Cert = (induce _ _ _ _ _)   \/
-		Cert = (autoinduce _ _ _)   \/
-		Cert = (guideLemma _ _ _ _).
+		Cert = (search _)            \/
+		Cert = (inductionS _ _ _ _ _)   \/
+		Cert = (induction _ _ _)   \/
+		Cert = (apply _ _ _ _).
 
 % This one is rather horrible. It must be applied after a bequest or copy, so
 % a baseline for names exists
@@ -383,9 +383,9 @@ Define indClerkNames : cert -> cert -> (i -> cert) -> prop by
 	indClerkNames Cert CertSt CertBSx := forall x,
 		% Pop current and decompose base certificate
 		popDelta Cert _ Cert' /\
-		Cert' = (induce Ctrl S NamesB NamesS SubCert) /\
+		Cert' = (inductionS Ctrl S NamesB NamesS SubCert) /\
 		% Compose first sub-certificate
-		pushDelta (start Ctrl) NamesS CertSt /\
+		pushDelta (search Ctrl) NamesS CertSt /\
 		% Compose second sub-certificate
 		replaceName NamesB NamesS NamesBSx /\
 		SubCert' = (SubCert x) /\
@@ -396,9 +396,9 @@ Define indClerkNames : cert -> cert -> (i -> cert) -> prop by
 Define coindClerkNames : cert -> cert -> (i -> cert) -> prop by
 	coindClerkNames Cert CertSt CertBSx := forall x,
 		% Decompose base certificate
-		Cert = (induce Ctrl S NamesB NamesS SubCert) /\
+		Cert = (inductionS Ctrl S NamesB NamesS SubCert) /\
 		% Compose first sub-certificate
-		setGoal (start Ctrl) NamesS CertSt /\
+		setGoal (search Ctrl) NamesS CertSt /\
 		% Compose second sub-certificate
 		replaceName NamesB NamesS NamesBSx /\
 		SubCert' = (SubCert x) /\
@@ -413,7 +413,7 @@ Define indClerkNames' : cert -> (i -> cert) -> prop by
 		% Pop current
 		popDelta Cert _ Cert' /\
 		% Decompose base certificate
-		Cert' = (autoinduce (ctrl _ Names) NamesB SubCert') /\
+		Cert' = (induction (ctrl _ Names) NamesB SubCert') /\
 		% Compute new naming structures
 		indInvariantNames' Names NamesSx /\
 		replaceName NamesB NamesSx NamesBSx /\
@@ -430,7 +430,7 @@ Define indClerkNames' : cert -> (i -> cert) -> prop by
 Define coindClerkNames' : cert -> (i -> cert) -> prop by
 	coindClerkNames' Cert SubCert := forall x,
 		% Decompose base certificate
-		Cert = (autoinduce (ctrl _ Names) NamesB SubCert') /\
+		Cert = (induction (ctrl _ Names) NamesB SubCert') /\
 		% Compute new naming structures
 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 %TODO
@@ -571,7 +571,7 @@ Define someExpert : cert -> cert -> i -> prop by
 %TODO The base branch's sharing the bounds with the base certificate is ugly.
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk Cert Cert' Cert'' S :=
-		Cert = (induce _ S _ _ _) /\
+		Cert = (inductionS _ S _ _ _) /\
 		indClerkNames Cert Cert' Cert''
 		/\ println "indClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
 		.
@@ -584,7 +584,7 @@ Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 %TODO No bequest! If inductions do not occur right at the start, buggy.
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' Cert Cert' :=
-		Cert = (autoinduce _ _ _) /\
+		Cert = (induction _ _ _) /\
 		indClerkNames' Cert Cert'
 		/\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
 		.
@@ -594,7 +594,7 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk Cert Cert' Cert'' S :=
 		println "Try coind" /\ %DEBUG
-		Cert = (induce _ S _ _ _) /\
+		Cert = (inductionS _ S _ _ _) /\
 		println "Pattern matching ok" /\ %DEBUG
 		coindClerkNames Cert Cert' Cert''
 		/\ println "coindClerkNames ok" %DEBUG
@@ -605,7 +605,7 @@ Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' Cert Cert' :=
 		println "Try coind'" /\ %DEBUG
-		Cert = (autoinduce _ _ _) /\
+		Cert = (induction _ _ _) /\
 		coindClerkNames' Cert Cert'
 		/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
 		.
@@ -684,9 +684,9 @@ Define initRExpert : cert -> idx -> prop by
 % bookkeeping...
 Define freezeRClerk : cert -> cert -> prop by
 	freezeRClerk Cert Cert := (
-		Cert = (start _)            \/
-		Cert = (guideOr _ _ _)      \/
-		Cert = (guideLemma _ _ _ _) )
+		Cert = (search _)            \/
+		Cert = (case _ _ _)      \/
+		Cert = (apply _ _ _ _) )
 		/\ println "freezeRClerk" /\ print_cert Cert
 		.
 
@@ -733,7 +733,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % "Global" decide (on lemmas), by name: the numeric index is always a don't care
 Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert' (idx x (name Idx)) :=
-		Cert = (guideLemma _ (name Idx) Names Cert'') /\
+		Cert = (apply _ (name Idx) Names Cert'') /\
 		bequest Cert Cert'' Cert''' /\
 		pushDelta Cert''' Names Cert'
 		/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert' %DEBUG

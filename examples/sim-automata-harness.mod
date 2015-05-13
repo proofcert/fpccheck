@@ -6,23 +6,23 @@
 #include "sim-automata-examples.mod".
 
 #assert nu_trivial
-	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
+	(search (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
 
 #assert_not q0_sim_p0
-	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
+	(search (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
 
 #assert q0_sim_p0
-	(induce
+	(inductionS
 		(ctrl (limits z z z z z z z z z) (names nil (name "X")))
 		(Args\ or
 			(eq Args (q0 ++ p0 ++ argv))
 			(eq Args (q1 ++ p0 ++ argv)))
 		(name "X")
 		(name "X")
-		(dummy\ start (ctrl (limits z z z (s z) z (s z) z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits z z z (s z) z (s z) z z z) (names nil (name "X"))))).
 
 % The trivial invariant doesn't work here
 #assert_not q0_sim_p0
-	(autoinduce
+	(induction
 		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits z z z (s z) z (s z) z z z) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits z z z (s z) z (s z) z z z) (names nil (name "X"))))).
