@@ -73,7 +73,7 @@ After the definition of the original Abella file, the main user task would be th
 
 * (induction? C): induct greedily and continue using certificate C.
 * (case? A C1 C2): apply asynchronous case analysis (left or) greedily after at most A (asynchronous) unfoldings. Continue along each branch using certificates C1 and C2, respectively.
-* (apply? A S I C): close the current bipole unfolding at most A times during the remainder of the asynchronous phase and S times during the synchronous phase. Use index I to arbitrate the transition between both phases choosing either a local or global decision, i.e., a lemma. Continue using certificate C after closing the bipole.
+* (apply? A S I C): close the current bipole unfolding at most A times during the remainder of the asynchronous phase and S times during the synchronous phase. Use index I to arbitrate the transition between both phases making either a local or global decision, i.e., a lemma. Continue using certificate C after closing the bipole.
 * search: try to finish the proof by applying the initial rules.
 
 The translation generates verifiers accepting certificates of these shapes. In any given proof, all previous theorems may be used as lemmas. Under the previous certificate schemes of the simple FPC, indexing is given as:
