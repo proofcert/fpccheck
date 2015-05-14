@@ -77,7 +77,8 @@ Type   guess   boolidx -> boolidx.
 % Full indexes %
 %%%%%%%%%%%%%%%%
 
-Type   idx   numidx -> boolidx -> idx.
+Type   idx    string -> idx.
+Type   idx2   numidx -> boolidx -> idx.
 
 %%%%%%%%%%%%%%%%%%%%%%%
 % Certificate control %
@@ -656,7 +657,7 @@ Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
 % possible in general, not without sacrificing certificates to extend across
 % multiple branches (that is, without mandating all splits to be given).
 Define freezeLClerk : cert -> cert -> idx -> prop by
-	freezeLClerk Cert Cert' (idx x (name Name)) := (
+	freezeLClerk Cert Cert' (idx2 x (name Name)) := (
 		popDelta Cert (name Name) Cert' \/
 		popDelta Cert (guess (name Name)) Cert' )
 		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
@@ -666,11 +667,11 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 % structures, a case that would make little sense but used to be implicitly
 % allowed (by lack of an explicit prohibition).
 Define initRExpert : cert -> idx -> prop by
-	initRExpert Cert (idx x (name Name)) :=
+	initRExpert Cert (idx2 x (name Name)) :=
 		getControl Cert (ctrl _ (names _ (name Name)))
 		/\ println "initRExpert with name" /\ print_cert Cert /\ println Name %DEBUG
 		;
-	initRExpert Cert (idx x (name Name)) :=
+	initRExpert Cert (idx2 x (name Name)) :=
 		getControl Cert (ctrl _ (names _ (guess (name Name))))
 		/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
 		.
@@ -710,7 +711,7 @@ Define initLExpert : cert -> idx -> prop by
 % When storing, a unique index based on the Next counter is returned and stored
 % along the structure of the formula at this point in the process.
 Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk Cert Cert' (idx Next Names) :=
+	storeLClerk Cert Cert' (idx2 Next Names) :=
 		returnAndIncrementNext Cert Cert'' Next /\
 		popDelta Cert'' Names Cert'
 		/\ print "storeLClerk" /\ println Next /\ print_cert Cert' %DEBUG
@@ -719,20 +720,20 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 % Local decide, on an arbitrary stored index (in order of storage). Costlier
 % than the old heuristic (oldest unused index), but complete.
 Define decideLClerk : cert -> cert -> idx -> prop by
-	decideLClerk Cert Cert' (idx Last Names) :=
+	decideLClerk Cert Cert' (idx2 Last Names) :=
 		returnAndIncrementLast Cert Cert'' Last /\
 		resetUnfoldR Cert'' Cert''' /\
 		resetLast Cert''' Cert'''' /\
 		pushDelta Cert'''' Names Cert'
 		/\ print "decideLClerk" /\ println Last /\ print_cert Cert' %DEBUG
 		;
-	decideLClerk Cert Cert' (idx Last Names) :=
+	decideLClerk Cert Cert' (idx2 Last Names) :=
 		returnAndIncrementLast Cert Cert'' _ /\
-		decideLClerk Cert'' Cert' (idx Last Names).
+		decideLClerk Cert'' Cert' (idx2 Last Names).
 
 % "Global" decide (on lemmas), by name: the numeric index is always a don't care
 Define decideLClerk' : cert -> cert -> idx -> prop by
-	decideLClerk' Cert Cert' (idx x (name Idx)) :=
+	decideLClerk' Cert Cert' (idx Idx) :=
 		Cert = (apply _ (name Idx) Names Cert'') /\
 		bequest Cert Cert'' Cert''' /\
 		pushDelta Cert''' Names Cert'

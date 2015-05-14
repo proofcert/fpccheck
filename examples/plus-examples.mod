@@ -17,8 +17,8 @@ Define plus_succ : (i -> bool) -> cert -> prop by
 Define plus_comm : (i -> bool) -> (i -> bool) -> cert -> prop by
 	plus_comm Plus IsNat Cert :=
 		plus Plus /\ is_nat IsNat /\ is_commutative Cert Plus IsNat
-			((lemma (name "plus_zero") (all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv))))) ::
-			 (lemma (name "plus_succ") (all K\ all M\ all N\ (imp (Plus (K ++ M  ++ N  ++ argv)) (Plus (K ++ (succ M) ++ (succ N) ++ argv))))) :: nil).
+			((lemma (idx "plus_zero") (all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv))))) ::
+			 (lemma (idx "plus_succ") (all K\ all M\ all N\ (imp (Plus (K ++ M  ++ N  ++ argv)) (Plus (K ++ (succ M) ++ (succ N) ++ argv))))) :: nil).
 
 Define plus_total : (i -> bool) -> cert -> prop by
 	plus_total Plus Cert :=
@@ -87,6 +87,6 @@ Define plus_assoc_rl : cert -> prop by
 		%
 		plus_assoc_rl_f PlusAssocRL /\
 		prove_with_lemmas Cert PlusAssocRL (
-			(lemma (name "addend_nat") AddendNat) ::
-			(lemma (name "plus_comm" ) PlusComm ) ::
-			(lemma (name "plus_assoc") PlusAssoc) :: nil).
+			(lemma (idx "addend_nat") AddendNat) ::
+			(lemma (idx "plus_comm" ) PlusComm ) ::
+			(lemma (idx "plus_assoc") PlusAssoc) :: nil).

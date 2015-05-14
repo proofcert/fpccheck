@@ -29,9 +29,9 @@
 %#assert times_comm
 %	(autoinduce         (ctrl (limits       z   z z    z  z z z             z     z)
 %		(dummy\ guideOr (ctrl (limits       z   z z    z  z z z             z     z)
-%			(guideLemma (ctrl (limits       z   z z    z  z z z             z     z) (name "times_zero") 
+%			(guideLemma (ctrl (limits       z   z z    z  z z z             z     z) (name "times_zero")
 %				(start  (ctrl (limits    (s z)  z z    z  z z z             z     z)
-%			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)    z) (name "augend_nat") 
-%			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (name "times_succ'") 
-%			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (name "plus_det") 
+%			(guideLemma (ctrl (limits       z   z z (s z) z z z          (s z)    z) (name "augend_nat")
+%			(guideLemma (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (name "times_succ'")
+%			(guideLemma (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (name "plus_det")
 %				(start  (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z)

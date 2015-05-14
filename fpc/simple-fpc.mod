@@ -33,9 +33,6 @@ Kind   numidx   type.
 Type   z        numidx.
 Type   s        numidx -> numidx.
 
-%HACK Yet 'nother
-Type   name    string -> boolidx.
-
 Type   idx    string -> idx.
 Type   idx2   idx -> idx -> idx.
 

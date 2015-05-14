@@ -14,7 +14,7 @@
 % A named context for lemmas
 %TODO Improve names, declare new types where these indicate inaccuracy.
 Kind   lemma   type.
-Type   lemma   boolidx -> bool -> lemma.
+Type   lemma   idx -> bool -> lemma.
 
 % A type for traces and debugging information
 %NOTE I'm kind of cheating by using numidx here (it should be internal).
@@ -337,12 +337,8 @@ async Debug Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 % readability can be improved through refactoring their composition.
 async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
-%HACK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%TODO We are relying on the representation of different types of indexes,
-% whereas interface functions should be defined to keep this transparent!!
-	decideLClerk' Xi Xi' (idx Idx) /\
-	member (lemma (name Idx) C) Lambda /\
-%HACK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	decideLClerk' Xi Xi' Idx /\
+	member (lemma Idx C) Lambda /\
 	print "Lemma" /\ println Idx /\ %DEBUG
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
