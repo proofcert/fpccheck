@@ -30,11 +30,11 @@ From scratch:
 
 To check everything:
 
-    bedwyr -t -I my-system-harness.mod
+    bedwyr -t -I my-system-harness.thm
 
 Or interactively just:
 
-    bedwyr my-system-harness.mod
+    bedwyr my-system-harness.thm
 
 More realistically, use a translator to bypass steps 1-3 as shown below.
 
@@ -65,27 +65,27 @@ built and run normally and is available from
 somewhat more sensitive to errors. A (mostly) error-free session is assumed. For
 batch processing, use:
 
-    abella my-session-file.mod
+    abella my-session-file.thm
 
 The integrated translator in the background generates a collection of files in
 the working directory, currently named as follows:
 
-* `fpc-decl.mod`: declarations and definitions encoded for the checker.
-* `fpc-sign.mod`: signature based on fpc-decl.mod for internal use.
-* `fpc-thms.mod`: for each theorem, an encoding for the checker and a verifier
+* `fpc-decl.thm`: declarations and definitions encoded for the checker.
+* `fpc-sign.thm`: signature based on fpc-decl.thm for internal use.
+* `fpc-thms.thm`: for each theorem, an encoding for the checker and a verifier
   that takes a certificate and uses it to try to prove the theorem.
-* `fpc-test.mod`: instantiation of the checker and proof assertions for all
+* `fpc-test.thm`: instantiation of the checker and proof assertions for all
   verifiers.
 
 If the working directory is a direct subfolder of the checker, all its
 components will be found and assembled. If necessary, correct the paths at the
-top of fpc-test.mod to point to the actual location of the checker (i.e., all
+top of fpc-test.thm to point to the actual location of the checker (i.e., all
 those outside the set of files just mentioned).
 
-The harness file fpc-test.mod furnishes default certificates that should be able
+The harness file fpc-test.thm furnishes default certificates that should be able
 to prove many relatively simple results. To run the checker, use:
 
-    bedwyr -t -I fpc-test.mod
+    bedwyr -t -I fpc-test.thm
 
 This will try to prove each theorem in turn using its verifier and the
 certificate given in the corresponding assertion, terminating upon failure. This
