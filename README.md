@@ -10,10 +10,12 @@ Dependencies:
 
 * Bedwyr 1.4-beta1 or newer (will be bumped up presently).
 
+The checker is meant to be instantiated and loaded on top of the Bedwyr runtime, and thus requires no dedicated installation procedure.
+
 Usage
 -----
 
-Documentation and references to follow shortly. The basic workflow is as follows.
+Documentation and references coming shortly. The basic workflow is as follows.
 
 From scratch:
 
@@ -30,16 +32,20 @@ Or interactively just:
 
     bedwyr my-system-harness.mod
 
-More realistically, use a translator to bypass steps 1-3 as shown in the tutorial.
+More realistically, use a translator to bypass steps 1-3 as shown below.
 
-Tutorial: certifying Abella with simple FPCs
---------------------------------------------
+As Bedwyr has primitive support for modules and namespaces, be mindful to avoid, and remember to check for, the usual silly errors: name clashes, order of declarations and includes, etc.
+
+Tutorial
+--------
+
+Here we use the checker to certify results from the Abella proof assistant by means of simple FPCs.
 
 Dependencies:
 
 * Abella 2.0.3-dev with translation capabilities.
 
-The first thing you need is a file with the contents of an Abella session: declarations, definitions and theorems. Proofs are currently ignored and could be skipped: to trust the correctness of the theorem (and its proof) we will place our hopes no longer in Abella, but in the checker; not in the proof script, but in the certificate.
+The first thing you need is a file with the contents of an Abella session: declarations, definitions and theorems. Proofs are currently ignored and can be elided: to trust the correctness of the theorem (and its proof) we will put our faith no longer in Abella, but in the checker; not in the proof script, but in the certificate.
 
 Run the session file through a translator prepared to export proof obligations to the checker. Currently, this is an instrumented fork of Abella that can be built and run normally and is available from github.com/robblanco/abella. Interactive use is possible but somewhat more sensitive to errors. A (mostly) error-free session is assumed. For batch processing, use:
 
@@ -71,15 +77,17 @@ After the definition of the original Abella file, the main user task would be th
 
 2. Nested certificates: proofs as trees of operations.
 
-* (induction? C): induct greedily and continue using certificate C.
-* (case? A C1 C2): apply asynchronous case analysis (left or) greedily after at most A (asynchronous) unfoldings. Continue along each branch using certificates C1 and C2, respectively.
+* (induction? C): induct greedily and using certificate C. Currently, it can only be used as the root of a tree.
+* (case? A C1 C2): perform asynchronous case analysis greedily (left or) after at most A (asynchronous) unfoldings. Continue along each branch using certificates C1 and C2, respectively.
 * (apply? A S I C): close the current bipole unfolding at most A times during the remainder of the asynchronous phase and S times during the synchronous phase. Use index I to arbitrate the transition between both phases making either a local or global decision, i.e., a lemma. Continue using certificate C after closing the bipole.
-* search: try to finish the proof by applying the initial rules.
+* search: try to finish the proof by application of the initial rules.
 
 The translation generates verifiers accepting certificates of these shapes. In any given proof, all previous theorems may be used as lemmas. Under the previous certificate schemes of the simple FPC, indexing is given as:
 
 * (idx "local"): make a local, internal decision, therefore private to the checker.
 * (idx "my-theorem-name"): decide globally using my-theorem-name, declared earlier in the session.
+
+Detailed (i.e., nested) certificates with tight bounds should always work well in principle. On the other hand, being overly generous with unfoldings may, in some cases, lead Bedwyr to unification problems it cannot solve, terminating the proof instead of backtracking to safety.
 
 Contributing
 ------------
