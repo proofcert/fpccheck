@@ -1,0 +1,89 @@
+#include "template.thm".
+#include "plus-examples.thm".
+
+Define times_zero_f : bool -> prop by
+	times_zero_f F :=
+		times Times /\ is_nat IsNat /\ F =
+		(all N\ (imp
+			(IsNat (N ++ argv))
+			(Times (N ++ zero ++ zero ++ argv)))).
+
+Define times_zero : cert -> prop by
+	times_zero Cert :=
+		times_zero_f TimesZero /\ prove Cert TimesZero.
+
+Define times_succ : cert -> prop by
+	times_succ Cert :=
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		prove Cert 
+			(all K\ all M\ all N\ (imp
+				(IsNat (K ++ argv)) (imp
+				(Times (K ++ (succ M) ++ N ++ argv))
+				(some KM\ (and
+					(Times (K ++ M ++ KM ++ argv))
+					(Plus (K ++ KM ++ N))))))).
+
+% Need a better naming scheme!
+Define times_succ_f' : bool -> prop by
+	times_succ_f' F :=
+		times Times /\ plus Plus /\ is_nat IsNat /\ F =
+		(all M\ all N\ all MN\ imp
+			(Times (M ++ N ++ MN ++ argv)) (imp
+			(IsNat (M  ++ argv)) (imp
+			(IsNat (N  ++ argv)) (imp
+			(IsNat (MN ++ argv))
+			(some K\ and
+				(IsNat (K ++ argv)) (and
+				(Plus (MN ++ M ++ K ++ argv))
+				(Times (M ++ (succ N) ++ K ++ argv)))))))).
+
+Define times_total : cert -> prop by
+	times_total Cert :=
+		times Times /\ is_nat IsNat /\
+		is_total Cert Times IsNat.
+
+%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
+% Revisiting and adding necessary assumptions through a revised totality
+Define times_total' : cert -> prop by
+	times_total' Cert :=
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		total' Plus IsNat PlusTotal /\
+		total' Times IsNat TimesTotal /\
+		prove_with_lemmas Cert TimesTotal
+			((lemma (idx "plus_total") PlusTotal) :: nil).
+%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
+
+Define times_det : cert -> prop by
+	times_det Cert :=
+		times Times /\ plus Plus /\ deterministic Plus PlusDet /\
+		is_deterministic' Cert Times
+			((lemma (idx "plus_det") PlusDet) :: nil).
+
+%TODO temporarily not using templates to specialize
+Define times_comm_f : bool -> prop by
+	times_comm_f F :=
+		times Times /\ is_nat IsNat /\ F =
+		(all M\ all N\ all K\ imp
+			(Times (M ++ N ++ K ++ argv)) (imp
+			(IsNat (M ++ argv)) (imp
+			(IsNat (N ++ argv)) (imp
+			(IsNat (K ++ argv))
+			(Times (N ++ M ++ K ++ argv)))))).
+
+Define times_comm : cert -> prop by
+	times_comm Cert :=
+		% Base predicates
+		times Times /\ plus Plus /\ is_nat IsNat /\
+		% Lemmas
+		times_zero_f TimesZero /\ augend_nat_f AugendNat /\
+		times_succ_f' TimesSucc' /\ deterministic Plus PlusDet /\
+		% Theorem
+		times_comm_f TimesComm /\
+		% Proof statement
+		prove_with_lemmas Cert TimesComm
+			((lemma (idx "times_zero" ) TimesZero ) ::
+			 (lemma (idx "augend_nat" ) AugendNat ) ::
+			 (lemma (idx "times_succ'") TimesSucc') ::
+			 (lemma (idx "plus_det"   ) PlusDet   ) :: nil).
+
+%times_assoc

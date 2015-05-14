@@ -1,0 +1,169 @@
+#include "../kernel/logic.thm".     % First-order logic syntax
+#include "../kernel/cert-sig.thm".  % Certificate declarations
+#include "../fpc/dummy-fpc.thm".    % Concrete FPC (needed before kernel!)
+#include "dummy-examples-sig.thm".  % Concrete signature (needed before kernel!)
+#include "../kernel/kernel.thm".    % Kernel
+#include "dummy-examples.thm".      % Concrete examples
+
+%#include "logic.mod".          % First-order logic syntax
+%#include "cert.sig".           % Certificate declarations
+%#include "admin-fpc.mod".      % Concrete FPC (needed before kernel!)
+%#include "XXX-examples.sig".   % Concrete signature (needed before kernel!)
+%#include "kernel.mod".         % Kernel
+%#include "XXX-examples.mod".   % Concrete examples
+
+%%%%%%%%%%%%%%%%%%%%
+% Basic test suite %
+%%%%%%%%%%%%%%%%%%%%
+
+% To run/debug: bedwyr -t -I [-D] <file>
+% No external examples needed to test the framework
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Single-step inference rules % % Not really single step, better rephrase
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% No: I need to chain, but will do so trivially and base on cases I have (working) tests for
+% It's not entirely clear what I'm doing for G as (sto tt), other than trying to get it out of the way
+% replaced where possible with (sto ff), which cannot be proved
+
+% ffL (ex falso quodlibet)
+#assert async (debug z) nil dummy nil nil nil (ff :: nil) (sto ff).
+% ttR
+#assert syncR (debug z) nil dummy nil nil nil tt.
+% decideR -> ttR
+#assert async (debug z) nil dummy nil nil nil nil (sto tt).
+% ttL -> decideR -> ttR
+#assert async (debug z) nil dummy nil nil nil (tt :: nil) (sto tt).
+% andL -> ffL (and-RHS doesn't do anything)
+#assert async (debug z) nil dummy nil nil nil ((and ff ff) :: nil) (sto ff).
+% andL -> ttL -> ffL
+#assert async (debug z) nil dummy nil nil nil ((and tt ff) :: nil) (sto ff).
+% orL -> ffL | ffL
+#assert async (debug z) nil dummy nil nil nil ((or ff ff) :: nil) (sto ff).
+% storeR -> decideR -> ttR
+#assert async (debug z) nil dummy nil nil nil nil (unk tt).
+% impR -> ffL (imp-RSH doesn't do anything, but it can't be proved anyway)
+#assert async (debug z) nil dummy nil nil nil nil (unk (imp ff ff)).
+% impR -> ttL -> storeR -> decideR -> ttR
+#assert async (debug z) nil dummy nil nil nil nil (unk (imp tt tt)).
+% andR -> ttR | ttR
+#assert syncR (debug z) nil dummy nil nil nil (and tt tt).
+% orR -> ttR (left)
+#assert syncR (debug z) nil dummy nil nil nil (or tt ff).
+% orR -> ttR (right)
+#assert syncR (debug z) nil dummy nil nil nil (or ff tt).
+% releaseL -> ffL
+#assert syncL (debug z) nil dummy nil nil nil ff (sto ff).
+% impL -> (releaseL -> ffL) | ttR
+#assert syncL (debug z) nil dummy nil nil nil (imp tt ff) (sto ff).
+
+
+% releaseR -> impR -> ffL (resolving as fast as we can)
+#assert syncR (debug z) nil dummy nil nil nil (imp ff ff).
+
+% decideL
+% storeL
+
+
+
+
+
+
+
+
+
+% allL -> #
+%%#assert_not async dummy nil nil nil (unk (all (x\ ff))).
+
+
+
+
+%%#assert async dummy nil nil nil (unk (all (x\ tt))).
+
+
+%% (works) Prove consumption of imp-RHS (more involved... later)
+%#assert async dummy nil nil nil (unk (imp tt tt)).
+
+
+
+% This will need the expert
+%#assert_not async dummy nil nil (tt :: nil) (sto tt).
+%#assert async dummy nil nil (tt :: nil) (sto tt).
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Fixed point encoding %
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% For now, this is just a little diversion to get some confidence that arbitrary arity can be made into fixpoints
+
+%(mu1 I\L\ (oplus
+%	(eq L empty)
+%	(some N\ some L'\ (tensor
+%		(eq L (cons N L'))
+%		(I L')))))
+
+% Binding of args to vars shouldn't affect the purely positive aspect of the least fixpoint
+%(mu pred\args\ (or
+%	(eq [arg1] empty)
+%	(some n\ some l'\ (and
+%		(eq [arg1] (cons n l'))
+%		(pred l')))))
+
+% Solution 1. The harmless way
+%(mu pred\args\
+%	some l\ (and (eq args (l += argv))
+%	(or (eq l empty) (some n\ some l'\ (and (eq l (cons n l')) (pred l'))))
+%))
+%%Type   empty   i.
+%%Type   cons    i -> i -> i.
+%%#assert async dummy nil nil nil (unk (some x\ (mu pred\args\ some l\ (and (eq args (l += argv)) (or (eq l empty) (some n\ some l'\ (and (eq l (cons n l')) (pred l')))))) (x += argv))).
+%%% Now, on the second argument... (seems to work too!)
+%%#assert async dummy nil nil nil (unk (some x\ (mu pred\args\ some l\ (and (eq args (_ += l += argv)) (or (eq l empty) (some n\ some l'\ (and (eq l (cons n l')) (pred l')))))) (_ += x += argv))).
+%%% In this way, it should be possible to extract everything at once, and/or ignore remainders, like the end of the list, whatever it is
+%%#assert async dummy nil nil nil (unk (some x\ (mu pred\args\ some l\ (and (eq args (_ += l += _)) (or (eq l empty) (some n\ some l'\ (and (eq l (cons n l')) (pred l')))))) (_ += x += argv))).
+
+% Always using the argument as a list and pattern matching through equality (on lists!) if it works, perfect
+%(mu pred\args\ (or
+%	(eq args (empty :: nil))
+%	(some n\ some l'\ (and
+%		(eq args ((cons n l') :: nil))
+%		(pred l')))))
+%#assert async dummy nil nil nil (unk (some args\ (mu pred\args\ (or (eq args (empty :: nil)) (some n\ some l'\ (and (eq args ((cons n l') :: nil)) (pred l'))))) args)).
+
+% TODO
+% - Substitute limited definition in logic.thm
+% - Extend interfaces of indClerk/coindClerk to work with 'list i' instead of 'i' (and remember to update the fake interface definition at cert-sig.thm)
+% - Decide how to handle argument on argument lists: ideally, with single pattern matching equality on lists, but this goes against the standard definition of eq!
+% - ... anything else?
+
+
+
+
+
+%#assert async dummy nil nil nil (unk (or a (imp a false))).
+%example 1 (or a (ng a)).
+%example 2 (equiv (equiv b a) (equiv a b)).
+%example 3 (equiv (imp b a) (imp (ng a) (ng b))).
+%example 4 (equiv (equiv  b a) (equiv  (ng a) (ng b))).
+%example 5 (imp (imp (imp b a) b) b).
+%example 6 (imp (equiv b a) (equiv a b)).
+%example 7 (imp (equiv b a) (equiv (ng a) (ng b))).
+%example 8 (equiv b b).
+%example 9 (imp (imp b a)(imp b a)).
+%example 10 (imp (and b a)(and b a)).
+%example 11 (imp (and b a) a).
+%% The following are examples 8, 12, 17 (resp) from
+%% Pelletier's article "Seventy-Five Problems for testing Atomatic
+%% theorem Provers" (JAR 1986).
+%example 12 (imp (imp (imp b a) b) b).
+%example 13 (equiv (equiv (equiv b a) c) (equiv b (equiv a c))).
+%example 14 (equiv (imp (and b (imp a c)) d)
+%                  (and (or (ng b) (or     a  d))
+%                       (or (ng b) (or (ng c) d)))).
+%
+%/*  Not tautologies
+%example 20 (equiv (equiv b a) (equiv (ng c) (ng b))).
+%example 21 (equiv b a).
+%example 22 (equiv (equiv b a) (equiv u c)).
+%example 23 (and Ex4 c) :- example 4 Ex4.
+%*/

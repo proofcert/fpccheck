@@ -1,0 +1,13 @@
+#include "nat.thm".
+
+Define plus : (i -> bool) -> prop by
+	plus (mu Pred\Args\
+		(some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv))
+		(or
+			(and
+				(eq K zero)
+				(eq M N))
+			(some K'\ some N'\ (and (and
+				(eq K (succ K'))
+				(eq N (succ N')))
+				(Pred (K' ++ M ++ N' ++ argv)))))))).
