@@ -3,9 +3,9 @@ FPCcheck
 
 A prototype checker that uses foundational proof certificates (FPCs) to define
 small outline proofs of lemmas that require simple inductions and previously 
-proved lemma.  These definitions are given as intuitionistic specifications written 
-as logic programs using least fixed point definitions. A focused sequent calculus 
-is used to structure the search used in the proof checker.
+proved lemmas. These definitions are given as intuitionistic specifications
+written  as logic programs using least fixed point definitions. A focused
+sequent calculus is used to structure the search used in the proof checker.
 
 Installation
 ------------
@@ -51,7 +51,7 @@ means of simple FPCs.
 
 Dependencies:
 
-* Abella 2.0.3-dev with translation capabilities.
+* Abella 2.0.3-fpc
 
 The first thing you need is a file with the contents of an Abella session:
 declarations, definitions and theorems. Proofs are currently ignored and can be
@@ -62,9 +62,9 @@ the certificate.
 Run the session file through a translator prepared to export proof obligations
 to the checker. Currently, this is an instrumented fork of Abella that can be
 built and run normally and is available from
-[here](https://github.com/robblanco/abella). Interactive use is possible but
-somewhat more sensitive to errors. A (mostly) error-free session is assumed. For
-batch processing, use:
+[here](https://github.com/robblanco/abella) (branch `fpc-translation`).
+Interactive use is possible but somewhat more sensitive to errors. A (mostly)
+error-free session is assumed. For batch processing, use:
 
     abella my-session-file.thm
 
@@ -109,12 +109,13 @@ certificates (cf. ??? for further information).
     bipole may contain `A` instances of the unfold inference rule during each 
     asynchronous phase, and `S` occurrences during each synchronous phase.
   * `(apply B A S A S)`: attempt to find a proof with a maximum depth of `B`
-    bipoles, plus initial rules at the end. Each bipole may unfold `A` times
-    during each asynchronous phase, and `S` times during each synchronous phase.
+    bipoles, plus initial rules at the end. Each bipole may contain `A`
+    instances of the unfold inference rule during each asynchronous phase, and
+    `S` occurrences during each synchronous phase.
 
 2. Nested certificates: proofs as trees of operations.
-  * `(induction? C)`: induct greedily and continue using certificate `C`. Currently, it
-    can only be used as the root of a tree.
+  * `(induction? C)`: induct greedily and continue using certificate `C`.
+    Currently, it can only be used as the root of a tree.
   * `(case? A C1 C2)`: perform asynchronous case analysis greedily (left or)
     after at most `A` (asynchronous) unfoldings. Continue along each branch
     using certificates `C1` and `C2`, respectively.
