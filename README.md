@@ -140,6 +140,147 @@ in principle. On the other hand, being overly generous with unfoldings may, in
 some cases, lead Bedwyr to unification problems it cannot solve, terminating the
 proof instead of backtracking to safety.
 
+Example
+-------
+
+To illustrate usage of the full system, suppose we have the following simple
+Abella session, `plus.thm`:
+
+    Kind   nat   type.
+    Type   z     nat.
+    Type   s     nat -> nat.
+
+    Define nat : nat -> prop by
+      nat z ;
+      nat (s N) := nat N.
+
+    Define plus : nat -> nat -> nat -> prop by
+      plus z N N ;
+      plus (s N) M (s P) := plus N M P.
+
+    Theorem plustotal :
+      forall N, nat N -> forall M, nat M -> exists S, plus N M S.
+    induction on 1. intros. case H1.
+      search.
+      apply IH to H3. apply H4 to H2. search.
+
+Ignoring for now the presence of proof scripts, we can now run the file through
+Abella:
+
+    abella plus.thm
+
+This will generate a bunch of `.thm` files (as described above). Chief in
+importance for us is `fpc-test.thm`, which opens with the following include
+declarations:
+
+    #include "../kernel/logic.thm".
+    #include "../kernel/cert-sig.thm".
+    #include "../fpc/simple-fpc.thm".
+    #include "fpc-sign.thm".
+    #include "../kernel/kernel.thm".
+    #include "fpc-thms.thm".
+
+If necessary, we adjust the `..` "placeholders" to point to the absolute or
+relative path to the main checker directory. Once done, we turn our attention to
+certificate design.
+
+Considering the structure of the Abella proof of `plustotal`, there is the
+common induction pattern:
+
+    induction on n. intros. case Hn.
+
+We can achieve a similar result by application of the obvious induction, which
+includes the case analysis that derives as many goals as the predicate has
+clauses: two in the case of `plus`, the *zero case* and the *successor case*.
+(If necessary, to accommodate the greedy nature of induction certificates, we
+would reorder the hypotheses so that `Hn` becomes `H1`.) In certificate terms,
+this translates into:
+
+    (induction?
+      (case? 0
+        ...
+        ...
+      )
+    )
+
+Where the two missing pieces are the sub-certificates for each case. Now, we
+consider each resulting goal in turn.
+
+For the *zero case*, we have:
+
+    Variables: M
+    IH : forall N, nat N * -> (forall M, nat M -> (exists S, plus N M S))
+    H2 : nat M
+    ============================
+     exists S, plus z M S
+
+All the script does is apply the `search` tactic. It is easy to see this
+involves focusing on the right for the positive phase, unfolding once on the
+right and applying initial rules. So following our certificate syntax, we get:
+
+    (apply? 0 1 (idx "local") search)
+
+For the *successor case*, we have:
+
+    Variables: M N1
+    IH : forall N, nat N * -> (forall M, nat M -> (exists S, plus N M S))
+    H2 : nat M
+    H3 : nat N1 *
+    ============================
+     exists S, plus (s N1) M S
+
+Whereas in Abella we need to appeal to the induction hypothesis explicitly, it
+becomes a natural consequence of the asynchronous phase, and we need not deal
+with it explicitly in the certificate. After doing this, we arrive at this
+state:
+
+    Variables: M N1
+    IH : forall N, nat N * -> (forall M, nat M -> (exists S, plus N M S))
+    H2 : nat M
+    H3 : nat N1 *
+    H4 : forall M, nat M -> (exists S, plus N1 M S)
+    ============================
+     exists S, plus (s N1) M S
+
+Note that at this point we have a collection of "atoms" and negative formulas
+on the left, and a positive goal on the right: if nothing is done to the atoms,
+they will be frozen, never to be touched again, and we will have reached the end
+of the negative phase. The proof script instructs to operate on `H4` using other
+hypotheses for assumptions. Thus, as explained, fixed points will be frozen and
+the bipole will transition to the positive phase. Thus, we have one bipole:
+
+    (apply? 0 0 (idx "local") ...)
+
+After release, we will begin a new bipole:
+
+    Variables: M N1 S
+    IH : forall N, nat N * -> (forall M, nat M -> (exists S, plus N M S))
+    H2 : nat M
+    H3 : nat N1 *
+    H4 : forall M, nat M -> (exists S, plus N1 M S)
+    H5 : plus N1 M S
+    ============================
+     exists S, plus (s N1) M S
+
+As before, the `search` tactic concludes the goal, and with it the proof:
+
+    (apply? 0 1 (idx "local") search)
+
+And so we arrive at the final certificate:
+
+    (induction?
+      (case? 0
+        (apply? 0 1 (idx "local") search)
+        (apply? 0 0 (idx "local") (apply? 0 1 (idx "local") search))
+      )
+    )
+
+We could include this information in the Abella file making use of the `ship`
+tactic. Either way, once done we can load the assembled system in Bedwyr and let
+the checker verify the theorem with the certificate:
+
+    bedwyr fpc-test.thm
+
 Contributing
 ------------
 
