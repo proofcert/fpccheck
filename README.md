@@ -1,10 +1,11 @@
 FPCcheck
 ========
 
-A prototype checker that uses foundational proof certificates (FPCs) to guide
-proof search. It accepts intuitionistic specifications written as logic
-programs. Internally, it uses a focused sequent calculus for the logic of
-choice.
+A prototype checker that uses foundational proof certificates (FPCs) to define
+small outline proofs of lemmas that require simple inductions and previously 
+proved lemma.  These definitions are given as intuitionistic specifications written 
+as logic programs using least fixed point definitions. A focused sequent calculus 
+is used to structure the search used in the proof checker.
 
 Installation
 ------------
@@ -105,14 +106,14 @@ certificates (cf. ??? for further information).
 1. Simple certificates: proofs as bounded-depth search.
   * `(induction B A S A S)`: induct greedily once, and attempt to find a proof
     with a maximum depth of `B` bipoles, plus initial rules at the end. Each
-    bipole may unfold `A` times during each asynchronous phase, and `S` times
-    during each synchronous phase.
+    bipole may contain `A` instances of the unfold inference rule during each 
+    asynchronous phase, and `S` occurrences during each synchronous phase.
   * `(apply B A S A S)`: attempt to find a proof with a maximum depth of `B`
     bipoles, plus initial rules at the end. Each bipole may unfold `A` times
     during each asynchronous phase, and `S` times during each synchronous phase.
 
 2. Nested certificates: proofs as trees of operations.
-  * `(induction? C)`: induct greedily and using certificate `C`. Currently, it
+  * `(induction? C)`: induct greedily and continue using certificate `C`. Currently, it
     can only be used as the root of a tree.
   * `(case? A C1 C2)`: perform asynchronous case analysis greedily (left or)
     after at most `A` (asynchronous) unfoldings. Continue along each branch
