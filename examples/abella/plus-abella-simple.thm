@@ -11,20 +11,20 @@ Define plus : nat -> nat -> nat -> prop by
 	plus (succ M) N (succ K) := plus M N K.
 
 Theorem plus_zero : forall N, is_nat N -> plus N zero N.
-skip. % (induction 1 0 1 0 1).
+ship "(induction 1 0 1 0 1)".
 
 Theorem plus_succ : forall K M N, plus K M N -> plus K (succ M) (succ N).
-skip. % (induction 1 0 1 0 1)
+ship "(induction 1 0 1 0 1)".
 
 Theorem plus_comm : forall X Y Z, plus X Y Z -> is_nat Z -> plus Y X Z.
-skip. % (induction 2 1 0 1 0)
+ship "(induction 2 1 0 1 0)".
 
 Theorem plus_total : forall X Y, is_nat X -> exists Z, plus X Y Z.
-skip. % (induction 1 0 1 0 1)
+ship "(induction 1 0 1 0 1)".
 
 Theorem plus_det : forall A B C D, plus A B C -> plus A B D -> C = D.
-skip. % (induction 1 1 0 1 0)
+ship "(induction 1 1 0 1 0)".
 
 Theorem plus_assoc : forall A B C AB ABC, plus A B AB -> plus AB C ABC ->
 	exists BC, plus B C BC /\ plus A BC ABC.
-skip. % (induction 1 1 1 1 1)
+ship "(induction 1 1 1 1 1)".
