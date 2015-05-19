@@ -12,7 +12,8 @@ Installation
 
 Dependencies:
 
-* Bedwyr 1.4-beta1 or newer (will be bumped up presently).
+* [Bedwyr](http://slimmer.gforge.inria.fr/bedwyr/) 1.4-beta1 or newer (will be
+  bumped up presently).
 
 The checker is meant to be instantiated and loaded on top of the Bedwyr runtime,
 and thus requires no dedicated installation procedure.
@@ -51,7 +52,7 @@ means of simple FPCs.
 
 Dependencies:
 
-* Abella 2.0.3-fpc
+* [Abella 2.0.3-fpc](https://github.com/robblanco/abella/tree/fpc-translation)
 
 The first thing you need is a file with the contents of an Abella session:
 declarations, definitions and theorems. Proofs are currently ignored and can be
