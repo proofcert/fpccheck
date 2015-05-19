@@ -464,18 +464,18 @@ Define coindClerkNames' : cert -> (i -> cert) -> prop by
 
 Define ffClerk : cert -> prop by
 	ffClerk Cert
-	:= println "ffClerk" %DEBUG
+%	:= println "ffClerk" %DEBUG
 	.
 
 Define ttClerk : cert -> cert -> prop by
 	ttClerk Cert Cert
-	:= println "ttClerk" %DEBUG
+%	:= println "ttClerk" %DEBUG
 	.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert' :=
 		andClerkNames Cert Cert'
-		/\ println "andClerk" /\ print_cert Cert' %DEBUG
+%		/\ println "andClerk" /\ print_cert Cert' %DEBUG
 		.
 
 % The good, the bad and the ugly (all in one)
@@ -483,19 +483,19 @@ Define orClerk : cert -> cert -> cert -> prop by
 	orClerk Cert CertL CertR :=
 		orClerkCert  Cert CertL' CertR' /\
 		orClerkNames Cert CertL' CertR' CertL CertR
-		/\ println "orClerk" /\ print_cert CertL /\ print_cert CertR %DEBUG
+%		/\ println "orClerk" /\ print_cert CertL /\ print_cert CertR %DEBUG
 		.
 
 Define impClerk : cert -> cert -> prop by
 	impClerk Cert Cert' :=
 		impClerkNames Cert Cert'
-		/\ println "impClerk" /\ print_cert Cert' %DEBUG
+%		/\ println "impClerk" /\ print_cert Cert' %DEBUG
 		.
 
 Define eqClerk : cert -> cert -> prop by
 	eqClerk Cert Cert' :=
 		eqClerkNames Cert Cert'
-		/\ println "eqClerk" /\ print_cert Cert' %DEBUG
+%		/\ println "eqClerk" /\ print_cert Cert' %DEBUG
 		.
 
 %---------------------------------%
@@ -504,13 +504,13 @@ Define eqClerk : cert -> cert -> prop by
 
 Define ttExpert : cert -> prop by
 	ttExpert Cert
-	:= println "ttExpert" %DEBUG
+%	:= println "ttExpert" %DEBUG
 	.
 
 Define andExpert : cert -> cert -> cert -> prop by
 	andExpert Cert CertL CertR :=
 		andExpertNames Cert CertL CertR
-		/\ println "andExpert" /\ print_cert CertL /\ print_cert CertR %DEBUG
+%		/\ println "andExpert" /\ print_cert CertL /\ print_cert CertR %DEBUG
 		.
 
 % Assuming that in a fixed point the base cases are given first, we prioritize
@@ -518,10 +518,10 @@ Define andExpert : cert -> cert -> cert -> prop by
 % this fails, on the right.
 Define orExpert : cert -> cert -> choice -> prop by
 	orExpert Cert Cert left 
-	:= println "orExpert left" /\ print_cert Cert %DEBUG
+%	:= println "orExpert left" /\ print_cert Cert %DEBUG
 	;
 	orExpert Cert Cert right
-	:= println "orExpert right" /\ print_cert Cert %DEBUG
+%	:= println "orExpert right" /\ print_cert Cert %DEBUG
 	.
 
 % "Standard-order" implication is forbidden
@@ -534,14 +534,14 @@ Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 Define impExpert' : cert -> cert -> cert -> prop by
 	impExpert' Cert CertL CertR :=
 		impExpertNames' Cert CertL CertR
-		/\ println "impExpert'" /\ print_cert Cert %DEBUG
+%		/\ println "impExpert'" /\ print_cert Cert %DEBUG
 		.
 
 %NOTE It is tempting to restrict this to initial certificates, but this doesn't
 % match our general model.
 Define eqExpert : cert -> prop by
 	eqExpert Cert
-	:= println "eqExpert" /\ print_cert Cert %DEBUG
+%	:= println "eqExpert" /\ print_cert Cert %DEBUG
 	.
 
 %-------------%
@@ -551,23 +551,23 @@ Define eqExpert : cert -> prop by
 % Clerks: new eigenvariables
 Define allClerk : cert -> (i -> cert) -> prop by
 	allClerk Cert (_\ Cert)
-	:= println "allClerk" /\ print_cert Cert %DEBUG
+%	:= println "allClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define someClerk : cert -> (i -> cert) -> prop by
 	someClerk Cert (_\ Cert)
-	:= println "someClerk" /\ print_cert Cert %DEBUG
+%	:= println "someClerk" /\ print_cert Cert %DEBUG
 	.
 
 % Experts: new logic variables ("holes" in the proof)
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
-	:= println "allExpert" /\ print_cert Cert %DEBUG
+%	:= println "allExpert" /\ print_cert Cert %DEBUG
 	.
 
 Define someExpert : cert -> cert -> i -> prop by
 	someExpert Cert Cert _
-	:= println "someExpert" /\ print_cert Cert %DEBUG
+%	:= println "someExpert" /\ print_cert Cert %DEBUG
 	.
 
 %-------------------------%
@@ -582,7 +582,7 @@ Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk Cert Cert' Cert'' S :=
 		Cert = (inductionS _ S _ _ _) /\
 		indClerkNames Cert Cert' Cert''
-		/\ println "indClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
+%		/\ println "indClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
 		.
 
 % A simplified scheme for immediate induction
@@ -595,7 +595,7 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' Cert Cert' :=
 		Cert = (induction _ _ _) /\
 		indClerkNames' Cert Cert'
-		/\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
+%		/\ println "indClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
 		.
 
 %TODO Sharing the certificate with induction is kind of looking for trouble. We
@@ -604,10 +604,8 @@ Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk Cert Cert' Cert'' S :=
 		println "Try coind" /\ %DEBUG
 		Cert = (inductionS _ S _ _ _) /\
-		println "Pattern matching ok" /\ %DEBUG
 		coindClerkNames Cert Cert' Cert''
-		/\ println "coindClerkNames ok" %DEBUG
-		/\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
+%		/\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
 		.
 
 %TODO Reset Next?
@@ -616,7 +614,7 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 		println "Try coind'" /\ %DEBUG
 		Cert = (induction _ _ _) /\
 		coindClerkNames' Cert Cert'
-		/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
+%		/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
 		.
 
 %----------------------%
@@ -628,7 +626,7 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 Define unfoldLClerk : cert -> cert -> prop by
 	unfoldLClerk Cert Cert' :=
 		decrementUnfoldL Cert Cert'
-		/\ println "unfoldLClerk" /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldLClerk" /\ print_cert Cert' %DEBUG
 		.
 
 % On the right, we expect purely positive, terminating computation (but bounds
@@ -637,7 +635,7 @@ Define unfoldLClerk : cert -> cert -> prop by
 Define unfoldRExpert : cert -> cert -> prop by
 	unfoldRExpert Cert Cert' :=
 		decrementUnfoldR Cert Cert'
-		/\ println "unfoldRExpert" /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldRExpert" /\ print_cert Cert' %DEBUG
 		.
 
 % Greatest fixed points
@@ -646,7 +644,7 @@ Define unfoldRExpert : cert -> cert -> prop by
 Define unfoldLExpert : cert -> cert -> prop by
 	unfoldLExpert Cert Cert' :=
 		decrementUnfoldL Cert Cert'
-		/\ println "unfoldLExpert" /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldLExpert" /\ print_cert Cert' %DEBUG
 		.
 
 Define unfoldRClerk : cert -> cert -> prop by unfoldRClerk _ _ := false.
@@ -668,7 +666,7 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 	freezeLClerk Cert Cert' (idx2 x (name Name)) := (
 		popDelta Cert (name Name) Cert' \/
 		popDelta Cert (guess (name Name)) Cert' )
-		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
+%		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
 		.
 
 %NOTE Rather quick and dirty in spirit. Restricted to no splits in naming
@@ -677,11 +675,11 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 Define initRExpert : cert -> idx -> prop by
 	initRExpert Cert (idx2 x (name Name)) :=
 		getControl Cert (ctrl _ (names _ (name Name)))
-		/\ println "initRExpert with name" /\ print_cert Cert /\ println Name %DEBUG
+%		/\ println "initRExpert with name" /\ print_cert Cert /\ println Name %DEBUG
 		;
 	initRExpert Cert (idx2 x (name Name)) :=
 		getControl Cert (ctrl _ (names _ (guess (name Name))))
-		/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
+%		/\ println "initRExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
 		.
 
 % Greatest fixed points replicate the conventions initially developed for least
@@ -696,7 +694,7 @@ Define freezeRClerk : cert -> cert -> prop by
 		Cert = (search _)            \/
 		Cert = (case _ _ _)      \/
 		Cert = (apply _ _ _ _) )
-		/\ println "freezeRClerk" /\ print_cert Cert
+%		/\ println "freezeRClerk" /\ print_cert Cert %DEBUG
 		.
 
 %NOTE Do I ever need to return an index? If not, simplify the interface.
@@ -705,11 +703,11 @@ Define freezeRClerk : cert -> cert -> prop by
 Define initLExpert : cert -> idx -> prop by
 	initLExpert Cert _ :=
 		getControl Cert (ctrl _ (names ((name Name)         :: _) (name Name)))
-		/\ println "initLExpert with name" /\ print_cert Cert /\ println Name %DEBUG
+%		/\ println "initLExpert with name" /\ print_cert Cert /\ println Name %DEBUG
 		;
 	initLExpert Cert _ :=
 		getControl Cert (ctrl _ (names ((guess (name Name)) :: _) (name Name)))
-		/\ println "initLExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
+%		/\ println "initLExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
 		.
 
 %------------------%
@@ -722,7 +720,7 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 	storeLClerk Cert Cert' (idx2 Next Names) :=
 		returnAndIncrementNext Cert Cert'' Next /\
 		popDelta Cert'' Names Cert'
-		/\ print "storeLClerk" /\ println Next /\ print_cert Cert' %DEBUG
+%		/\ print "storeLClerk" /\ println Next /\ print_cert Cert' %DEBUG
 		.
 
 % Local decide, on an arbitrary stored index (in order of storage). Costlier
@@ -733,7 +731,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		resetUnfoldR Cert'' Cert''' /\
 		resetLast Cert''' Cert'''' /\
 		pushDelta Cert'''' Names Cert'
-		/\ print "decideLClerk" /\ println Last /\ print_cert Cert' %DEBUG
+%		/\ print "decideLClerk" /\ println Last /\ print_cert Cert' %DEBUG
 		;
 	decideLClerk Cert Cert' (idx2 Last Names) :=
 		returnAndIncrementLast Cert Cert'' _ /\
@@ -745,25 +743,25 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 		Cert = (apply _ (name Idx) Names Cert'') /\
 		bequest Cert Cert'' Cert''' /\
 		pushDelta Cert''' Names Cert'
-		/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert' %DEBUG
+%		/\ print "decideLClerk'" /\ println Idx /\ print_cert Cert' %DEBUG
 		.
 
 % No restrictions on store/decide on the right (exactly one formula)
 Define storeRClerk : cert -> cert -> prop by
 	storeRClerk Cert Cert
-	:= println "storeRClerk" /\ print_cert Cert %DEBUG
+%	:= println "storeRClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define decideRClerk : cert -> cert -> prop by
 	decideRClerk Cert Cert' :=
 		resetUnfoldR Cert Cert'
-		/\ println "decideRClerk" /\ print_cert Cert' %DEBUG
+%		/\ println "decideRClerk" /\ print_cert Cert' %DEBUG
 		.
 
 Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert' :=
 		decrementDepth Cert Cert'
-		/\ println "releaseLExpert" /\ print_cert Cert' %DEBUG
+%		/\ println "releaseLExpert" /\ print_cert Cert' %DEBUG
 		.
 
 %NOTE This could conceivably re-use Depth, but it is probably messier and we
@@ -771,5 +769,5 @@ Define releaseLExpert : cert -> cert -> prop by
 Define releaseRExpert : cert -> cert -> prop by
 	releaseRExpert Cert Cert' :=
 		decrementRRelease Cert Cert'
-		/\ println "releaseRExpert" /\ print_cert Cert' %DEBUG
+%		/\ println "releaseRExpert" /\ print_cert Cert' %DEBUG
 		.

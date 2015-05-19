@@ -173,17 +173,17 @@ Define isNotPair : cert -> prop by
 
 Define ffClerk : cert -> prop by
 	ffClerk Cert
-	:= println "ffClerk" /\ print_cert Cert %DEBUG
+%	:= println "ffClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define ttClerk : cert -> cert -> prop by
 	ttClerk Cert Cert
-	:= println "ttClerk" /\ print_cert Cert %DEBUG
+%	:= println "ttClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define andClerk : cert -> cert -> prop by
 	andClerk Cert Cert
-	:= println "andClerk" /\ print_cert Cert %DEBUG
+%	:= println "andClerk" /\ print_cert Cert %DEBUG
 	.
 
 % Be careful with apply? and induction (does the latter make sense?)
@@ -192,7 +192,7 @@ Define andClerk : cert -> cert -> prop by
 Define orClerk : cert -> cert -> cert -> prop by
 	orClerk Cert Cert Cert :=
 		isSimpleCase Cert
-		/\ println "orClerk simple case" /\ print_cert Cert %DEBUG
+%		/\ println "orClerk simple case" /\ print_cert Cert %DEBUG
 		;
 	orClerk (case? _ CertL CertR) CertL CertR
 	:= println "orClerk case?" /\ print_cert CertL /\ print_cert CertR %DEBUG
@@ -200,22 +200,22 @@ Define orClerk : cert -> cert -> cert -> prop by
 	orClerk (apply# N AU SU AC SC (btbranch IdxL IdxR))
 	        (apply# N AU SU AC SC IdxL)
 	        (apply# N AU SU AC SC IdxR)
-	:= println "orClerk apply#" %DEBUG
+%	:= println "orClerk apply#" %DEBUG
 	;
 	orClerk (pair# Cert1 Cert2) (pair# CertL1 CertL2) (pair# CertR1 CertR2) :=
 		orClerk Cert1 CertL1 CertR1 /\
 		orClerk Cert2 CertL2 CertR2
-		/\ println "orClerk pair#" %DEBUG
+%		/\ println "orClerk pair#" %DEBUG
 	.
 
 Define impClerk : cert -> cert -> prop by
 	impClerk Cert Cert
-	:= println "impClerk" /\ print_cert Cert %DEBUG
+%	:= println "impClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define eqClerk : cert -> cert -> prop by
 	eqClerk Cert Cert
-	:= println "eqClerk" /\ print_cert Cert %DEBUG
+%	:= println "eqClerk" /\ print_cert Cert %DEBUG
 	.
 
 %---------------------------------%
@@ -224,32 +224,32 @@ Define eqClerk : cert -> cert -> prop by
 
 Define ttExpert : cert -> prop by
 	ttExpert Cert
-	:= println "ttExpert" /\ print_cert Cert %DEBUG
+%	:= println "ttExpert" /\ print_cert Cert %DEBUG
 	.
 
 Define andExpert : cert -> cert -> cert -> prop by
 	andExpert Cert Cert Cert
-	:= println "andExpert" /\ print_cert Cert %DEBUG
+%	:= println "andExpert" /\ print_cert Cert %DEBUG
 	.
 
 Define orExpert : cert -> cert -> choice -> prop by
 	orExpert Cert Cert left 
-	:= println "orExpert left" /\ print_cert Cert %DEBUG
+%	:= println "orExpert left" /\ print_cert Cert %DEBUG
 	;
 	orExpert Cert Cert right
-	:= println "orExpert right" /\ print_cert Cert %DEBUG
+%	:= println "orExpert right" /\ print_cert Cert %DEBUG
 	.
 
 Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
 
 Define impExpert' : cert -> cert -> cert -> prop by
 	impExpert' Cert Cert Cert
-	:= println "impExpert'" /\ print_cert Cert %DEBUG
+%	:= println "impExpert'" /\ print_cert Cert %DEBUG
 	.
 
 Define eqExpert : cert -> prop by
 	eqExpert Cert
-	:= println "eqExpert" /\ print_cert Cert %DEBUG
+%	:= println "eqExpert" /\ print_cert Cert %DEBUG
 	.
 
 %-------------%
@@ -259,33 +259,33 @@ Define eqExpert : cert -> prop by
 Define allClerk : cert -> (i -> cert) -> prop by
 	allClerk Cert (_\ Cert) :=
 		isNotPair Cert
-		/\ println "allClerk" /\ print_cert Cert %DEBUG
+%		/\ println "allClerk" /\ print_cert Cert %DEBUG
 		;
 	allClerk (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
 		allClerk Cert1 Cert1' /\
 		allClerk Cert2 Cert2'
-		/\ println "allClerk pair#" %DEBUG
+%		/\ println "allClerk pair#" %DEBUG
 		.
 
 Define someClerk : cert -> (i -> cert) -> prop by
 	someClerk Cert (_\ Cert) :=
 		isNotPair Cert
-		/\ println "someClerk" /\ print_cert Cert %DEBUG
+%		/\ println "someClerk" /\ print_cert Cert %DEBUG
 		;
 	someClerk (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
 		someClerk Cert1 Cert1' /\
 		someClerk Cert2 Cert2'
-		/\ println "someClerk pair#" %DEBUG
+%		/\ println "someClerk pair#" %DEBUG
 		.
 
 Define allExpert : cert -> cert -> i -> prop by
 	allExpert Cert Cert _
-	:= println "allExpert" /\ print_cert Cert %DEBUG
+%	:= println "allExpert" /\ print_cert Cert %DEBUG
 	.
 
 Define someExpert : cert -> cert -> i -> prop by
 	someExpert Cert Cert _
-	:= println "someExpert" /\ print_cert Cert %DEBUG
+%	:= println "someExpert" /\ print_cert Cert %DEBUG
 	.
 
 %-------------------------%
@@ -297,18 +297,18 @@ Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
-	:= println "indClerk' induction" %DEBUG
+%	:= println "indClerk' induction" %DEBUG
 	;
 	indClerk' (induction? Cert) (_\ Cert)
-	:= println "indClerk' induction?" %DEBUG
+%	:= println "indClerk' induction?" %DEBUG
 	;
 	indClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
-	:= println "indClerk' induction#" %DEBUG
+%	:= println "indClerk' induction#" %DEBUG
 	;
 	indClerk' (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
 		indClerk' Cert1 Cert1' /\
 		indClerk' Cert2 Cert2'
-		/\ println "indClerk' pair#" %DEBUG
+%		/\ println "indClerk' pair#" %DEBUG
 		.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
@@ -316,18 +316,18 @@ Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 
 Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
-	:= println "coindClerk' induction" %DEBUG
+%	:= println "coindClerk' induction" %DEBUG
 	;
 	coindClerk' (induction? Cert) (_\ Cert)
-	:= println "coindClerk' induction?" %DEBUG
+%	:= println "coindClerk' induction?" %DEBUG
 	;
 	coindClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
-	:= println "coindClerk' induction#" %DEBUG
+%	:= println "coindClerk' induction#" %DEBUG
 	;
 	coindClerk' (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
 		coindClerk' Cert1 Cert1' /\
 		coindClerk' Cert2 Cert2'
-		/\ println "coindClerk' pair#" %DEBUG
+%		/\ println "coindClerk' pair#" %DEBUG
 		.
 
 %----------------------%
@@ -337,25 +337,25 @@ Define coindClerk' : cert -> (i -> cert) -> prop by
 Define unfoldLClerk : cert -> cert -> prop by
 	unfoldLClerk Cert Cert' :=
 		unfoldAsync Cert Cert'
-		/\ println "unfoldLClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldLClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 Define unfoldRExpert : cert -> cert -> prop by
 	unfoldRExpert Cert Cert' :=
 		unfoldSync Cert Cert'
-		/\ println "unfoldRExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldRExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 Define unfoldLExpert : cert -> cert -> prop by
 	unfoldLExpert Cert Cert' :=
 		unfoldSync Cert Cert'
-		/\ println "unfoldLExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldLExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 Define unfoldRClerk : cert -> cert -> prop by
 	unfoldRClerk Cert Cert' :=
 		unfoldAsync Cert Cert'
-		/\ println "unfoldRClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+%		/\ println "unfoldRClerk" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 %----------------------------------%
@@ -365,39 +365,39 @@ Define unfoldRClerk : cert -> cert -> prop by
 Define freezeLClerk : cert -> cert -> idx -> prop by
 	freezeLClerk Cert Cert (idx "atom") :=
 		isNotPair Cert
-		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
+%		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
 		;
 	freezeLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
 		freezeLClerk Cert1 Cert1' Idx1 /\
 		freezeLClerk Cert2 Cert2' Idx2
-		/\ println "freezeLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+%		/\ println "freezeLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
 		.
 
 Define initRExpert : cert -> idx -> prop by
 	initRExpert Cert (idx "atom") :=
 		isNotPair Cert
-		/\ println "initRExpert" /\ print_cert Cert %DEBUG
+%		/\ println "initRExpert" /\ print_cert Cert %DEBUG
 		;
 	initRExpert (pair# Cert1 Cert2) (idx2 Idx1 Idx2) :=
 		initRExpert Cert1 Idx1 /\
 		initRExpert Cert2 Idx2
-		/\ println "initRExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+%		/\ println "initRExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
 		.
 
 Define freezeRClerk : cert -> cert -> prop by
 	freezeRClerk Cert Cert
-	:= println "freezeLClerk" /\ print_cert Cert %DEBUG
+%	:= println "freezeLClerk" /\ print_cert Cert %DEBUG
 	.
 
 Define initLExpert : cert -> idx -> prop by
 	initLExpert Cert _ :=
 		isNotPair Cert
-		/\ println "initLExpert" /\ print_cert Cert %DEBUG
+%		/\ println "initLExpert" /\ print_cert Cert %DEBUG
 		;
 	initLExpert (pair# Cert1 Cert2) (idx2 Idx1 Idx2) :=
 		initLExpert Cert1 Idx1 /\
 		initLExpert Cert2 Idx2
-		/\ println "initLExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+%		/\ println "initLExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
 		.
 
 %------------------%
@@ -407,33 +407,33 @@ Define initLExpert : cert -> idx -> prop by
 Define storeLClerk : cert -> cert -> idx -> prop by
 	storeLClerk Cert Cert (idx "local") :=
 		isNotPair Cert
-		/\ println "storeLClerk" /\ print_cert Cert %DEBUG
+%		/\ println "storeLClerk" /\ print_cert Cert %DEBUG
 		;
 	storeLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
 		storeLClerk Cert1 Cert1' Idx1 /\
 		storeLClerk Cert2 Cert2' Idx2
-		/\ println "storeLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+%		/\ println "storeLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
 		.
 
 %TODO Return singleton index?
 Define decideLClerk : cert -> cert -> idx -> prop by
 	decideLClerk Cert Cert (idx "local") :=
 		Cert = (apply _ _ _ _ _)
-		/\ println "decideLClerk apply" /\ print_cert Cert %DEBUG
+%		/\ println "decideLClerk apply" /\ print_cert Cert %DEBUG
 		;
 	decideLClerk Cert Cert Idx :=
 		Cert = (apply? _ _ Idx _)
-		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
+%		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
 		;
 	decideLClerk (apply# N AU SU AC SC (btlocal (idx "local") Idx))
 	             (apply# N AU SU AC SC Idx)
 	             (idx "local")
-	:= println "decideLClerk apply#" %DEBUG
+%	:= println "decideLClerk apply#" %DEBUG
 	;
 	decideLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
 		decideLClerk Cert1 Cert1' Idx1 /\
 		decideLClerk Cert2 Cert2' Idx2
-		/\ print "decideLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+%		/\ print "decideLClerk pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
 		.
 
 %TODO What to return? Or let the kernel fill the gaps
@@ -443,24 +443,24 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 Define decideLClerk' : cert -> cert -> idx -> prop by
 	decideLClerk' Cert Cert Idx :=
 		Cert = (apply _ _ _ _ _)
-		/\ print "decideLClerk' apply" /\ println Idx /\ print_cert Cert %DEBUG
+%		/\ print "decideLClerk' apply" /\ println Idx /\ print_cert Cert %DEBUG
 		;
 	decideLClerk' Cert Cert Idx :=
 		Cert = (apply? _ _ Idx _)
-		/\ print "decideLClerk' apply?" /\ println Idx /\ print_cert Cert %DEBUG
+%		/\ print "decideLClerk' apply?" /\ println Idx /\ print_cert Cert %DEBUG
 		;
 	decideLClerk' (apply# N AU SU AC SC (btlemma Idx Idx')) (apply# N AU SU AC SC Idx') Idx
-	:= println "decideLClerk' apply#"
+%	:= println "decideLClerk' apply#" %DEBUG
 	;
 	decideLClerk' (pair# Cert1 Cert2) (pair# Cert1' Cert2') Idx :=
 		decideLClerk' Cert1 Cert1' Idx /\
 		decideLClerk' Cert2 Cert2' Idx
-		/\ print "decideLClerk' pair#" /\ println Idx %DEBUG
+%		/\ print "decideLClerk' pair#" /\ println Idx %DEBUG
 		.
 
 Define storeRClerk : cert -> cert -> prop by
 	storeRClerk Cert Cert
-	:= println "storeRClerk" /\ print_cert Cert %DEBUG
+%	:= println "storeRClerk" /\ print_cert Cert %DEBUG
 	.
 
 % 'apply' makes sense here in the sense that we want to finish in N bipoles or
@@ -480,26 +480,26 @@ Define decideRClerk : cert -> cert -> prop by
 		Cert = (apply _ _ _ _ _) \/
 		Cert = (apply? _ _ _ _) \/
 		Cert = search )
-		/\ println "decideRClerk" /\ print_cert Cert %DEBUG
+%		/\ println "decideRClerk" /\ print_cert Cert %DEBUG
 		;
 	decideRClerk (apply# N AU SU AC SC (btlocal (idx "local") Idx))
 	             (apply# N AU SU AC SC Idx)
-	:= println "decideRClerk apply#" %DEBUG
+%	:= println "decideRClerk apply#" %DEBUG
 	;
 	decideRClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') :=
 		decideRClerk Cert1 Cert1' /\
 		decideRClerk Cert2 Cert2'
-		/\ println "decideRClerk" %DEBUG
+%		/\ println "decideRClerk" %DEBUG
 		.
 
 Define releaseLExpert : cert -> cert -> prop by
 	releaseLExpert Cert Cert' :=
 		endBipole Cert Cert'
-		/\ println "releaseLExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+%		/\ println "releaseLExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.
 
 Define releaseRExpert : cert -> cert -> prop by
 	releaseRExpert Cert Cert' :=
 		endBipole Cert Cert'
-		/\ println "releaseRExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
+%		/\ println "releaseRExpert" /\ print_cert Cert /\ print_cert Cert' %DEBUG
 		.

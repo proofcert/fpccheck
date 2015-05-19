@@ -339,7 +339,7 @@ async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk' Xi Xi' Idx /\
 	member (lemma Idx C) Lambda /\
-	print "Lemma" /\ println Idx /\ %DEBUG
+%	print "Lemma" /\ println Idx /\ %DEBUG
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma C G := exists Xi',
@@ -364,32 +364,32 @@ syncR Debug Lambda Xi Sigma Phi Gamma G := exists Xi',
 % lines and leave all else unaltered.
 
 spy_async (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
-%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-%	printstr "**  async  *********************************************************************\n" /\
-%	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
-%	printstr "  Φ: " /\ print_list_ctx  Phi   /\ printstr "\n" /\
-%	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
-%	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\
-%	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
+%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
+%	printstr "**  async  *********************************************************************\n" /\ %DEBUG
+%	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Φ: " /\ print_list_ctx  Phi   /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\                                    %DEBUG
 	spy_noheader (async (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
 spy_syncL (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
-%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-%	printstr "**  syncL  *********************************************************************\n" /\
-%	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\
-%	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\
-%	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\
-%	printstr "  Δ: " /\ print_bool     Delta /\ printstr "\n" /\
-%	printstr "  Ω: " /\ print_goal     Goal  /\ printstr "\n" /\
+%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
+%	printstr "**  syncL  *********************************************************************\n" /\ %DEBUG
+%	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Δ: " /\ print_bool     Delta /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Ω: " /\ print_goal     Goal  /\ printstr "\n" /\                                     %DEBUG
 	spy_noheader (syncL (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
 spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
-%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-%	printstr "**  syncR  *********************************************************************\n" /\
-%	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\
-%	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\
-%	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\
-%	printstr "  Ω: " /\ print_bool     Goal  /\ printstr "\n" /\
+%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
+%	printstr "**  syncR  *********************************************************************\n" /\ %DEBUG
+%	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Ω: " /\ print_bool     Goal  /\ printstr "\n" /\                                     %DEBUG
 	spy_noheader (syncR (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Goal).
 
 %%%%%%%%%%%%%%%
