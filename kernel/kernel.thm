@@ -400,9 +400,11 @@ spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 
 Define prove : cert -> bool -> prop by
 	prove Cert Form :=
-		async (debug (s z)) nil Cert nil nil nil nil (unk Form).
+		unmarshal Cert Cert' /\
+		async (debug (s z)) nil Cert' nil nil nil nil (unk Form).
 
 % Hacky but fast for now
 Define prove_with_lemmas : cert -> bool -> list lemma -> prop by
 	prove_with_lemmas Cert Form Lemmas :=
-		async (debug (s z)) Lemmas Cert nil nil nil nil (unk Form).
+		unmarshal Cert Cert' /\
+		async (debug (s z)) Lemmas Cert' nil nil nil nil (unk Form).

@@ -19,6 +19,8 @@ Type   idx      numidx -> boolidx -> idx.
 % support all cases.
 Define print_idx : numidx -> prop by print_idx I := print I.
 
+Define unmarshal : cert -> cert -> prop by unmarshal Cert Cert.
+
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
 %%%%%%%%%%%%%%%%%%%%%%

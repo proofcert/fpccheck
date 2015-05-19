@@ -11,6 +11,9 @@ Kind   idx           type.
 % Nested indexing for fixed points in a formula [is this its place?]
 Kind   boolidx       type.
 
+% From human-readable to machine-usable certificates
+%unmarshal   cert -> cert -> prop
+
 % A signature of clerks and experts (can we enforce it?)
 % No polymorphism here, at least yet
 

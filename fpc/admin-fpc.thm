@@ -162,6 +162,14 @@ Type   apply        ctrl -> boolidx -> boolidx -> cert         -> cert.
 
 #include "debug-admin-fpc.thm".
 
+%%%%%%%%%%%%%%%%%
+% Unmarshalling %
+%%%%%%%%%%%%%%%%%
+
+% Nothing to do here
+Define unmarshal : cert -> cert -> prop by
+	unmarshal Cert Cert.
+
 %%%%%%%%%%%%%%%%%%%%%
 % Helper predicates %
 %%%%%%%%%%%%%%%%%%%%%
