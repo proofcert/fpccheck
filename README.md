@@ -188,13 +188,13 @@ certificate design.
 Considering the structure of the Abella proof of `plustotal`, there is the
 common induction pattern:
 
-    induction on n. intros. case Hn.
+    induction on #. intros. case H#.
 
 We can achieve a similar result by application of the obvious induction, which
 includes the case analysis that derives as many goals as the predicate has
 clauses: two in the case of `plus`, the *zero case* and the *successor case*.
 (If necessary, to accommodate the greedy nature of induction certificates, we
-would reorder the hypotheses so that `Hn` becomes `H1`.) In certificate terms,
+would reorder the hypotheses so that `H#` becomes `H1`.) In certificate terms,
 this translates into:
 
     (induction?
@@ -277,10 +277,43 @@ And so we arrive at the final certificate:
     )
 
 We could include this information in the Abella file making use of the `ship`
-tactic. Either way, once done we can load the assembled system in Bedwyr and let
-the checker verify the theorem with the certificate:
+tactic, with the only proviso that double quotes should be encoded as single
+quotes within the `.thm` file. The theorem would be stated thus:
+
+    Theorem plustotal :
+      forall N, nat N -> forall M, nat M -> exists S, plus N M S.
+    ship "
+      (induction?
+        (case? 0
+          (apply? 0 1 (idx 'local') search)
+          (apply? 0 0 (idx 'local') (apply? 0 1 (idx 'local') search))
+        )
+      )
+    ".
+
+The resulting harness file `fpc-test.thm` will contain proof harnesses for each
+theorem with a shipped certificate. Those proved or skipped within Abella will
+present commented placeholders, but the translation will assume that trust in
+their correctness lies elsewhere. In this way, we can verify all shipped
+theorems without further action on our part:
+
+    bedwyr -t -I fpc-test.thm
+
+Note that full trust in the certificate requires that a certificate be supplied
+and verified for every single theorem. Otherwise, correctness on the whole would
+be proved subject to the correctness of the elided proofs.
+
+Certificates can be written or rewritten directly on the `fpc-test.thm` file. In
+this case, double quotes are written normally. Furthermore, there is no need to
+fix everything prior to execution. Rather, we can load the system interactively:
 
     bedwyr fpc-test.thm
+
+Within the session, we can attempt to prove a theorem invoking its proof
+predicate (the theorem name concatenated with the suffix `__proof__`) and
+supplying a certificate. For example:
+
+    plustotal__proof__ (induction 1 0 1 0 1).
 
 Contributing
 ------------
