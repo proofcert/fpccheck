@@ -1,0 +1,56 @@
+Kind nat type.
+Type zero nat.
+Type succ nat -> nat.
+
+Define is_nat : nat -> prop by
+	is_nat zero ;
+	is_nat (succ N) := is_nat N.
+
+Define plus : nat -> nat -> nat -> prop by
+	plus zero N N ;
+	plus (succ M) N (succ K) := plus M N K.
+
+Define times : nat -> nat -> nat -> prop by
+	times zero N zero ;
+	times (succ M) N K := exists K', times M N K' /\ plus K' N K.
+
+% Addition lemmas
+
+Theorem plus_total : forall X Y, is_nat X -> exists Z, plus X Y Z.
+skip.
+
+Theorem plus_det : forall A B C D, plus A B C -> plus A B D -> C = D.
+skip.
+
+Theorem augend_nat : forall A B C, plus A B C -> is_nat C -> is_nat A.
+skip.
+
+Theorem times_succ : forall M N MN,
+	times M N MN -> is_nat M -> is_nat N -> is_nat MN ->
+	exists K, is_nat K /\ plus MN M K /\ times M (succ N) K.
+skip.
+
+% Multiplication theorems
+
+Theorem times_zero : forall N, is_nat N -> times N zero zero.
+ship "(pair# (induction 2 0 2 0 2) (induction# 2 0 2 0 2 Idx))".
+
+Theorem times_total : forall A B, is_nat A -> exists C, times A B C /\ is_nat C.
+skip.
+
+Theorem times_det : forall A B C D, times A B C -> times A B D -> C = D.
+ship "(pair# (induction 2 1 0 1 0) (induction# 2 1 0 1 0 Idx))".
+
+Theorem times_comm : forall M N K,
+	times M N K -> is_nat M -> is_nat N -> is_nat K ->
+	times N M K.
+ship "
+	(induction? (case? 0
+		(apply? 0 0 (idx 'times_zero')
+		search)
+		(apply? 1 0 (idx 'augend_nat')
+		(apply? 0 0 (idx 'local')
+		(apply? 0 0 (idx 'times_succ')
+		(apply? 0 0 (idx 'plus_det')
+		search))))))
+".
