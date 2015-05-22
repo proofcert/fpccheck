@@ -79,7 +79,7 @@ The integrated translator in the background generates a collection of files in
 the working directory, currently named as follows:
 
 * `fpc-decl.thm`: declarations and definitions encoded for the checker.
-* `fpc-sign.thm`: signature based on fpc-decl.thm for internal use.
+* `fpc-sign.thm`: signature based on `fpc-decl.thm` for internal use.
 * `fpc-thms.thm`: for each theorem, an encoding for the checker and a verifier
   that takes a certificate and uses it to try to prove the theorem.
 * `fpc-test.thm`: instantiation of the checker and proof assertions for all
@@ -87,11 +87,11 @@ the working directory, currently named as follows:
 
 If the working directory is a direct subfolder of the checker, all its
 components will be found and assembled. If necessary, correct the paths at the
-top of fpc-test.thm to point to the actual location of the checker (i.e., all
+top of `fpc-test.thm` to point to the actual location of the checker (i.e., all
 those outside the set of files just mentioned).
 
-The harness file fpc-test.thm furnishes default certificates that should be able
-to prove many relatively simple results. To run the checker, use:
+The harness file `fpc-test.thm` furnishes default certificates that should be
+able to prove many relatively simple results. To run the checker, use:
 
     bedwyr -t -I fpc-test.thm
 
@@ -523,7 +523,7 @@ The rest of the proof is as the first bipole in the branch: there is nothing to
 do except make a decision on the conclusion of the lemma, picking hypotheses for
 its assumptions during the synchronous phase. At the end, we obtain a negative
 formula that closes the bipole and coincides with the desired conclusion, so
-`search` concludes the branch and proof.
+`search` concludes both branch and proof.
 
     (apply? 0 0 (idx "local") search)
 
@@ -538,7 +538,61 @@ Here is the certificate for the full proof:
 
 ### From simple certificates to simple proofs
 
-...
+Simple certificates can be easier to arrive at and are certainly shorter. The
+trade-off is less information and longer verification times spent in search of
+the critical pieces of information left out of the proof outline.
+
+Suppose now that by whichever dark arts we concoct the following block
+certificate for `pluscom`:
+
+    (induction 3 2 0 2 0)
+
+From our previous efforts we can easily infer that this expresses a sufficiently
+wide search space to prove the theorem, provided that the necessary lemmas are
+available. But we do not need this to be the case, and it is often a reasonable
+guess that a good library of lemmas will allow many results to be proven by such
+basic certificates.
+
+A more interesting question is how to go from a general, blind certificate to
+a specific, guided one, closer to the proof reconstruction than the proof search
+end of the spectrum, and in most cases substantially faster to check. In the
+certificate constructors considered so far, there are two important kinds of
+information: bounds and decisions. The latter both constrain the former and are
+in general far more difficult to fiddle with. They constitute the skeleton of a
+proof, and we will focus on them in this part.
+
+The simple FPC template defines two additional families of constructors of
+interest.
+
+1. `(induction# B A S A S D)` and `(apply# B A S A S D)`: decorated counterparts
+   of the block certificates with an additional parameter `D` representing the
+   tree of decisions that are made throughout the proof.
+2. `(pair# C1 C2)`: a certificate pair that takes two certificates `C1` and
+   `C2` and uses them in tandem during checking.
+
+One important idea behind certificate pairs is that they can be used to
+implement _certificate elaboration_: checking one, fully defined certificate,
+and using the reconstructed proof to produce a second, refined certificate, with
+additional or different information.
+
+In particular, we would like to retrieve the tree of decisions from the block
+certificate `(induction 3 2 0 2 0)` in order to speed up subsequent checking of
+the theorem. To this end, we can pair it with its decorated counterpart, where
+the decision tree is unknown:
+
+    (pair# (induction 3 2 0 2 0) (induction# 3 2 0 2 0 D))
+
+If we attempt to check this certificate, and in the absence of contradicting
+information, the first half must lead to the same proof as before. The second
+half, proceeding in lockstep, will collect the tree of decisions and output it
+upon success. We can use this to build a more detailed certificate like the one
+we obtained constructively from the Abella proof script above. Slightly more
+sophisticated marshalling will let the checker move from the decision tree to
+the nested certificate by itself.
+
+It should be noted that Bedwyr as runtime is not optimized for speed, and for
+deep proofs detailed certificates currently have a very clear advantage over
+simple ones.
 
 Contributing
 ------------
@@ -546,7 +600,7 @@ Contributing
 Drop a line or get hacking!
 
 How to know if you've broken something? Bedwyr support for debugging and unit
-testing is primitive, so things can get interesting. The file `debug.thm`
+testing is rudimentary, so things can get interesting. The file `debug.thm`
 implements the conventional debugging predicates and (generous) traces can be
 obtained uncommenting lines ended with the `%DEBUG` marker in `.thm` files.
 
