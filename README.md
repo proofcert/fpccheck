@@ -48,7 +48,13 @@ Tutorial
 --------
 
 Here we use the checker to certify results from the Abella proof assistant by
-means of simple FPCs.
+means of simple FPCs. A basic familiarity with its workflow is assumed, but can
+easily be gained if needed by referring to the first sections of this primer:
+
+> [*Abella: a system for reasoning about relational specifications*]
+> (http://jfr.unibo.it/article/view/4650)
+> by David Baelde *et al.*
+> in Journal of Formalized Reasoning, vol. 7, no. 2, pp. 1-89 (2014)
 
 Dependencies:
 
@@ -102,7 +108,8 @@ After the definition of the original Abella file, the main user task would be
 the production and refinement of certificates for each failing assertion until
 all theorems are checked by their respective certificates. The translation makes
 use of a simple FPC template that admits the following main types of
-certificates (cf. ??? for further information).
+certificates (cf. the [FPC documentation](fpc/README.md) for further
+information).
 
 1. Simple certificates: proofs as bounded-depth search.
   * `(induction B A S A S)`: induct greedily once, and attempt to find a proof
@@ -184,6 +191,8 @@ declarations:
 If necessary, we adjust the `..` "placeholders" to point to the absolute or
 relative path to the main checker directory. Once done, we turn our attention to
 certificate design.
+
+### From proof to certificate
 
 Considering the structure of the Abella proof of `plustotal`, there is the
 common induction pattern:
@@ -315,7 +324,232 @@ supplying a certificate. For example:
 
     plustotal__proof__ (induction 1 0 1 0 1).
 
+### Adding lemmas
+
+Let us now extend our session file with a proof of the commutativity of
+addition, which employs lemmas for the sub-proofs of the *zero case* and the
+*successor case* that will result from a proof by induction of the main result:
+
+    Theorem plus0com : forall N, nat N ->  plus N z N.
+    induction on 1. intros. case H1.
+      search.
+      apply IH to H2. search.
+
+    Theorem plusscom : forall M, nat M -> forall N, nat N ->
+                       forall P, plus M N P -> plus M (s N) (s P).
+    induction on 1. intros. case H1.
+      case H3. search.
+      case H3. apply IH to H4. apply H6 to H2. apply H7 to H5. search.
+
+    Theorem pluscom : forall N, nat N -> forall M, nat M ->
+                      forall S, plus N M S -> plus M N S.
+    induction on 1. intros. case H1.
+      case H3. apply plus0com to H2. search.
+      case H3. apply IH to H4. apply H6 to H2. apply H7 to H5.
+        apply plusscom to H2. apply H9 to H4. apply H10 to H8. search.
+
+We will focus on the main result, `pluscom`; the two lemmas will make for easy
+practice after the explanation.
+
+First of all, an important technical point that has some bearing on the
+transition from Abella proofs to certificates: if you step throughout the proof
+in Abella, you will notice that the *successor case* opens with the following
+sequent:
+
+    Variables: M S N1
+    IH : forall N, nat N * ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H2 : nat M
+    H3 : plus (s N1) M S
+    H4 : nat N1 *
+    ============================
+     plus M (s N1) S
+
+Here, the annotations match `N1` in `H4` with the natural number `N` upon which
+we are inducing. The successor case shows up in `H3`, which is the subject of
+the first step in the case: a natural, determinate unfolding. Critically, later
+on we will appeal to `H4` directly to move forth with the proof, but the
+induction rule of our sequent calculus **consumes** the fixed point it is
+applied to: it appears unfolded, but not directly, in the resulting sequent. If
+the proof relies on its presence, minor adjustments may be needed, as will be
+seen shortly.
+
+For now, let us duplicate the inductive assumption so that it will be present in
+both systems (improvements in the translation procedure will enable automation
+of this process easily). Thus, we will prove the following variant of the
+theorem instead:
+
+    Theorem pluscom : forall N, nat N -> nat N -> forall M, nat M ->
+                      forall S, plus N M S -> plus M N S.
+    induction on 1. intros. case H1.
+      case H4. apply plus0com to H3. search.
+      case H2. case H4. apply IH to H5 H6. apply H8 to H3. apply H9 to H7.
+        apply plusscom to H3. apply H11 to H5. apply H12 to H10. search.
+
+After the usual induction scheme and associated certificate, we commence with
+the *zero case* for the first of two missing branches:
+
+    Variables: M S
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H2 : nat z
+    H3 : nat M
+    H4 : plus z M S
+    ============================
+     plus M z S
+
+Still in the asynchronous phase, we detect a clear unfolding candidate in `H4`,
+and add it to the resources our certificate will need. Then we get to:
+
+    Variables: S
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H2 : nat z
+    H3 : nat S
+    ============================
+     plus S z S
+
+Among our hypotheses, we have everything we need to invoke the previous lemma
+`plus0com` to derive the desired conclusion, so everything is frozen and a
+"global decision" is made to move to the synchronous phase. At the end, we will
+have the conclusion among our premises. Therefore, the partial certificate is:
+
+    (apply? 1 0 (idx "plus0com") ...)
+
+And the resulting sequent:
+
+    Variables: S
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H2 : nat z
+    H3 : nat S
+    H5 : plus S z S
+    ============================
+     plus S z S
+
+So we simply close with `search` (also in the certificate) and move on to the
+*successor case*:
+
+    Variables: M S N1
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H2 : nat (s N1)
+    H3 : nat M
+    H4 : plus (s N1) M S
+    H5 : nat N1 *
+    ============================
+     plus M (s N1) S
+
+Here we see two obvious candidates for deterministic case analysis, i.e.,
+asynchronous unfolding. Interestingly, one of those is the still unfolded form
+of the inductive hypothesis, and the point of junction with our aforementioned
+adjustments. We also let the proof proceed with the appeal to `IH`, as explained
+before, and arrive at:
+
+    Variables: M N1 P
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H3 : nat M
+    H5 : nat N1 *
+    H6 : nat N1
+    H7 : plus N1 M P
+    H8 : forall M, nat M -> (forall S, plus N1 M S -> plus M N1 S)
+    ============================
+     plus M (s N1) (s P)
+
+At this point, the synchronous phase must follow. The proof script instructs to
+select the implication `H8` (a local decide) picking one of the hypotheses to
+satisfy the left branch, giving value to the free variable in the process and
+producing `H9`:
+
+    Variables: M N1 P
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H3 : nat M
+    H5 : nat N1 *
+    H6 : nat N1
+    H7 : plus N1 M P
+    H8 : forall M, nat M -> (forall S, plus N1 M S -> plus M N1 S)
+    H9 : forall S, plus N1 M S -> plus M N1 S
+    ============================
+     plus M (s N1) (s P)
+
+Still in the synchronous phase and focused on the resulting formula `H9`, we
+find another implication, which we treat analogously yielding:
+
+    Variables: M N1 P
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H3 : nat M
+    H5 : nat N1 *
+    H6 : nat N1
+    H7 : plus N1 M P
+    H8 : forall M, nat M -> (forall S, plus N1 M S -> plus M N1 S)
+    H9 : forall S, plus N1 M S -> plus M N1 S
+    H10 : plus M N1 P
+    ============================
+     plus M (s N1) (s P)
+
+The product is a least fixed point, which by virtue of its polarity ends the
+synchronous phase. So we ended the bipole with a local decision and two
+asynchronous unfoldings, which betokens the certificate:
+
+    (apply? 2 0 (idx "local") ...)
+
+Now we can apply the successor lemma. This constitutes a shallow bipole: simply
+decide on the lemma, choose the right hypotheses, and release with the new
+conclusion hypothesis:
+
+Variables: M N1 P
+IH : forall N, nat N * -> nat N ->
+       (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+H3 : nat M
+H5 : nat N1 *
+H6 : nat N1
+H7 : plus N1 M P
+H8 : forall M, nat M -> (forall S, plus N1 M S -> plus M N1 S)
+H9 : forall S, plus N1 M S -> plus M N1 S
+H10 : plus M N1 P
+H11 : forall N, nat N -> (forall P, plus M N P -> plus M (s N) (s P))
+============================
+ plus M (s N1) (s P)
+
+The certificate is likewise simple, filling part of the gap left by the previous
+bipole and leaving room for a bit more of the proof:
+
+    (apply? 0 0 (idx "plusscom") ...)
+
+The rest of the proof is as the first bipole in the branch: there is nothing to
+do except make a decision on the conclusion of the lemma, picking hypotheses for
+its assumptions during the synchronous phase. At the end, we obtain a negative
+formula that closes the bipole and coincides with the desired conclusion, so
+`search` concludes the branch and proof.
+
+    (apply? 0 0 (idx "local") search)
+
+Here is the certificate for the full proof:
+
+    (induction?
+      (case? 0
+        (apply? 1 0 (idx "plus0com") search)
+        (apply? 2 0 (idx "local") (apply? 0 0 (idx "plusscom") (apply? 0 0 (idx "local") search)))
+      )
+    )
+
+### From simple certificates to simple proofs
+
+...
+
 Contributing
 ------------
 
 Drop a line or get hacking!
+
+How to know if you've broken something? Bedwyr support for debugging and unit
+testing is primitive, so things can get interesting. The file `debug.thm`
+implements the conventional debugging predicates and (generous) traces can be
+obtained uncommenting lines ended with the `%DEBUG` marker in `.thm` files.
+
+The current best shot at a test battery is the collection of harness files and
+Abella sessions available in the `examples` folder. These can be thought of (and
+run as) integration tests for the system.
