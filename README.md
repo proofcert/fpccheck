@@ -500,19 +500,19 @@ Now we can apply the successor lemma. This constitutes a shallow bipole: simply
 decide on the lemma, choose the right hypotheses, and release with the new
 conclusion hypothesis:
 
-Variables: M N1 P
-IH : forall N, nat N * -> nat N ->
-       (forall M, nat M -> (forall S, plus N M S -> plus M N S))
-H3 : nat M
-H5 : nat N1 *
-H6 : nat N1
-H7 : plus N1 M P
-H8 : forall M, nat M -> (forall S, plus N1 M S -> plus M N1 S)
-H9 : forall S, plus N1 M S -> plus M N1 S
-H10 : plus M N1 P
-H11 : forall N, nat N -> (forall P, plus M N P -> plus M (s N) (s P))
-============================
- plus M (s N1) (s P)
+    Variables: M N1 P
+    IH : forall N, nat N * -> nat N ->
+           (forall M, nat M -> (forall S, plus N M S -> plus M N S))
+    H3 : nat M
+    H5 : nat N1 *
+    H6 : nat N1
+    H7 : plus N1 M P
+    H8 : forall M, nat M -> (forall S, plus N1 M S -> plus M N1 S)
+    H9 : forall S, plus N1 M S -> plus M N1 S
+    H10 : plus M N1 P
+    H11 : forall N, nat N -> (forall P, plus M N P -> plus M (s N) (s P))
+    ============================
+     plus M (s N1) (s P)
 
 The certificate is likewise simple, filling part of the gap left by the previous
 bipole and leaving room for a bit more of the proof:
