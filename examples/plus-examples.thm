@@ -58,7 +58,7 @@ Define addend_nat_f : bool -> prop by
 
 Define addend_nat : cert -> prop by
 	addend_nat Cert :=
-		augend_nat_f AddendNat /\ prove Cert AddendNat.
+		addend_nat_f AddendNat /\ prove Cert AddendNat.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Constructive permutations %
