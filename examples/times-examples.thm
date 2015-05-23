@@ -42,7 +42,6 @@ Define times_total : cert -> prop by
 		times Times /\ is_nat IsNat /\
 		is_total Cert Times IsNat.
 
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>%
 % Revisiting and adding necessary assumptions through a revised totality
 Define times_total' : cert -> prop by
 	times_total' Cert :=
@@ -51,7 +50,6 @@ Define times_total' : cert -> prop by
 		total' Times IsNat TimesTotal /\
 		prove_with_lemmas Cert TimesTotal
 			((lemma (idx "plus_total") PlusTotal) :: nil).
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<%
 
 Define times_det : cert -> prop by
 	times_det Cert :=

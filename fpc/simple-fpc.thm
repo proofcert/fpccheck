@@ -33,14 +33,15 @@ Kind   numidx   type.
 Type   z        numidx.
 Type   s        numidx -> numidx.
 
+% Indexes (names) and index pairs
 Type   idx    string -> idx.
 Type   idx2   idx -> idx -> idx.
 
 % Binare trees of indexes
-Kind   bt             type.
-Type   btinit           bt.
+Kind   bt                 type.
+Type   btinit             bt.
 Type   btlemma, btlocal   idx -> bt -> bt.
-Type   btbranch         bt -> bt -> bt.
+Type   btbranch           bt -> bt -> bt.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Certificate constructors %
@@ -87,7 +88,6 @@ Type   apply?       nat -> nat -> idx  -> cert -> cert.
 % scheme seems straightforward in my mind. (For now, however, I'm keeping the
 % auxiliary members of pair#, which "should" be pretty much innocuous...)
 Type   pair#        cert -> cert -> cert.
-%Type   pair#        cert -> cert -> nat -> nat -> idx -> cert.
 Type   induction#   nat -> nat -> nat -> nat -> nat -> bt -> cert.
 Type   apply#       nat -> nat -> nat -> nat -> nat -> bt -> cert.
 
@@ -125,14 +125,16 @@ Define unfoldAsync : cert -> cert -> prop by
 	unfoldAsync (apply N AU SU AC SC) (apply N AU SU AC' SC) := dec AC AC' ;
 	unfoldAsync (apply? AC SC I C) (apply? AC' SC I C) := dec AC AC' ;
 	unfoldAsync (case? AC CL CR) (case? AC' CL CR) := dec AC AC' ;
-	unfoldAsync (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx)) (pair# (apply N AU SU AC' SC) (apply# N AU SU AC' SC Idx)) := dec AC AC'.
-%	unfoldAsync (pair# C1 C2 AC SC I) (pair# C1 C2 AC' SC I) := inc AC AC'.
+	unfoldAsync (pair# (apply N AU SU AC  SC) (apply# N AU SU AC  SC Idx))
+	            (pair# (apply N AU SU AC' SC) (apply# N AU SU AC' SC Idx)) :=
+		dec AC AC'.
 
 Define unfoldSync : cert -> cert -> prop by
 	unfoldSync (apply N AU SU AC SC) (apply N AU SU AC SC') := dec SC SC' ;
 	unfoldSync (apply? AC SC I C) (apply? AC SC' I C) := dec SC SC' ;
-	unfoldSync (pair# (apply N AU SU AC SC) (apply# N AU SU AC SC Idx)) (pair# (apply N AU SU AC SC') (apply# N AU SU AC SC' Idx)) := dec SC SC'.
-%	unfoldSync (pair# C1 C2 AC SC I) (pair# C1 C2 AC SC' I) := inc SC SC'.
+	unfoldSync (pair# (apply N AU SU AC SC ) (apply# N AU SU AC SC  Idx))
+	           (pair# (apply N AU SU AC SC') (apply# N AU SU AC SC' Idx)) :=
+		dec SC SC'.
 
 % Currently, we are assuming that init rules don't close certificates entirely,
 % but as we get mixed results, e.g. unexhausted bipole depths, this may well be
@@ -142,7 +144,8 @@ Define endBipole : cert -> cert -> prop by
 	endBipole (apply 0 _  _  _ _) search ;
 	endBipole (apply? _ _ _ C) C ;
 	endBipole (pair# (apply N  AU SU _  _ ) (apply# N  AU SU _  _  Idx))
-	          (pair# (apply N' AU SU AU SU) (apply# N' AU SU AU SU Idx)) := dec N N' ;
+	          (pair# (apply N' AU SU AU SU) (apply# N' AU SU AU SU Idx)) :=
+		dec N N' ;
 	endBipole (pair# (apply 0 _ _ _ _) (apply# 0 _ _ _ _ Idx))
 	          (pair# search search).
 

@@ -44,7 +44,6 @@ Define augend_nat_f : bool -> prop by
 			(IsNat (C ++ argv))
 			(IsNat (A ++ argv)))).
 
-%TODO Cert missing!
 Define augend_nat : cert -> prop by
 	augend_nat Cert :=
 		augend_nat_f AugendNat /\ prove Cert AugendNat.
@@ -57,7 +56,6 @@ Define addend_nat_f : bool -> prop by
 			(IsNat (C ++ argv))
 			(IsNat (B ++ argv)))).
 
-%TODO Cert missing!
 Define addend_nat : cert -> prop by
 	addend_nat Cert :=
 		augend_nat_f AddendNat /\ prove Cert AddendNat.
@@ -79,12 +77,12 @@ Define plus_assoc_rl_f : bool -> prop by
 
 Define plus_assoc_rl : cert -> prop by
 	plus_assoc_rl Cert :=
-		%
+		% Core formulas
 		plus Plus /\ is_nat IsNat /\
-		%
+		% Lemmas
 		addend_nat_f AddendNat /\
 		commutative Plus IsNat PlusComm /\ associative Plus PlusAssoc /\
-		%
+		% Theorem
 		plus_assoc_rl_f PlusAssocRL /\
 		prove_with_lemmas Cert PlusAssocRL (
 			(lemma (idx "addend_nat") AddendNat) ::

@@ -25,7 +25,6 @@
 			(apply      (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))) (name "plus_det") (name "X")
 				(search (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X"))))))).
 
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % What if I don't know which lemma to pick?
 #assert times_det
 	(induction          (ctrl (limits    z  z z    z  z z z z z) (names nil (name "X"))) (name "X")
@@ -33,7 +32,6 @@
 			(search     (ctrl (limits    z  z z (s z) z z z z z) (names nil (name "X"))))
 			(apply      (ctrl (limits (s z) z z (s z) z z z z z) (names nil (name "X"))) (name Lemma) (name "X")
 				(search (ctrl (limits (s z) z z    z  z z z z z) (names nil (name "X"))))))).
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #assert times_comm
 	(induction          (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "X")
@@ -45,8 +43,9 @@
 			(apply      (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (names nil (name "X"))) (name "plus_det"  ) (name "X")
 				(search (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z) (names nil (name "X"))))))))).
 
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% What if I don't know which lemma to pick? (note the combination of buckets and lemma uncertainty can be costly indeed)... this one in particular needs to be checked just in case, but I think everything works
+% What if I don't know which lemma to pick? (note the combination of buckets and
+% lemma uncertainty can be costly indeed)... this one in particular needs to be
+% checked just in case, but everything should work just fine.
 #assert times_comm
 	(induction          (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X"))) (name "X")
 		(dummy\ case    (ctrl (limits       z   z z    z  z z z             z     z) (names nil (name "X")))
@@ -56,7 +55,6 @@
 			(apply      (ctrl (limits (s (s z)) z z    z  z z z       (s (s z))   z) (names nil (name "X"))) (name Lemma1       ) (name "X")
 			(apply      (ctrl (limits    (s z)  z z    z  z z z    (s (s (s z)))  z) (names nil (name "X"))) (name Lemma2      ) (name "X")
 				(search (ctrl (limits    (s z)  z z    z  z z z (s (s (s (s z)))) z) (names nil (name "X"))))))))).
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 % Whenever we enter a lemma, we will need to escape it, and its continuation
 % needs to open one new bipole at least (and hopefully just one).
@@ -67,4 +65,3 @@
 
 % Needs something else to work
 %#assert times_succ
-%	...

@@ -75,22 +75,6 @@
 		)
 	).
 
-%#assert plus_comm Plus _
-%	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-%		(dummy\ guideOr (ctrl (limits z z z z z z z z z) (names nil (name "X")))
-%			% plus_zero
-%			(autoinduce
-%				(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
-%				(name "X")
-%				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
-%			% plus_succ
-%			(autoinduce
-%				(ctrl (limits (s (s z)) z z (s z) z z z z z) (names nil (name "X")))
-%				(name "X")
-%				(dummy\ start (ctrl (limits (s z) z z z z (s z) z z z) (names nil (name "X")))))
-%		)
-%	).
-
 #assert plus_total Plus
 	(inductionS
 		(ctrl (limits (s z) z z z z z z z z) (names nil (name "X")))
@@ -145,8 +129,8 @@
 		)
 	).
 
-%% Warning: plenty of backtracking on this one! (due to choice)
-%% (To reconstruct, simply supply blind naming structures)
+% Ur-proof of right-to-left associativity, with plenty of backtracking (to
+% reconstruct, simply supply blind naming structures).
 %#assert plus_assoc_rl
 %	(guideLemma (ctrl    z  z z z z z z                      z       )    (s z)
 %	(guideLemma (ctrl (s z) z z z z z z                   (s z)      )       z
@@ -158,11 +142,11 @@
 %	(start      (ctrl (s z) z z z z z z (s (s (s (s (s (s (s z))))))))
 %	)))))))).
 
-%% [Old!] There is a special start case where I initialize everything and may possibly supply a simpler certificate, set up initial stuff, etc.
-%% Also note: careful use of these renders most formula optimizations (order of specificity, etc.) moot
-% Need a better empty form for names, something that avoids backtracking trouble!
-%(names nil (split (name "H1") (split (name "H2") (split (name "H3") (name "G"))))) I need to split the goal too
-% goals can be specified or left to search, as well
+%  - Careful use of naming structures renders most formula optimizations moot
+%    (e.g., order of specificity, etc.)
+%  - A good empty form for names avoids backtracking trouble
+%  - The goal needs to be split, too
+%  - Goals can be specified or left to search, as well
 #assert plus_assoc_rl
 	(apply  (ctrl (limits    z  z z z z z z                      z        z)
 		(names nil (split (name "H1") (split (name "H2") (split (name "H3") (split (name G1) (name G2)))))))
@@ -189,8 +173,9 @@
 	(search (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z))))))) z) (names nil (name "X")))
 	)))))))).
 
-%>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% Leaving holes that are more or less "well-defined" works and yields results... the challenge is in predicting the structure of the lemma that will be picked, or not restricting it
+% Leaving holes that are more or less "well-defined" works and yields results...
+% the challenge is in predicting the structure of the lemma that will be picked,
+% or not restricting it.
 #assert plus_assoc_rl
 	(apply  (ctrl (limits    z  z z z z z z                      z        z)
 		(names nil (split (name "H1") (split (name "H2") (split (name "H3") (split (name G1) (name G2)))))))
@@ -211,12 +196,8 @@
 	(apply  (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
 		(name Lemma1)
 		(guess Guess1)                                                                                 % nat BC1
-%	(apply  (ctrl (limits (s z) z z z z z z       (s (s (s (s (s z)))))   z) (names nil (name "X")))
-%		(name "addend_nat")
-%		(split (name "H8") (split (name "H3") (name "H10")))                                           % nat BC1
 	(apply  (ctrl (limits (s z) z z z z z z    (s (s (s (s (s (s z))))))  z) (names nil (name "X")))
 		(name Lemma2)
 		(guess Guess2)                                                                                 % plus A B BC1
 	(search (ctrl (limits (s z) z z z z z z (s (s (s (s (s (s (s z))))))) z) (names nil (name "X")))
 	)))))))).
-%<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
