@@ -129,6 +129,14 @@
 		)
 	).
 
+#assert addend_nat
+	(induction       (ctrl (limits    z  z z    z  z    z  z z z) (names nil (name "X"))) (name "X")
+		(dummy\ case (ctrl (limits    z  z z    z  z    z  z z z) (names nil (name "X")))
+			(search  (ctrl (limits    z  z z    z  z (s z) z z z) (names nil (name "X"))))
+			(search  (ctrl (limits (s z) z z (s z) z (s z) z z z) (names nil (name "X"))))
+		)
+	).
+
 % Ur-proof of right-to-left associativity, with plenty of backtracking (to
 % reconstruct, simply supply blind naming structures).
 %#assert plus_assoc_rl

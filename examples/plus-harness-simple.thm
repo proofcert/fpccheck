@@ -26,6 +26,9 @@
 #assert augend_nat (induction 1 1 1 1 1).
 #assert augend_nat (pair# (induction 1 1 1 1 1) (induction# 1 1 1 1 1 Idx)).
 
+#assert addend_nat (induction 1 1 1 1 1).
+#assert addend_nat (pair# (induction 1 1 1 1 1) (induction# 1 1 1 1 1 Idx)).
+
 #assert plus_assoc_rl
 	(apply? 0 0 (idx "plus_comm")
 	(apply? 0 0 (idx "addend_nat")
