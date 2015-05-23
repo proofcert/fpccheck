@@ -191,7 +191,6 @@ Define andClerk : cert -> cert -> prop by
 
 % Be careful with apply? and induction (does the latter make sense?)
 % Ensure proper case splitting
-%TODO Substract consumed allowances!
 Define orClerk : cert -> cert -> cert -> prop by
 	orClerk Cert Cert Cert :=
 		isSimpleCase Cert
