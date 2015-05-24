@@ -100,14 +100,51 @@ inside the index constructor `(idx N)`.
 
 #### Certificate pairs and elaborations
 
-Certificates don't need to live in isolation. They can complement one another.
+Certificates need not to exist in isolation. They can complement one another,
+for example by providing separate pieces of information that together guide
+proof search more effectively. A certificate pair constructor provides the
+basic framework for this development.
 
 * `(pair# C1 C2)`: search for a proof using certificates `C1` and `C2` in
   parallel.
 
-Extension of indexes. (Almost universal)
+Clerks and experts treat certificate pairs simply by decomposing them and
+essentially calling themselves recursively on each half, compounding their
+individual results (e.g., continuation certificates) in result pairs. The
+obvious extension is that index pairs must extend the collection of index
+constructors. These will be used everywhere except to decide on lemmas: these
+are external and unconcerned with the fact that complex indexing schemes are
+being used.
 
-...
+A straightforward application of pairing is certificate elaboration. In a
+simple scenario, two certificates are given: a first full certificate that
+drives proof search and a second certificate, in lockstep with the first and
+missing some pieces of information that will be filled out as the two proceed
+with their exploration of the search space. The second certificate is
+essentially a copy of the first with some extra parameters, unspecified at the
+outset.
+
+If we compare the two previous families of certificates, i.e., atomic blocks and
+decision trees, the most significant difference between them is the absence of
+decisional information in the former. It is clear that any successful proof must
+somehow figure out this information, so we can define variants of the block
+certificates with an additional structure to represent this:
+
+* `(induction# B AU SU AC SC D)`: like `(induction B AU SU AC SC)` with
+  decisions handled as explained next.
+* `(apply# B AU SU AC SC D)`: like `(apply B AU SU AC SC)` with
+  decisions handled as explained next.
+
+In these certificates, `D` is a decision tree that represents all branching
+points (left ors) and decisions with their corresponding indexes.
+
+Now we can take a certificate pair like
+`(pair# (induction B A S A S) (induction# B A S A S D))`
+where only `D` is unknown and proof search will work as if given the block
+certificate on its own. However, the tree of decisions will be recorded in `D`,
+and if proof search succeeds this information will substantially limit the
+amount of searching necessary in any future executions. We may even elaborate it
+into a nested certificate of the second kind.
 
 #### Marshalling
 
