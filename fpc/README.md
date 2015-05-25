@@ -161,7 +161,7 @@ declared:
 
 * Non-obvious induction invariants cannot be supplied.
 
-* Nested induction is unsupported.
+* Nested induction is unsupported (limited by the kernel).
 
 * Coinduction is unsupported.
 
@@ -172,24 +172,293 @@ declared:
   no arithmetic operators are available. Moreover, they can only be implemented
   as operation tables.
 
-  The simple FPC uses decrementation as its sole arithmetic primitive. An
+  The simple FPC uses decrementing as the sole arithmetic primitive. An
   operator predicate is supplied for an interval [0, N] of the natural line and
   should be adjusted (perhaps automatically) if greater bounds are needed. By
   default, N = 20.
 
+### Examples
+
+See the [main README](../README.md) for a guided tutorial.
+
 The administrative FPC
 ----------------------
 
-These certificates (can) provide a significant amount of hand-holding.
+This experimental template errs on the side of detail. The certificates (can)
+provide a significant amount of hand-holding to direct proof search accurately.
+On a high level, it is structurally similar to, and the direct foundation of,
+the simple FPC, with some important differences.
 
-Verbose (and brittle) due to kernel opacity.
+A general-purpose index is defined for storage of formulas. They consist of two
+parts:
+* A *numeric index* encoded as a Peano numeral with an additional don't-care
+  value.
+* A *Boolean index* that labels and describes a formula, as explained below.
 
-Peano numerals.
+For lemmas, the numeric index will be a don't-care value and the Boolean index
+will be a simple name, i.e., that of the lemma. For local formulas, the numeric
+index will be a unique identifier and the Boolean index will hold bookkeeping
+information.
 
-vs. relatively unsupervised simple FPC: consider selection of hypotheses that
-constitutes much of the information of a typical Abella script goes unencoded.
+A general word of warning is due.
+In general terms, the smart things that this certificate allows will tend to be
+rather verbose. This is primarily because the kernel is very opaque and
+disallows all inspection of its internal state. Read-only access would simplify
+matters considerably and add robustness. Lacking these capabilities, the only
+way for clerks and experts to "synchronize" with what the kernel is doing is
+mimic the relevant pathways of its internal state. This is an **ugly hack** at
+best, and very brittle. One may only find solace in the fact that the kernel is
+meant to be extremely stable, but still, a better solution is needed.
+
+The inception of the FPC control structures was informed by the Tac style of
+proof search. This has been subsequently refined, even if some vestigial signs
+remain.
+
+### Certificate constructors
+
+The constructors in this FPC form a single family of tactics, similar although
+more subtle in their interactions than the ones in the simple FPC.
+
+* `(search Ctrl)`: do bounded search limited by `Ctrl`, except induction and
+  global decisions.
+* `(induction Ctrl NamesB Cert)`: do the obvious induction within the
+  constraints given by `Ctrl` and continue search using `Cert`. Use `NamesB` to
+  give names to the parts of the target fixed point as explained below.
+* `(inductionS Ctrl S NamesB NamesS Cert)`: do induction within the
+  constraints given by `Ctrl`. Apply bounded search constrained by `Ctrl` to the
+  *base case*  and continue search using `Cert` for the *inductive case*. Use
+  `S` as invariant and `NamesS` to give names to its parts as explained below.
+  Use `NamesB` to give names to the parts of the target fixed point as explained
+  below.
+* `(case Ctrl CertL CertR)`: do asynchronous case analysis (left or) limited by
+  `Ctrl` and continue using `CertL` and `CertR` for the left and right branch,
+  respectively.
+* `(apply Ctrl Idx Names Cert)`: do bounded search limited by `Ctrl`, using
+  `Idx` for the next global decision. The components of the lemma are named
+  using `Names` as explained below. Continue search using `Cert`.
+
+#### Control structure
+
+All certificates share a common control structure that maintains bounds and
+bookkeeping parameters with which to constrain proof search. There is some
+variability in the way these parameters are used by the FPC, as will be seen.
+The structure has the form:
+
+    `(ctrl Limits Names)`
+
+Here `Names` represents a naming structure that will be the subject of the next
+heading. Now we will devote our attention to the bounds and bookkeeping
+structure `Limits`, which in turn has the following form:
+
+    `(limits D N L UL UR UM LN LL RR)`
+
+All the parameters are numbers represented as Peano numerals. They conform
+several groups, usually distributed in pairs where explicit bookkeeping becomes
+necessary.
+
+* `D` is the depth in number of bipoles that proof search is allowed to inspect.
+  After becoming zero, a release from the positive to the negative phase is no
+  longer possible.
+* `N` and `L` are bookkeeping counters for the local storage of formulas. Each
+  formula to be stored is assigned a unique numeric index given by `L`, which is
+  then incremented. Local decisions pick a number in the [0, `L` - 1] interval
+  iterated by `N`. Both parameters should be initialized to zero.
+  Both are meant to start at zero.
+* `UL` is the maximum number of times that unfolding may be performed on the
+  left for the current certificate.
+* `UR` and `UM` are bookkeeping counters giving the maximum number of times that
+  unfolding may be performed on the right for the current positive-negative
+  phase and after each successive decision, respectively.
+* `LN` and `LL` are internal bookkeeping counters to restrict global decision on
+  lemmas. The current version of the FPC does not make use of them.
+* `RR` is a special permission that allows bipoles to end with a right release
+  rule, otherwise disallowed.
+
+There are some interesting differences when we compare this with the much more
+orthogonal configuration used in the simple FPC. They come from an original
+application to Tac-like proofs involving least fixed points almost exclusively,
+and extended only later to greatest fixed points. The treatment of unfoldings is
+most telling, divided in left and right vs. asynchronous and synchronous. Right
+unfoldings (usually synchronous) are reset on each decision on the assumption
+that they constitute the computational bulk of the lot, whereas left unfoldings
+are conceived as chiefly analytic. The special treatment of release on the
+right, reinforces this vision.
+
+The use of nested certificates, generally necessary to express complex proofs
+efficiently, blurs most of these points, even for the mirrored treatment of
+coinduction and greatest fixed points, which appear to be somewhat more
+involved.
+
+#### Naming structure
+
+Now we turn our attention to the second component of certificate control. It is
+remarkable that an Abella proof script consists of a sequence of decisions, and
+these can be turned into a certificate. In addition to selecting formulas and
+lemmas, an important part of the instructions is the set of hypotheses that are
+used to instantiate the picked formula.
+
+This information is so far absent from our certificates, which means
+backtracking search must be applied to find a right combination of values, if
+one exists. In some cases this will be easy, but in others much time will be
+wasted applying, say, sequences of lemmas that make no sense, or using the wrong
+parameters, leading in the end to complex proof attempts that must be discarded.
+
+Syntactically, a formula can be seen as a tree whose nodes are the logical
+connectives and whose leaves are chosen among the Boolean constants, the fixed
+point operators and the equality operator. Interestingly, unfolding operations
+can expand a fixed point leave into a new subtree.
+
+Given this interpretation, a *naming structure* associated to a formula is
+another tree that replicates the branching structure of the first, at least down
+to each and every one of its fixed points, and gives them names. For example,
+the body of the fixed point for addition:
+
+    (some K\ some M\ some N\ and
+      (eq Args (K ++ M ++ N ++ argv))
+      (or
+        (and
+          (eq K zero)
+          (eq M N)
+        )
+        (some K'\ some N'\ and
+          (and
+            (eq K (succ K'))
+            (eq N (succ N'))
+          )
+          (Pred (K' ++ M ++ N' ++ argv))
+        )
+      )
+    )
+
+May become:
+
+    (split
+      _
+      (split
+        _
+        (split
+          _
+          (name "H1")
+        )
+      )
+    )
+
+Here linear branching (the quantifiers) is omitted from the syntax, and those
+branches, simple or not, that do not contain any fixed points can be given
+arbitrary identifiers because they will never be used to constrain the initial
+rules that result in instantiation of fixed points, when used as atoms.
+
+An additional precision regarding granularity is in order. If a leaf in a naming
+tree covers an entire subformula, all leafs in the formula will be given the
+name of the closest corresponding leaf in the naming structure. In this way it
+is easy to declare "buckets" of formulas that can be selected using a single
+name. For this reason anonymous variables should not be used for "don't-care"
+branches. Instead, some other identifier is necessary.
+
+The essence of naming structures is giving labels to the atoms in a formula so
+that they can be matched with the contents of the context, in particular frozen
+atoms acting as hypotheses. Formulas have no annotations, so these have to be
+provided separately and in parallel. There are a few points when this is
+possible. But first we need to consider how these structures are integrated in
+the certificate constructors.
+
+First we need to consider what the second member of the control structure does.
+We have mentioned that the current implementation of logic formulas is
+unannotated, but we still want to maintain some hypothesis naming information
+for each relevant formula. We have also established that locally stored formulas
+can hold this information in the Boolean half of their indexes, and so there
+remain two parts of the sequent that lack indexing information: the list of
+formulas being processed on the left, and the goal formula on the right. These
+two will be stored in the second member:
+
+    (names Delta Goal)
+
+The trick creates a new requirement for the certificate: it must be aware of the
+ways the kernel moves formulas around the sequent and replicate it exactly in
+this control structure. This is a strong dependency that must be handled
+carefully. By design, soundness is never at risk, though failure to keep track
+of (very unlikely) changes to the kernel would mean the pieces will not fit
+together any more, and hypothesis naming would become unusable. (The predictable
+solution is a slightly more transparent kernel that remains functionally
+sealed.)
+
+The root constructor of a certificate has to match the structure of the theorem
+that is to be proved. If no naming features will be used, the following
+suffices:
+
+    (names nil (name "X"))
+
+Initially, the list of formulas in progress is always empty. Using a single name
+for all stored formulas is effectively the same as not performing any name
+selection whatsoever. On the other hand, consider a theorem of the form:
+
+    A -> B -> C
+
+If we want to identify `A` with hypothesis `"H1"`, `B` with `"H2` and C with the
+goal `"G"`, we may write:
+
+    (names nil (split (name "H1") (split (name "H2") (name "G"))))
+
+Similarly, suppose there is in our collection a lemma of the form:
+
+    D -> E
+
+If our original `A` matches `D`, we may infer `E` from it. We can guide
+selection by a certificate that supplies the name of this lemma and furthermore
+picks the right hypotheses based on the names we gave them. So we would select
+`"H1"` and give a new name to the conclusion, e.g. `"H3"`. We write as follows:
+
+    (split (name "H1") (name "H3"))
+
+The remaining important entry point of naming structures are the induction
+certificates. These will always take a naming structure giving names to the
+unfolding of the fixed point that is being induced upon. This means that we need
+to know what our desired induction is, which given our guided use of induction
+is a reasonable assumption.
+
+For general induction, where the invariant is supplied by the certificate, an
+additional naming structure matching the invariant must be supplied. For the
+kernel to construct the resulting sequent correctly, the naming structure of the
+unfolding **must** indicate which leaf corresponds to the place where the
+invariant will be injected. This is marked by the reserved leaf `(name "S")`.
+
+Finally, consider that nested certificates inherit the state contained in the
+naming structures of their immediate predecessors. Their immediate values are of
+no consequence, as the state that will be passed to them cannot really be
+predicted. In this regard, only the root value is meaningful.
+
+#### Guessing
+
+
+
+#### Marshalling
+
+No marshalled constructors are currently declared, but can be used to hide
+internal bookkeeping and initialization from public certificates while
+preserving the general forms given here. A few running counters have as their
+main function making selection more efficient and keeping some implementation
+details relatively simple in the certificate. Besides that, they are useful for
+debugging purposes.
+
+### Limitations
+
+* Nested induction is unsupported (limited by the kernel).
+
+* Obvious coinduction does not support naming structures fully.
+
+### Examples
+
+
 
 The dummy FPC
 -------------
 
-...
+This certificate doesn't do anything remotely smart. It has a single certificate
+constructor `dummy` and a single index `bucket`. All it does is propagate these
+values whenever needed. It is syntactically correct and will prove some things
+as well as establish obvious bugs in the kernel (given a good way to scaffold
+tests).
+
+It is unconstrained in its treatment of proof reconstruction, which compounded
+with the DFS search strategy used by the current kernel means getting stuck is
+what it's best at, besides inspecting the workings of an unfettered kernel.
