@@ -602,7 +602,7 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 % use it TEMPORARILY as a proof of concept.
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk Cert Cert' Cert'' S :=
-		println "Try coind" /\ %DEBUG
+%		println "Try coind" /\ %DEBUG
 		Cert = (inductionS _ S _ _ _) /\
 		coindClerkNames Cert Cert' Cert''
 %		/\ println "coindClerk (no bequest)" /\ print_cert Cert' /\ forall x, print_cert (Cert'' x) %DEBUG
@@ -611,7 +611,7 @@ Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 %TODO Reset Next?
 Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' Cert Cert' :=
-		println "Try coind'" /\ %DEBUG
+%		println "Try coind'" /\ %DEBUG
 		Cert = (induction _ _ _) /\
 		coindClerkNames' Cert Cert'
 %		/\ println "coindClerk' (no bequest)" /\ forall x, print_cert (Cert' x) %DEBUG
