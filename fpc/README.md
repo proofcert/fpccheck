@@ -159,11 +159,9 @@ declared:
 
 ### Limitations
 
-* Non-obvious induction invariants cannot be supplied.
+* Non-obvious induction and coinduction invariants cannot be supplied.
 
-* Nested induction is unsupported (limited by the kernel).
-
-* Coinduction is unsupported.
+* Nested induction and coinduction are unsupported (limited by the kernel).
 
 * Bound range limitations.
 
@@ -442,7 +440,7 @@ debugging purposes.
 
 ### Limitations
 
-* Nested induction is unsupported (limited by the kernel).
+* Nested induction and coinduction are unsupported (limited by the kernel).
 
 * Obvious coinduction does not support naming structures fully.
 
