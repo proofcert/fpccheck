@@ -14,7 +14,7 @@ in the sense of the proofs that it can find compared to others, in particular
 the administrative FPC.
 
 It indexes stored formulas and lemmas by simple names, i.e., strings. A special
-(but **not** reserved) name `"local"` is used to refer to local formulas if
+(but **not** reserved) name `"local"` is used to refer to local formulas where
 needed.
 
 ### Certificate constructors
@@ -42,9 +42,9 @@ Bounded proof search depends on the following set of parameters:
 
 * After the current negative-positive phase bipole, proof search may
   proceed up to `B` additional bipoles deeper, but no more.
-* During each bipole following the current one, up to `AU` asynchronous
+* For each bipole following the current one, up to `AU` asynchronous
   unfolding operations may be performed during the negative phase.
-* During each bipole following the current one, up to `SU` synchronous
+* For each bipole following the current one, up to `SU` synchronous
   unfolding operations may be performed during the positive phase.
 * For the remainder of the current bipole, up to `AC` asynchronous
   unfolding operations may be performed during the negative phase.
@@ -52,10 +52,10 @@ Bounded proof search depends on the following set of parameters:
   unfolding operations may be performed during the positive phase.
 
 Technically, `AC` and `SC` are decrementing counters initialized to `AU` and
-`SU`, respectively, at the start of each bipole. There aren't many good reasons
-to supply an initial certificate where the initial bipole counters are unequal
-to the general bounds, and in this sense the certificate constructors are
-simple, but a bit verbose.
+`SU`, respectively, at the beginning of each bipole. There aren't many good
+reasons to supply a certificate where the initial bipole counters are unequal to
+the general bounds, and in this sense the certificate constructors are simple,
+but a bit verbose.
 
 In principle,
 any theorem provable by the obvious induction followed by application of known
@@ -64,13 +64,14 @@ values of `B`, `A`, `S`. Even more, any certificate `(induction B' A' S' A' S')`
 with `B'` ≥ `B`, `A'` ≥ `A`, `S'` ≥ `S`, must succeed to prove the theorem as it
 is merely allowed to search strictly more deeply than the first certificate.
 
-This assumes that bounded search implements bounded search correctly in the
-framework of the kernel. Of course, this will not be over quickly (and Bedwyr's
-lack of emphasis on performance doesn't help), but it should be possible to
-prove many simple, tedious results with very little effort.
+This assumes that bounded search is implemented correctly in the framework of
+the kernel. Of course, this will not be over quickly (and Bedwyr's lack of
+emphasis on performance doesn't help here), but it should be possible to prove
+many simple, tedious results with very little effort.
 
 We said "in principle" above because Bedwyr's implementation throws errors upon
-encountering certain unification problems outside the scope of the G logic.
+encountering certain unification problems outside the scope of the G logic. This
+limitation will be removed in the near future.
 
 #### Decision trees
 
@@ -81,12 +82,12 @@ need no explicit bookkeeping.
 * `(induction? C)`: do the obvious induction on the first available fixed point
   and continue the proof using certificate `C`. (Note that freezing is not
   forbidden, so search can be a bit more complex than that, but has not been
-  tested. Induction anywhere other than opening a proof could be troublesome.)
+  tested. Induction anywhere other than opening a proof doesn't work well yet.)
 * `(case? A CL CR)`: in the current negative phase, look for the first left or.
   Apply the asynchronous unfolding operation at most `A` times to get to one
   such connective. To continue proof search, use certificates `CL` and `CR` for
   the left and right branch, respectively.
-* `(apply? A S I C)`: finish the current bipole, and in the remainder perform at
+* `(apply? A S I C)`: finish the current bipole, and until that point perform at
   most `A` asynchronous unfolding operations and `S` synchronous unfolding
   operations. Use index `I` to select a formula for the positive phase. When the
   bipole is closed, use certificate `C` to continue proof search.
@@ -100,9 +101,9 @@ inside the index constructor `(idx N)`.
 
 #### Certificate pairs and elaborations
 
-Certificates need not to exist in isolation. They can complement one another,
-for example by providing separate pieces of information that together guide
-proof search more effectively. A certificate pair constructor provides the
+Certificates do not necessarily exist in isolation. They can complement one
+another, for example by providing separate pieces of information that together
+guide proof search more effectively. A certificate pair constructor provides the
 basic framework for this development.
 
 * `(pair# C1 C2)`: search for a proof using certificates `C1` and `C2` in
@@ -110,11 +111,12 @@ basic framework for this development.
 
 Clerks and experts treat certificate pairs simply by decomposing them and
 essentially calling themselves recursively on each half, compounding their
-individual results (e.g., continuation certificates) in result pairs. The
-obvious extension is that index pairs must extend the collection of index
-constructors. These will be used everywhere except to decide on lemmas: these
-are external and unconcerned with the fact that complex indexing schemes are
-being used.
+individual results (e.g., continuation certificates) in result pairs. An obvious
+consequence is that the collection of index constructors must be extended
+(internally) with an "index pair" constructor. Where certificate pairs are used,
+so will index pairs, everywhere except to decide on lemmas: these are external
+and unconcerned with the fact that complex indexing schemes are being used
+behind the scenes.
 
 A straightforward application of pairing is certificate elaboration. In a
 simple scenario, two certificates are given: a first full certificate that
@@ -182,12 +184,12 @@ See the [main README](../README.md) for a guided tutorial.
 The administrative FPC
 ----------------------
 
-This experimental template errs on the side of detail. The certificates (can)
+This experimental template errs on the side of detail. Its certificates (can)
 provide a significant amount of hand-holding to direct proof search accurately.
 On a high level, it is structurally similar to, and the direct foundation of,
 the simple FPC, with some important differences.
 
-A general-purpose index is defined for storage of formulas. They consist of two
+A general-purpose index is defined for storage of formulas. It consists of two
 parts:
 * A *numeric index* encoded as a Peano numeral with an additional don't-care
   value.
@@ -198,59 +200,61 @@ will be a simple name, i.e., that of the lemma. For local formulas, the numeric
 index will be a unique identifier and the Boolean index will hold bookkeeping
 information.
 
-A general word of warning is due.
-In general terms, the smart things that this certificate allows will tend to be
-rather verbose. This is primarily because the kernel is very opaque and
+A word of caution is due.
+In general, the smart strategies enabled by this certificate will tend to be
+rather verbose. This is primarily because the current kernel is very opaque and
 disallows all inspection of its internal state. Read-only access would simplify
 matters considerably and add robustness. Lacking these capabilities, the only
-way for clerks and experts to "synchronize" with what the kernel is doing is
+way for clerks and experts to "synchronize" with what the kernel is doing is to
 mimic the relevant pathways of its internal state. This is an **ugly hack** at
-best, and very brittle. One may only find solace in the fact that the kernel is
-meant to be extremely stable, but still, a better solution is needed.
+best, and very brittle, even if the kernel is meant to be extremely stable.
+Improvements in this area are planned.
 
 The inception of the FPC control structures was informed by the Tac style of
-proof search. This has been subsequently refined, even if some vestigial signs
-remain.
+proof search, and subsequently refined. These structures are the subject of most
+of the following subsections, and vestigial assumptions will be mentioned where
+appropriate.
 
 ### Certificate constructors
 
-The constructors in this FPC form a single family of tactics, similar although
-more subtle in their interactions than the ones in the simple FPC.
+The constructors in this FPC form a single family of tactics, similar to
+though more subtle in their interactions than the ones in the simple FPC.
 
-* `(search Ctrl)`: do bounded search limited by `Ctrl`, except induction and
+* `(induction Ctrl NamesB Cert)`: do the obvious induction on the first
+  available fixed point, constrained by `Ctrl`, and continue the proof using
+  `Cert`. Use `NamesB` to give names to the components of the fixed point, as
+  explained below.
+* `(inductionS Ctrl S NamesB NamesS Cert)`: do induction on the first available
+  fixed point, constrained by `Ctrl`. Continue the proof using bounded search
+  constrained by `Ctrl` for the *base case* and `Cert` for the *inductive case*.
+  Use `NamesB` to give names to the components of the fixed point, as explained
+  below. Use `S` as induction invariant and `NamesS` to give names to its
+  components, as explained below.
+* `(case Ctrl CertL CertR)`: do asynchronous case analysis (left or),
+  constrained by `Ctrl`. Continue the proof using `CertL` and `CertR` for the
+  left and right branch, respectively.
+* `(apply Ctrl Idx Names Cert)`: do bounded search, constrained by `Ctrl`. Use
+  `Idx` for the next global decision. Use `Names` to give names to the
+  components of the lemma, as explained below. Continue the proof using `Cert`.
+* `(search Ctrl)`: do bounded search constrained by `Ctrl`, except induction and
   global decisions.
-* `(induction Ctrl NamesB Cert)`: do the obvious induction within the
-  constraints given by `Ctrl` and continue search using `Cert`. Use `NamesB` to
-  give names to the parts of the target fixed point as explained below.
-* `(inductionS Ctrl S NamesB NamesS Cert)`: do induction within the
-  constraints given by `Ctrl`. Apply bounded search constrained by `Ctrl` to the
-  *base case*  and continue search using `Cert` for the *inductive case*. Use
-  `S` as invariant and `NamesS` to give names to its parts as explained below.
-  Use `NamesB` to give names to the parts of the target fixed point as explained
-  below.
-* `(case Ctrl CertL CertR)`: do asynchronous case analysis (left or) limited by
-  `Ctrl` and continue using `CertL` and `CertR` for the left and right branch,
-  respectively.
-* `(apply Ctrl Idx Names Cert)`: do bounded search limited by `Ctrl`, using
-  `Idx` for the next global decision. The components of the lemma are named
-  using `Names` as explained below. Continue search using `Cert`.
 
 #### Control structure
 
 All certificates share a common control structure that maintains bounds and
-bookkeeping parameters with which to constrain proof search. There is some
-variability in the way these parameters are used by the FPC, as will be seen.
-The structure has the form:
+bookkeeping parameters to constrain proof search. There is some variability in
+the way these parameters are used by the FPC, as will be seen. The structure has
+the form:
 
-    `(ctrl Limits Names)`
+    (ctrl Limits Names)
 
 Here `Names` represents a naming structure that will be the subject of the next
 heading. Now we will devote our attention to the bounds and bookkeeping
-structure `Limits`, which in turn has the following form:
+structure `Limits`, which in turn is of the following shape:
 
-    `(limits D N L UL UR UM LN LL RR)`
+    (limits D N L UL UR UM LN LL RR)
 
-All the parameters are numbers represented as Peano numerals. They conform
+All the parameters are naturals represented as Peano numerals. They conform
 several groups, usually distributed in pairs where explicit bookkeeping becomes
 necessary.
 
