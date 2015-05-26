@@ -44,6 +44,27 @@ As Bedwyr has primitive support for modules and namespaces, be mindful to avoid,
 and remember to check for, the usual silly errors: name clashes, order of
 declarations and includes, etc.
 
+ACheck
+------
+
+Together with the [Abella](http://abella-prover.org/) interactive theorem prover
+and the [Bedwyr](http://slimmer.gforge.inria.fr/bedwyr/) logic programming
+environment, FPCcheck conforms the system we call ACheck. With it, we can use
+FPCs to independently verify results formulated, and possibly proved in, Abella.
+
+The following tutorial sections illustrate the use of this system, which itself
+relies on FPC templates and examples included in this distribution. To use the
+system, you will need the code in this repository, as well as a working
+installation of both Abella and Bedwyr (see dependency notes for current
+versions).
+
+For more information you can refer to the following working paper:
+
+> *Defining inference rules by certificate checking*
+> by Roberto Blanco and Dale Miller.
+> [Draft](http://www.lix.polytechnique.fr/Labo/Dale.Miller/papers/acheck.pdf)
+> dated 19 May 2015
+
 Tutorial
 --------
 
