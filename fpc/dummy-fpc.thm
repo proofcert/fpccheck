@@ -50,7 +50,7 @@ Define ttExpert      : cert                   -> prop by ttExpert C.
 Define allExpert     : cert -> cert -> i      -> prop by allExpert C C _.
 Define someExpert    : cert -> cert -> i      -> prop by someExpert C C _.
 Define eqExpert      : cert                   -> prop by eqExpert C.
-Define initLExpert   : cert         -> idx    -> prop by initLExpert C bucket.
+Define initLExpert   : cert                   -> prop by initLExpert C.
 Define unfoldLExpert : cert -> cert           -> prop by unfoldLExpert C C.
 Define initRExpert   : cert         -> idx    -> prop by initRExpert C bucket.
 Define unfoldRExpert : cert -> cert           -> prop by unfoldRExpert C C.

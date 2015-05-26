@@ -284,9 +284,8 @@ syncR Debug Lambda Xi Sigma Phi Gamma (some P) := exists Xi' T,
 syncR Debug Lambda Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
-%TODO Simplify expert interface?
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) (frz (nu B T)) :=
-	initLExpert Xi Idx ;
+	initLExpert Xi ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\

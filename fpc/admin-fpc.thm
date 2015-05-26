@@ -700,12 +700,12 @@ Define freezeRClerk : cert -> cert -> prop by
 %NOTE Do I ever need to return an index? If not, simplify the interface.
 %NOTE To pop Delta or not to pop (no pop: it's the end of the line) and equalize
 % (idx x (name Name)).
-Define initLExpert : cert -> idx -> prop by
-	initLExpert Cert _ :=
+Define initLExpert : cert -> prop by
+	initLExpert Cert :=
 		getControl Cert (ctrl _ (names ((name Name)         :: _) (name Name)))
 %		/\ println "initLExpert with name" /\ print_cert Cert /\ println Name %DEBUG
 		;
-	initLExpert Cert _ :=
+	initLExpert Cert :=
 		getControl Cert (ctrl _ (names ((guess (name Name)) :: _) (name Name)))
 %		/\ println "initLExpert with guess" /\ print_cert Cert /\ println Name %DEBUG
 		.

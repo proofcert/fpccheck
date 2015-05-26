@@ -391,15 +391,15 @@ Define freezeRClerk : cert -> cert -> prop by
 %	:= println "freezeLClerk" /\ print_cert Cert %DEBUG
 	.
 
-Define initLExpert : cert -> idx -> prop by
-	initLExpert Cert _ :=
+Define initLExpert : cert -> prop by
+	initLExpert Cert :=
 		isNotPair Cert
 %		/\ println "initLExpert" /\ print_cert Cert %DEBUG
 		;
-	initLExpert (pair# Cert1 Cert2) (idx2 Idx1 Idx2) :=
-		initLExpert Cert1 Idx1 /\
-		initLExpert Cert2 Idx2
-%		/\ println "initLExpert pair#" /\ println (idx2 Idx1 Idx2) %DEBUG
+	initLExpert (pair# Cert1 Cert2) :=
+		initLExpert Cert1 /\
+		initLExpert Cert2
+%		/\ println "initLExpert pair#" %DEBUG
 		.
 
 %------------------%

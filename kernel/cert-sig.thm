@@ -43,7 +43,7 @@ Kind   boolidx       type.
 %allExpert     cert -> cert -> i      -> prop
 %someExpert    cert -> cert -> i      -> prop
 %eqExpert      cert                   -> prop
-%initLExpert   cert         -> idx    -> prop
+%initLExpert   cert                   -> prop
 %unfoldLExpert cert -> cert           -> prop
 %initRExpert   cert         -> idx    -> prop
 %unfoldRExpert cert -> cert           -> prop

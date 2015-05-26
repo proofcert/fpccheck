@@ -210,7 +210,7 @@ And now, the interface.
   frozen left formulas with index `I` under `C0`.
 * `(freezeRClerk C0 C1)`: freeze the goal formula under `C0` and continue with
   `C1`.
-* `(initLExpert C0 _)`: finish with the initial rule from the left formula on
+* `(initLExpert C0)`: finish with the initial rule from the left formula on
   focus to the goal formula under `C0`.
 * `(storeLClerk C0 C1 I)`: store the left formula in process using index `I`
   under `C0` and continue with `C1`.
