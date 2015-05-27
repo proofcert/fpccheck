@@ -623,8 +623,11 @@ Drop a line or get hacking!
 How to know if you've broken something? Bedwyr support for debugging and unit
 testing is rudimentary, so things can get interesting. The file `debug.thm`
 implements the conventional debugging predicates and (generous) traces can be
-obtained uncommenting lines ended with the `%DEBUG` marker in `.thm` files.
+obtained uncommenting lines ended with the `%DEBUG` marker in `.thm` files. To
+toggle tracing, `debug.pl` can be used (this script rewrites files, play with it
+with the usual care).
 
 The current best shot at a test battery is the collection of harness files and
 Abella sessions available in the `examples` folder. These can be thought of (and
-run as) integration tests for the system.
+run as) integration tests for the system. To run the whole test battery, use
+`test.pl`.
