@@ -283,32 +283,34 @@ and extended only later to greatest fixed points. The treatment of unfoldings is
 most telling, divided in left and right vs. asynchronous and synchronous. Right
 unfoldings (usually synchronous) are reset on each decision on the assumption
 that they constitute the computational bulk of the lot, whereas left unfoldings
-are conceived as chiefly analytic. The special treatment of release on the
-right, reinforces this vision.
+are seen as essentially analytic. The special treatment of release on the
+right reinforces this.
 
 The use of nested certificates, generally necessary to express complex proofs
-efficiently, blurs most of these points, even for the mirrored treatment of
-coinduction and greatest fixed points, which appear to be somewhat more
-involved.
+efficiently, blurs most of these distinctions, even for the mirrored treatment
+of coinduction and greatest fixed points, which would appear to be somewhat more
+involved. In this case, only minor differences are apparent.
 
 #### Naming structure
 
-Now we turn our attention to the second component of certificate control. It is
-remarkable that an Abella proof script consists of a sequence of decisions, and
-these can be turned into a certificate. In addition to selecting formulas and
-lemmas, an important part of the instructions is the set of hypotheses that are
-used to instantiate the picked formula.
+Now we turn our attention to the second component of certificate control.
+Consider the example of proof scripts written, say, in Abella. It is remarkable
+that a script consists of a sequence of decisions, and these can be turned into
+a certificate. In addition to selecting formulas and lemmas, an important part
+of the instructions is the set of hypotheses that are used to instantiate each
+formula that the proof operates upon.
 
-This information is so far absent from our certificates, which means
+This information has been absent from our certificates so far, which means
 backtracking search must be applied to find a right combination of values, if
-one exists. In some cases this will be easy, but in others much time will be
-wasted applying, say, sequences of lemmas that make no sense, or using the wrong
-parameters, leading in the end to complex proof attempts that must be discarded.
+one indeed exists. In some cases this will be easy, but in others much time will
+be wasted applying, say, sequences of lemmas that make no sense, or using the
+wrong parameters, leading in the end to complex proof attempts that must be
+discarded.
 
 Syntactically, a formula can be seen as a tree whose nodes are the logical
 connectives and whose leaves are chosen among the Boolean constants, the fixed
 point operators and the equality operator. Interestingly, unfolding operations
-can expand a fixed point leave into a new subtree.
+can expand a fixed point leaf into a new subtree.
 
 Given this interpretation, a *naming structure* associated to a formula is
 another tree that replicates the branching structure of the first, at least down
@@ -351,16 +353,16 @@ arbitrary identifiers because they will never be used to constrain the initial
 rules that result in instantiation of fixed points, when used as atoms.
 
 An additional precision regarding granularity is in order. If a leaf in a naming
-tree covers an entire subformula, all leafs in the formula will be given the
+tree covers an entire subformula, all leaves in the formula will be given the
 name of the closest corresponding leaf in the naming structure. In this way it
 is easy to declare "buckets" of formulas that can be selected using a single
-name. For this reason anonymous variables should not be used for "don't-care"
+name. For this reason anonymous variables should not be used for don't-care
 branches. Instead, some other identifier is necessary.
 
 The essence of naming structures is giving labels to the atoms in a formula so
 that they can be matched with the contents of the context, in particular frozen
 atoms acting as hypotheses. Formulas have no annotations, so these have to be
-provided separately and in parallel. There are a few points when this is
+provided separately and in parallel. There are a few points where this is
 possible. But first we need to consider how these structures are integrated in
 the certificate constructors.
 
@@ -376,10 +378,10 @@ two will be stored in the second member:
     (names Delta Goal)
 
 The trick creates a new requirement for the certificate: it must be aware of the
-ways the kernel moves formulas around the sequent and replicate it exactly in
+ways the kernel moves formulas around the sequent and replicate them exactly in
 this control structure. This is a strong dependency that must be handled
 carefully. By design, soundness is never at risk, though failure to keep track
-of (very unlikely) changes to the kernel would mean the pieces will not fit
+of (exceptional) changes to the kernel would mean the pieces will not fit
 together any more, and hypothesis naming would become unusable. (The predictable
 solution is a slightly more transparent kernel that remains functionally
 sealed.)
@@ -396,8 +398,8 @@ selection whatsoever. On the other hand, consider a theorem of the form:
 
     A -> B -> C
 
-If we want to identify `A` with hypothesis `"H1"`, `B` with `"H2` and C with the
-goal `"G"`, we may write:
+If we want to identify `A` with hypothesis `"H1"`, `B` with `"H2"` and C with
+the goal `"G"`, we may write:
 
     (names nil (split (name "H1") (split (name "H2") (name "G"))))
 
@@ -408,7 +410,7 @@ Similarly, suppose there is in our collection a lemma of the form:
 If our original `A` matches `D`, we may infer `E` from it. We can guide
 selection by a certificate that supplies the name of this lemma and furthermore
 picks the right hypotheses based on the names we gave them. So we would select
-`"H1"` and give a new name to the conclusion, e.g. `"H3"`. We write as follows:
+`"H1"` and give a new name to the conclusion, e.g. `"H3"`. We would write:
 
     (split (name "H1") (name "H3"))
 
@@ -420,9 +422,10 @@ is a reasonable assumption.
 
 For general induction, where the invariant is supplied by the certificate, an
 additional naming structure matching the invariant must be supplied. For the
-kernel to construct the resulting sequent correctly, the naming structure of the
-unfolding **must** indicate which leaf corresponds to the place where the
-invariant will be injected. This is marked by the reserved leaf `(name "S")`.
+FPC to construct the naming structure that results from the induction rule,
+the naming structure of the unfolding **must** indicate which leaf corresponds
+to the place where the invariant (and its own naming structure) will be
+injected. This is marked by the reserved leaf `(name "S")`.
 
 Finally, consider that nested certificates inherit the state contained in the
 naming structures of their immediate predecessors. Their immediate values are of
