@@ -80,6 +80,7 @@ easily be gained if needed by referring to the first sections of this primer:
 Dependencies:
 
 * [Abella 2.0.3-fpc](https://github.com/robblanco/abella/tree/fpc-translation)
+  * OCaml 4.02.0 or newer
 
 The first thing you need is a file with the contents of an Abella session:
 declarations, definitions and theorems. Proofs are currently ignored and can be
