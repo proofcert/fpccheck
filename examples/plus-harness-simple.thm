@@ -7,6 +7,10 @@
 
 #assert plus_zero _ (induction 1 0 1 0 1).
 #assert plus_zero _ (pair# (induction 1 0 1 0 1) (induction# 1 0 1 0 1 Idx)).
+#assert plus_zero Plus ( inductionS 1 0 1 0 1
+	(Args\ all N\ imp (eq Args (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))).
+#assert plus_zero Plus (inductionS? (apply 1 0 0 0 0) (_\ apply 1 0 1 0 1)
+	(Args\ all N\ imp (eq Args (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))).
 
 #assert plus_succ _ (induction 1 0 1 0 1).
 #assert plus_succ _ (pair# (induction 1 0 1 0 1) (induction# 1 0 1 0 1 Idx)).
