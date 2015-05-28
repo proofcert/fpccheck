@@ -91,6 +91,10 @@ Type   pair#        cert -> cert -> cert.
 Type   induction#   nat -> nat -> nat -> nat -> nat -> bt -> cert.
 Type   apply#       nat -> nat -> nat -> nat -> nat -> bt -> cert.
 
+% Variants for explicit induction with invariant
+Type   inductionS    nat -> nat -> nat -> nat -> nat -> (i -> bool) -> cert.
+Type   inductionS?   cert -> (i -> cert) -> (i -> bool) -> cert.
+
 #include "debug-simple-fpc.thm".
 
 %%%%%%%%%%%%%%%%%
@@ -103,9 +107,11 @@ Define unmarshal : cert -> cert -> prop by
 	unmarshal (apply! B A S) (apply B A S A S) ;
 	unmarshal Cert Cert := (
 		Cert = (induction _ _ _ _ _) \/
+		Cert = (inductionS _ _ _ _ _ _) \/
 		Cert = (apply _ _ _ _ _) \/
 		Cert = search \/
 		Cert = (induction? _) \/
+		Cert = (inductionS? _ _ _) \/
 		Cert = (case? _ _ _) \/
 		Cert = (apply? _ _ _ _) \/
 		Cert = (pair# _ _) \/
@@ -151,16 +157,20 @@ Define endBipole : cert -> cert -> prop by
 
 Define isSimpleCase : cert -> prop by
 	isSimpleCase (induction _ _ _ _ _) ;
+	isSimpleCase (inductionS _ _ _ _ _ _) ;
 	isSimpleCase (apply _ _ _ _ _) ;
 	isSimpleCase search ;
 	isSimpleCase (induction? _) ;
+	isSimpleCase (inductionS? _ _ _) ;
 	isSimpleCase (apply? _ _ _ _).
 
 Define isNotPair : cert -> prop by
 	isNotPair (induction _ _ _ _ _) ;
+	isNotPair (inductionS _ _ _ _ _ _) ;
 	isNotPair (apply _ _ _ _ _) ;
 	isNotPair search ;
 	isNotPair (induction? _) ;
+	isNotPair (inductionS? _ _ _) ;
 	isNotPair (case? _ _ _) ;
 	isNotPair (apply? _ _ _ _) ;
 	isNotPair (induction# _ _ _ _ _ _) ;
@@ -295,7 +305,22 @@ Define someExpert : cert -> cert -> i -> prop by
 %-------------------------%
 
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	indClerk _ _ _ _ := false.
+	indClerk (inductionS N AU SU AC SC S)
+	         (   apply   N AU SU AC SC  )
+	         (_\ apply   N AU SC AC SC  )
+	         S;
+	indClerk (inductionS? Cert1 Cert2 S) Cert1 Cert2 S.
+%	% Separate branching event?
+%	indClerk (inductionS# N AU SU AC SC (btbranch IdxL IdxR) S)
+%	         (   apply#   N AU SU AC SC           IdxL        )
+%	         (_\ apply#   N AU SU AC SC                IdxR   )
+%	         S ;
+%	indClerk (pair# Cert1 Cert2)
+%	         (pair# Cert1' Cert2')
+%	         (x\ pair# (Cert1x' x) (Cert2x' x))
+%	         S :=
+%		indClerk Cert1 Cert1' Cert1x' S /\
+%		indClerk Cert2 Cert2' Cert2x' S.
 
 Define indClerk' : cert -> (i -> cert) -> prop by
 	indClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
@@ -314,7 +339,12 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 		.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	coindClerk _ _ _ _ := false.
+	coindClerk (inductionS N AU SU AC SC S)
+	           (   apply   N AU SU AC SC  )
+	           (_\ apply   N AU SC AC SC  )
+	           S;
+	coindClerk (inductionS? Cert1 Cert2 S) Cert1 Cert2 S.
+% Same considerations as indClerk re: pairing, etc.
 
 Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)

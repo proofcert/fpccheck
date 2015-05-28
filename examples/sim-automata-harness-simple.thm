@@ -1,0 +1,15 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/simple-fpc.thm".
+#include "sim-automata-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "sim-automata-examples.thm".
+
+#assert nu_trivial (apply 1 0 0 0 0).
+
+#assert_not q0_sim_p0 search.
+
+#assert q0_sim_p0 (inductionS 1 1 1 1 1
+	(Args\ or (eq Args (q0 ++ p0 ++ argv)) (eq Args (q1 ++ p0 ++ argv)))).
+
+#assert_not q0_sim_p0 (induction 1 1 1 1 1).
