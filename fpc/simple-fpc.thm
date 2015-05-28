@@ -339,7 +339,12 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 		.
 
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
-	coindClerk _ _ _ _ := false.
+	coindClerk (inductionS N AU SU AC SC S)
+	           (   apply   N AU SU AC SC  )
+	           (_\ apply   N AU SC AC SC  )
+	           S;
+	coindClerk (inductionS? Cert1 Cert2 S) Cert1 Cert2 S.
+% Same considerations as indClerk re: pairing, etc.
 
 Define coindClerk' : cert -> (i -> cert) -> prop by
 	coindClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
