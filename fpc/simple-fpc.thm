@@ -197,7 +197,7 @@ Define orClerk : cert -> cert -> cert -> prop by
 %		/\ println "orClerk simple case" /\ print_cert Cert %DEBUG
 		;
 	orClerk (case? _ CertL CertR) CertL CertR
-	:= println "orClerk case?" /\ print_cert CertL /\ print_cert CertR %DEBUG
+%	:= println "orClerk case?" /\ print_cert CertL /\ print_cert CertR %DEBUG
 	;
 	orClerk (apply# N AU SU AC SC (btbranch IdxL IdxR))
 	        (apply# N AU SU AC SC IdxL)
