@@ -5,21 +5,19 @@
 % Notes:
 %  - Ensure soundness of immediate induction!!
 %  - A friendly reminder: Sigma is just asking for trouble, mind your step!
-%   (This should be tested thoroughly to ensure a list of unique eigenvariables,
-%   or maybe a radically different approach, e.g. dynamic retrieval, attempted.
-%   Rule out if possible the involvement of logic variables.)
+%    (This should be tested thoroughly to ensure a list of unique eigenvariables
+%    or maybe a radically different approach, e.g. dynamic retrieval, attempted.
+%    Rule out if possible the involvement of logic variables.)
 %  - The other point of contention: list i vs. i for fixed points.
 %  - Naming conventions for (co)induction clerks/experts may be improved.
-%  - Review module system and needed signatures, esp. necessity for a separate
-%    kernel-sig vs. simple addition of debug-kernel after declarations, etc.
 
 % A named context for lemmas
-%TODO Are names simple and clear enough?
+%TODO Improve names, declare new types where these indicate inaccuracy.
 Kind   lemma   type.
-Type   lemma   boolidx -> bool -> lemma.
+Type   lemma   idx -> bool -> lemma.
 
 % A type for traces and debugging information
-%NOTE I'm kind of cheating by using numidx here (it should be internal)
+%NOTE I'm kind of cheating by using numidx here (it should be internal).
 Kind   debug   type.
 Type   debug   numidx -> debug.
 
@@ -44,16 +42,16 @@ Define joinL : (bool -> bool -> bool) -> bool -> list bool -> bool -> prop by
 % Given a complete map between pairs of (old and new) eigenvariables, copy a
 % formula over the first set to a formula over the second. Proceeds by recursion
 % on the structure of the logic and relies on a second induction on i-terms,
-% which animates the split of test suits in signature and body. A more pleasant
+% which animates the split of test suites in signature and body. A more pleasant
 % solution likely exists.
 %   This may belong in logic.thm (but if it does, copy_i needs to be defined in
 % advance, and for that logic.thm's very type i is needed through a signature.
 %   Two points of interest:
 %  1. A trivial mapping is added for completeness when treating quantifiers.
 %  2. Fixed point bodies are assumed to be fixed and only their arguments are
-%    treated. A single eigenvariable representing the list of arguments is
-%    introduced (some thought must be given to possible consequences of our
-%    audacity).
+%     treated. A single eigenvariable representing the list of arguments is
+%     introduced (some thought must be given to possible consequences of our
+%     audacity).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Define copy_bool : list imap -> bool -> bool -> prop by
 	copy_bool Theta tt tt ;
@@ -81,10 +79,11 @@ Define copy_bool : list imap -> bool -> bool -> prop by
 % latter.
 %   It must be noted that Sigma is much hairier than the current code might lead
 % to believe. Eigenvariable unification introduces duplicates, or worse, generic
-% i-terms in the context. If used once at the beginning (Tac), it works; for
-% general use further testing is in order.
+% i-terms in the context. If used once at the beginning (Tac), it works; nested
+% generated invariants are incorrect (i.e., fail to find a proof that the actual
+% immediate invariant is able to reach) for reasons yet to be ascertained.
 %   One saving grace might be that, on the target branch of immediate induction,
-% the context is reinitialized. However, not that the single eigenvariable
+% the context is reinitialized. However, note that the single eigenvariable
 % corresponds to a list of arguments according to the arity of the fixed point
 % in question.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -116,7 +115,7 @@ by
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute a trivial invariant for immediate application of coinduction.
 %NOTE Note entirely sure about the first case...
-%TODO Refactor common code, introduce e.g. quantifier parameters...
+%TODO Refactor common code, introduce e.g. quantifier parameters, etc.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Define coabst : list i -> list imap -> bool -> bool -> prop by
 	coabst (X :: Sigma) Theta S (some R) := forall x,
@@ -148,10 +147,12 @@ Define coindInvariant' : list i -> list ctx -> i -> (i -> bool) -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Proof system based on [BMS10] augmented with signature and frozen area, as
-% well as explicit encoding of stored formulas on both sides. The rules follow
-% the order found in the paper, except init, which is always attempted before
-% unfolding. The encoding is straightforward and only departures and additions
-% to muLJF are noted.
+% well as explicit encoding of stored formulas on both sides. The rules
+% originally followed the order found in the paper, except init, which was
+% always attempted before. Usually, when several rules compete among themselves,
+% "cheaper" options are attempted first.
+%   The encoding is straightforward and only departures and additions to muLJF
+% are noted.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Zones:       Debug    Lambda        Xi      Sigma     Phi         Gamma       Delta        Goal
@@ -283,9 +284,8 @@ syncR Debug Lambda Xi Sigma Phi Gamma (some P) := exists Xi' T,
 syncR Debug Lambda Xi Sigma Phi Gamma (eq T T) :=
 	eqExpert Xi ;
 
-%TODO Simplify expert interface?
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) (frz (nu B T)) :=
-	initLExpert Xi Idx ;
+	initLExpert Xi ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
@@ -319,7 +319,7 @@ async Debug Lambda Xi Sigma Phi Gamma nil (unk G) := exists Xi',
 	storeRClerk Xi Xi' /\
 	spy_async Debug Lambda Xi' Sigma Phi Gamma nil (sto G) ;
 
-% Important: the chosen formula never leaves Gamma, i.e. it merely is duplicated
+% Important: the chosen formula never leaves Gamma, i.e. it is duplicated
 async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk Xi Xi' Idx /\
@@ -332,13 +332,13 @@ async Debug Lambda Xi Sigma Phi Gamma nil (sto G) := exists Xi',
 
 % Lemma substitution was originally placed after both decides to give both sides
 % chances, since looping backtracking used to be a rather real possibility. Note
-% the standard index encodings used throughout (idx, lemma), and consider if
+% the standard index encoding used throughout (idx, lemma), and consider whether
 % readability can be improved through refactoring their composition.
 async Debug Lambda Xi Sigma Phi Gamma nil G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
-	decideLClerk' Xi Xi' (idx _ Idx) /\
+	decideLClerk' Xi Xi' Idx /\
 	member (lemma Idx C) Lambda /\
-println "Lemma" /\
+%	print "Lemma" /\ println Idx /\ %DEBUG
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma C G := exists Xi',
@@ -355,37 +355,40 @@ syncR Debug Lambda Xi Sigma Phi Gamma G := exists Xi',
 % Spy harness %
 %%%%%%%%%%%%%%%
 
-% Certificates Ξ are not shown here, but these being the province of the FPC
+% Certificates Ξ are not shown here. These being the province of the FPC,
 % specific pretty-printers may be supplied there. Also note that the debugging
 % zone gives information about effective backtracking.
+%   These blocks print a large number of terms, a notoriously inefficient
+% process. To gain a lot of speed with minimal fuss, simply comment out print
+% lines and leave all else unaltered.
 
 spy_async (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
-	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-	printstr "**  async  *********************************************************************\n" /\
-	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\
-	printstr "  Φ: " /\ print_list_ctx  Phi   /\ printstr "\n" /\
-	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\
-	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\
-	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\
+%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
+%	printstr "**  async  *********************************************************************\n" /\ %DEBUG
+%	printstr "  Σ: " /\ print_list_i    Sigma /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Φ: " /\ print_list_ctx  Phi   /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\                                    %DEBUG
+%	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\                                    %DEBUG
 	spy_noheader (async (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
 spy_syncL (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
-	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-	printstr "**  syncL  *********************************************************************\n" /\
-	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\
-	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\
-	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\
-	printstr "  Δ: " /\ print_bool     Delta /\ printstr "\n" /\
-	printstr "  Ω: " /\ print_goal     Goal  /\ printstr "\n" /\
+%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
+%	printstr "**  syncL  *********************************************************************\n" /\ %DEBUG
+%	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Δ: " /\ print_bool     Delta /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Ω: " /\ print_goal     Goal  /\ printstr "\n" /\                                     %DEBUG
 	spy_noheader (syncL (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
 
 spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
-	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\
-	printstr "**  syncR  *********************************************************************\n" /\
-	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\
-	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\
-	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\
-	printstr "  Ω: " /\ print_bool     Goal  /\ printstr "\n" /\
+%	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
+%	printstr "**  syncR  *********************************************************************\n" /\ %DEBUG
+%	printstr "  Σ: " /\ print_list_i   Sigma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\                                     %DEBUG
+%	printstr "  Ω: " /\ print_bool     Goal  /\ printstr "\n" /\                                     %DEBUG
 	spy_noheader (syncR (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Goal).
 
 %%%%%%%%%%%%%%%
@@ -396,9 +399,11 @@ spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 
 Define prove : cert -> bool -> prop by
 	prove Cert Form :=
-		async (debug (s z)) nil Cert nil nil nil nil (unk Form).
+		unmarshal Cert Cert' /\
+		async (debug (s z)) nil Cert' nil nil nil nil (unk Form).
 
 % Hacky but fast for now
 Define prove_with_lemmas : cert -> bool -> list lemma -> prop by
 	prove_with_lemmas Cert Form Lemmas :=
-		async (debug (s z)) Lemmas Cert nil nil nil nil (unk Form).
+		unmarshal Cert Cert' /\
+		async (debug (s z)) Lemmas Cert' nil nil nil nil (unk Form).

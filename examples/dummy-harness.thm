@@ -1,8 +1,16 @@
-#include "logic.thm".             % First-order logic syntax
-#include "cert-sig.thm".          % Certificate declarations
-#include "dummy-fpc.thm".         % Concrete FPC (needed before kernel!)
-#include "kernel.thm".            % Kernel
-%#include "dummy-examples.thm".    % Concrete examples
+#include "../kernel/logic.thm".     % First-order logic syntax
+#include "../kernel/cert-sig.thm".  % Certificate declarations
+#include "../fpc/dummy-fpc.thm".    % Concrete FPC (needed before kernel!)
+#include "dummy-examples-sig.thm".  % Concrete signature (needed before kernel!)
+#include "../kernel/kernel.thm".    % Kernel
+#include "dummy-examples.thm".      % Concrete examples
+
+%#include "logic.mod".          % First-order logic syntax
+%#include "cert.sig".           % Certificate declarations
+%#include "admin-fpc.mod".      % Concrete FPC (needed before kernel!)
+%#include "XXX-examples.sig".   % Concrete signature (needed before kernel!)
+%#include "kernel.mod".         % Kernel
+%#include "XXX-examples.mod".   % Concrete examples
 
 %%%%%%%%%%%%%%%%%%%%
 % Basic test suite %
@@ -19,39 +27,39 @@
 % replaced where possible with (sto ff), which cannot be proved
 
 % ffL (ex falso quodlibet)
-#assert async dummy nil nil (ff :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil (ff :: nil) (sto ff).
 % ttR
-#assert syncR dummy nil nil tt.
+#assert syncR (debug z) nil dummy nil nil nil tt.
 % decideR -> ttR
-#assert async dummy nil nil nil (sto tt).
+#assert async (debug z) nil dummy nil nil nil nil (sto tt).
 % ttL -> decideR -> ttR
-#assert async dummy nil nil (tt :: nil) (sto tt).
+#assert async (debug z) nil dummy nil nil nil (tt :: nil) (sto tt).
 % andL -> ffL (and-RHS doesn't do anything)
-#assert async dummy nil nil ((and ff ff) :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil ((and ff ff) :: nil) (sto ff).
 % andL -> ttL -> ffL
-#assert async dummy nil nil ((and tt ff) :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil ((and tt ff) :: nil) (sto ff).
 % orL -> ffL | ffL
-#assert async dummy nil nil ((or ff ff) :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil ((or ff ff) :: nil) (sto ff).
 % storeR -> decideR -> ttR
-#assert async dummy nil nil nil (unk tt).
+#assert async (debug z) nil dummy nil nil nil nil (unk tt).
 % impR -> ffL (imp-RSH doesn't do anything, but it can't be proved anyway)
-#assert async dummy nil nil nil (unk (imp ff ff)).
+#assert async (debug z) nil dummy nil nil nil nil (unk (imp ff ff)).
 % impR -> ttL -> storeR -> decideR -> ttR
-#assert async dummy nil nil nil (unk (imp tt tt)).
+#assert async (debug z) nil dummy nil nil nil nil (unk (imp tt tt)).
 % andR -> ttR | ttR
-#assert syncR dummy nil nil (and tt tt).
+#assert syncR (debug z) nil dummy nil nil nil (and tt tt).
 % orR -> ttR (left)
-#assert syncR dummy nil nil (or tt ff).
+#assert syncR (debug z) nil dummy nil nil nil (or tt ff).
 % orR -> ttR (right)
-#assert syncR dummy nil nil (or ff tt).
+#assert syncR (debug z) nil dummy nil nil nil (or ff tt).
 % releaseL -> ffL
-#assert syncL dummy nil nil ff (sto ff).
+#assert syncL (debug z) nil dummy nil nil nil ff (sto ff).
 % impL -> (releaseL -> ffL) | ttR
-#assert syncL dummy nil nil (imp tt ff) (sto ff).
+#assert syncL (debug z) nil dummy nil nil nil (imp tt ff) (sto ff).
 
 
 % releaseR -> impR -> ffL (resolving as fast as we can)
-#assert syncR dummy nil nil (imp ff ff).
+#assert syncR (debug z) nil dummy nil nil nil (imp ff ff).
 
 % decideL
 % storeL

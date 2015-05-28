@@ -2,6 +2,8 @@
 % Property templates %
 %%%%%%%%%%%%%%%%%%%%%%
 
+%TODO Some refactoring to do here, cleanup of variants, etc.
+
 % Determinacy
 Define deterministic : (i -> bool) -> bool -> prop by
 	deterministic Op

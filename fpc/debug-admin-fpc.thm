@@ -57,13 +57,13 @@ Define print_ctrl : ctrl -> prop by
 % WARNING: Infinite backtracking risk on don't cares: use with caution!
 Define print_cert : cert -> prop by
 %	print_cert Cert.
-	print_cert (start      Ctrl        ) :=
+	print_cert (search     Ctrl        ) :=
 		printstr "  Ξ: simple  " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (induce     Ctrl _ _ _ _) :=
+	print_cert (inductionS Ctrl _ _ _ _) :=
 		printstr "  Ξ: man-ind " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (autoinduce Ctrl _ _    ) :=
+	print_cert (induction  Ctrl _ _    ) :=
 		printstr "  Ξ: imm-ind " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (guideLemma Ctrl _ _ _  ) := % not sure the alignment of _'s is meaningful
+	print_cert (apply      Ctrl _ _ _  ) := % not sure the alignment of _'s is meaningful
 		printstr "  Ξ: gLemma  " /\ print_ctrl Ctrl /\ printstr "\n" ;
-	print_cert (guideOr    Ctrl _ _    ) :=
+	print_cert (case       Ctrl _ _    ) :=
 		printstr "  Ξ: gOr     " /\ print_ctrl Ctrl /\ printstr "\n".

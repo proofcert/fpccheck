@@ -11,9 +11,13 @@ Kind   idx           type.
 % Nested indexing for fixed points in a formula [is this its place?]
 Kind   boolidx       type.
 
+% From human-readable to machine-usable certificates
+%unmarshal   cert -> cert -> prop
+
 % A signature of clerks and experts (can we enforce it?)
 % No polymorphism here, at least yet
 
+%TODO This informal signature might contain minor inaccuracies. Autosync.
 %andClerk     cert ->       cert                                       -> prop
 %orClerk      cert ->       cert  -> cert                              -> prop
 %impClerk     cert ->       cert                                       -> prop
@@ -39,7 +43,7 @@ Kind   boolidx       type.
 %allExpert     cert -> cert -> i      -> prop
 %someExpert    cert -> cert -> i      -> prop
 %eqExpert      cert                   -> prop
-%initLExpert   cert         -> idx    -> prop
+%initLExpert   cert                   -> prop
 %unfoldLExpert cert -> cert           -> prop
 %initRExpert   cert         -> idx    -> prop
 %unfoldRExpert cert -> cert           -> prop
