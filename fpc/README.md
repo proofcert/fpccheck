@@ -33,8 +33,10 @@ These are constructors that fully characterize a region of the proof search
 space. Being self-contained, and in the interest of simplicity, they manage
 their own limited bookkeeping needs.
 
-* `(induction B AU SU AC SC)`: do the obvious induction and perform bounded
+* `(induction B AU SU AC SC)`: do the obvious (co)induction and perform bounded
   search as explained next.
+* `(inductionS B AU SU AC SC S)`: like `(induction B AU SU AC SC)` using `S` as
+  invariant.
 * `(apply B AU SU AC SC)`: perform bounded search as explained next.
 * `search`: apply the initial rules to finish the proof.
 
@@ -79,10 +81,12 @@ These constructors represent the structure of a proof more faithfully, notably
 by including relevant branching and decision events. They are fully local and
 need no explicit bookkeeping.
 
-* `(induction? C)`: do the obvious induction on the first available fixed point
-  and continue the proof using certificate `C`. (Note that freezing is not
+* `(induction? C)`: do the obvious (co)induction on the first available fixed
+  point and continue the proof using certificate `C`. (Note that freezing is not
   forbidden, so search can be a bit more complex than that, but has not been
   tested. Induction anywhere other than opening a proof doesn't work well yet.)
+* `(inductionS? CL CR S)`: like `(induction? C)` using `S` as invariant, and
+  continue the proof using `CL` and `CR` along each branch.
 * `(case? A CL CR)`: in the current negative phase, look for the first left or.
   Apply the asynchronous unfolding operation at most `A` times to get to one
   such connective. To continue proof search, use certificates `CL` and `CR` for
@@ -161,8 +165,6 @@ declared:
 
 ### Limitations
 
-* Non-obvious induction and coinduction invariants cannot be supplied.
-
 * Nested induction and coinduction are unsupported (limited by the kernel).
 
 * Bound range limitations.
@@ -220,16 +222,16 @@ appropriate.
 The constructors in this FPC form a single family of tactics, similar to
 though more subtle in their interactions than the ones in the simple FPC.
 
-* `(induction Ctrl NamesB Cert)`: do the obvious induction on the first
+* `(induction Ctrl NamesB Cert)`: do the obvious (co)induction on the first
   available fixed point, constrained by `Ctrl`, and continue the proof using
   `Cert`. Use `NamesB` to give names to the components of the fixed point, as
   explained below.
-* `(inductionS Ctrl S NamesB NamesS Cert)`: do induction on the first available
-  fixed point, constrained by `Ctrl`. Continue the proof using bounded search
-  constrained by `Ctrl` for the *base case* and `Cert` for the *inductive case*.
-  Use `NamesB` to give names to the components of the fixed point, as explained
-  below. Use `S` as induction invariant and `NamesS` to give names to its
-  components, as explained below.
+* `(inductionS Ctrl S NamesB NamesS Cert)`: do (co)induction on the first
+  available fixed point, constrained by `Ctrl`. Continue the proof using bounded
+  search constrained by `Ctrl` for the *base case* and `Cert` for the *inductive
+  case*. Use `NamesB` to give names to the components of the fixed point, as
+  explained below. Use `S` as induction invariant and `NamesS` to give names to
+  its components, as explained below.
 * `(case Ctrl CertL CertR)`: do asynchronous case analysis (left or),
   constrained by `Ctrl`. Continue the proof using `CertL` and `CertR` for the
   left and right branch, respectively.
