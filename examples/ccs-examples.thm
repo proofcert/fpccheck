@@ -28,4 +28,4 @@ Define sim_mu_par_f : bool -> prop by
 Define sim_mu_par : cert -> prop by
 	sim_mu_par Cert :=
 		sim_mu_par_ext_f SimMuParExt /\ sim_mu_par_f SimMuPar /\
-		prove_with_lemmas Cert SimMuPar ((lemma (name "mu_par_ext") SimMuParExt) :: nil).
+		prove_with_lemmas Cert SimMuPar ((lemma (idx "mu_par_ext") SimMuParExt) :: nil).

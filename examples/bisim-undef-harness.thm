@@ -1,14 +1,14 @@
-#include "logic.thm".                      % First-order logic syntax
-#include "cert-sig.thm".                   % Certificate declarations
-#include "admin-fpc.thm".                  % Concrete FPC (needed before kernel!)
-#include "bisim-undef-examples-sig.thm".   % Concrete signature (needed before kernel!)
-#include "kernel.thm".                     % Kernel
-#include "bisim-undef-examples.thm".       % Concrete examples
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/admin-fpc.thm".
+#include "bisim-undef-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "bisim-undef-examples.thm".
 
 #assert bisim_refl
-	(autoinduce
+	(induction
 		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits z z z (s z) z z z z (s z)) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits z z z (s z) z z z z (s z)) (names nil (name "X"))))).
 
 % Mimicking the Abella proof here is a bit more delicate, partly because we are
 % not nesting certificates, but also because our "translation patterns" are very
@@ -20,11 +20,11 @@
 % the proof was at all possible: such is the nature of the interaction between
 % both types of fixed points.
 #assert bisim_symm
-	(autoinduce
+	(induction
 		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s (s z)) z z (s z) z z z z (s (s z))) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s (s z)) z z (s z) z z z z (s (s z))) (names nil (name "X"))))).
 
 #assert bisim_trans
-	(autoinduce
+	(induction
 		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits (s (s (s (s z)))) z z (s (s z)) z z z z (s (s z))) (names nil (name "X"))))).
+		(dummy\ search (ctrl (limits (s (s (s (s z)))) z z (s (s z)) z z z z (s (s z))) (names nil (name "X"))))).

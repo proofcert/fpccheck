@@ -1,17 +1,17 @@
-#include "logic.thm".              % First-order logic syntax
-#include "cert-sig.thm".           % Certificate declarations
-#include "admin-fpc.thm".          % Concrete FPC (needed before kernel!)
-#include "ccs-examples-sig.thm".   % Concrete signature (needed before kernel!)
-#include "kernel.thm".             % Kernel
-#include "ccs-examples.thm".       % Concrete examples
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/admin-fpc.thm".
+#include "ccs-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "ccs-examples.thm".
 
 % A simple smoke test for the basic encoding
 #assert_not mu_id_step_absurd
-	(start (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
+	(search (ctrl (limits z z z z z z z z z) (names nil (name "X")))).
 
 #assert mu_id_step_absurd
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
 
 % This is a good example where additional guided certificates could supply more
 % information about the proof and reduce choice; because we are currently
@@ -21,9 +21,9 @@
 % more optimally, as most cases probably do not require as much computation. But
 % interestingly, in this case we need less than the Abella proof supplies.
 #assert sim_mu_par_ext
-	(autoinduce (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
-		(dummy\ start (ctrl (limits z z z (s (s z)) z z z z z) (names nil (name "X"))))).
+	(induction (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits z z z (s (s z)) z z z z z) (names nil (name "X"))))).
 
 #assert sim_mu_par
-	(guideLemma (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "mu_par_ext") (name "X")
-		(start (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
+	(apply (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "mu_par_ext") (name "X")
+		(search (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).
