@@ -65,6 +65,11 @@ For more information you can refer to the following working paper:
 > [Draft](http://www.lix.polytechnique.fr/Labo/Dale.Miller/papers/acheck.pdf)
 > dated 19 May 2015
 
+The script `acheck.pl` automates a simple workflow given an Abella session file
+and full paths to both Abella and Bedwyr. As with the other scripts, it is quick
+and dirty with no advanced security built in, and best (one could argue
+peremptorily) used in a controlled environment.
+
 Tutorial
 --------
 
