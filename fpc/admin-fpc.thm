@@ -654,7 +654,7 @@ Define unfoldLExpert : cert -> cert -> prop by
 Define unfoldRClerk : cert -> cert -> prop by
 	unfoldRClerk Cert Cert' :=
 		decrementUnfoldL Cert Cert'
-/\ println "unfoldRClerk" /\ print_cert Cert'
+%		/\ println "unfoldRClerk" /\ print_cert Cert' %DEBUG
 .
 
 %----------------------------------%
