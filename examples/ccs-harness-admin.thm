@@ -25,5 +25,5 @@
 		(dummy\ search (ctrl (limits z z z (s (s z)) z z z z z) (names nil (name "X"))))).
 
 #assert sim_mu_par
-	(apply (ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "mu_par_ext") (name "X")
+	(apply (ctrl (limits z z z (s (s z)) z z z z z) (names nil (name "X"))) (name "mu_par_ext") (name "X")
 		(search (ctrl (limits z z z z z z z z z) (names nil (name "X"))))).

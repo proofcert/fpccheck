@@ -11,6 +11,4 @@
 
 #assert sim_mu_par_ext (induction 0 2 0 2 0).
 
-#assert sim_mu_par (apply 0 0 0 0 0).
-%	(apply (ctrl (limits z z z z z z z z z) (name "mu_par_ext")
-%		(search (ctrl (limits z z z z z z z z z)
+#assert sim_mu_par (apply 0 2 0 2 0).
