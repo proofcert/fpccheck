@@ -67,7 +67,11 @@ someExpert (induction N A S B T) (induction N A S B T) _.
 someExpert (apply N A S B T) (apply N A S B T) _.
 someExpert search search _.
 
+%indClerk
+
 indClerk' (induction N A S B T) (x\ apply N A S B T).
+
+%coindClerk
 
 coindClerk' (induction N A S B T) (x\ apply N A S B T).
 
