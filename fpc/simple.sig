@@ -8,4 +8,6 @@ type   induction   int -> int -> int -> int -> int -> cert.
 type   apply       int -> int -> int -> int -> int -> cert.
 type   search                                         cert.
 
+type   idx   string -> idx.
+
 end
