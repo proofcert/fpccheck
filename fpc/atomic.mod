@@ -1,6 +1,6 @@
 %TODO Unlikely that we can mix catch-alls with the open world
 
-module simple.
+module atomic.
 
 ffClerk (induction _ _ _ _ _).
 ffClerk (apply _ _ _ _ _).

@@ -1,6 +1,6 @@
 %TODO Using built-in int instead of inductive nat for now
 
-sig simple.
+sig atomic.
 
 accum_sig cert.
 
