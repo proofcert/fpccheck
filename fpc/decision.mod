@@ -89,9 +89,9 @@ freezeLClerk (induction? C) (induction? C) (idx "atom").
 freezeLClerk (case? A L R) (case? A L R) (idx "atom").
 freezeLClerk (apply? A S I C) (apply? A S I C) (idx "atom").
 
-initRExpert (induction? C) (idx "atom").
-initRExpert (case? A L R) (idx "atom").
-initRExpert (apply? A S I C) (idx "atom").
+initRExpert (induction? _) (idx "atom").
+initRExpert (case? _ _ _) (idx "atom").
+initRExpert (apply? _ _ _ _) (idx "atom").
 
 freezeRClerk (induction? C) (induction? C).
 freezeRClerk (case? A L R) (case? A L R).

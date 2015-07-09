@@ -87,8 +87,8 @@ freezeLClerk (induction N A S B T) (induction N A S B T) (idx "atom").
 freezeLClerk (apply N A S B T) (apply N A S B T) (idx "atom").
 freezeLClerk search search (idx "atom").
 
-initRExpert (induction N A S B T) (idx "atom").
-initRExpert (apply N A S B T) (idx "atom").
+initRExpert (induction _ _ _ _ _) (idx "atom").
+initRExpert (apply _ _ _ _ _) (idx "atom").
 initRExpert search (idx "atom").
 
 freezeRClerk (induction N A S B T) (induction N A S B T).
