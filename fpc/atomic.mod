@@ -99,9 +99,9 @@ initLExpert (induction _ _ _ _ _).
 initLExpert (apply _ _ _ _ _).
 initLExpert search.
 
-freezeLClerk (induction N A S B T) (induction N A S B T) (idx "local").
-freezeLClerk (apply N A S B T) (apply N A S B T) (idx "local").
-freezeLClerk search search (idx "local").
+storeLClerk (induction N A S B T) (induction N A S B T) (idx "local").
+storeLClerk (apply N A S B T) (apply N A S B T) (idx "local").
+storeLClerk search search (idx "local").
 
 decideLClerk (apply N A S B T) (apply N A S B T) (idx "local").
 
