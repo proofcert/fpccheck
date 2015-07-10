@@ -1,11 +1,13 @@
 sig cert.
 
 kind cert type.
-kind i type.
 kind idx type.
 
 kind choice type.
 type left, right choice.
+
+kind i type.
+kind bool type.
 
 type ffClerk cert -> o.
 type ttClerk cert -> cert -> o.
@@ -26,9 +28,9 @@ type someClerk cert -> (i -> cert) -> o.
 type allExpert cert -> cert -> i -> o.
 type someExpert cert -> cert -> i -> o.
 
-%type indClerk cert -> cert -> (i -> cert) -> (i -> bool) -> o.
+type indClerk cert -> cert -> (i -> cert) -> (i -> bool) -> o.
 type indClerk' cert -> (i -> cert) -> o.
-%type coindClerk cert -> cert -> (i -> cert) -> (i -> bool) -> o.
+type coindClerk cert -> cert -> (i -> cert) -> (i -> bool) -> o.
 type coindClerk' cert -> (i -> cert) -> o.
 
 type unfoldLClerk cert -> cert -> o.

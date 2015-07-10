@@ -10,6 +10,8 @@ type   induction?                         cert -> cert.
 type   case?        int        -> cert -> cert -> cert.
 type   apply?       int -> int -> idx  -> cert -> cert.
 
+type   inductionS?   cert -> (i -> cert) -> (i -> bool) -> cert.
+
 type   idx   string -> idx.
 
 end
