@@ -91,15 +91,15 @@ coindClerk (inductionS? L R I) L R I.
 
 coindClerk' (induction? C) (x\ C).
 
-unfoldLClerk (case? A L R) (case? B L R) :- A > 0, B is A - 1.
-unfoldLClerk (apply? A S I C) (apply? B S I C) :- A > 0, B is A - 1.
+unfoldLClerk (case? (s A) L R) (case? A L R).
+unfoldLClerk (apply? (s A) S I C) (apply? A S I C).
 
-unfoldRExpert (apply? A S I C) (apply? A T I C) :- S > 0, T is S - 1.
+unfoldRExpert (apply? A (s S) I C) (apply? A S I C).
 
-unfoldLExpert (apply? A S I C) (apply? A T I C) :- S > 0, T is S - 1.
+unfoldLExpert (apply? A (s S) I C) (apply? A S I C).
 
-unfoldRClerk (case? A L R) (case? B L R) :- A > 0, B is A - 1.
-unfoldRClerk (apply? A S I C) (apply? B S I C) :- A > 0, B is A - 1.
+unfoldRClerk (case? (s A) L R) (case? A L R).
+unfoldRClerk (apply? (s A) S I C) (apply? A S I C).
 
 freezeLClerk (induction? C) (induction? C) (idx "atom").
 freezeLClerk (inductionS? L R I) (inductionS? L R I) (idx "atom").

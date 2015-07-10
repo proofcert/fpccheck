@@ -4,9 +4,9 @@ sig atomic.
 
 accum_sig cert.
 
-type   induction    int -> int -> int -> int -> int                -> cert.
-type   inductionS   int -> int -> int -> int -> int -> (i -> bool) -> cert.
-type   apply        int -> int -> int -> int -> int                -> cert.
+type   induction    nat -> nat -> nat -> nat -> nat                -> cert.
+type   inductionS   nat -> nat -> nat -> nat -> nat -> (i -> bool) -> cert.
+type   apply        nat -> nat -> nat -> nat -> nat                -> cert.
 type   search                                                         cert.
 
 type   idx   string -> idx.

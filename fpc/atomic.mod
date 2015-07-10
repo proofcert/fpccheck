@@ -93,13 +93,13 @@ coindClerk (inductionS N A S B T I) (apply N A S B T) (x\ apply N A S B T) I.
 
 coindClerk' (induction N A S B T) (x\ apply N A S B T).
 
-unfoldLClerk (apply N A S B T) (apply N A S C T) :- B > 0, C is B - 1.
+unfoldLClerk (apply N A S (s B) T) (apply N A S B T).
 
-unfoldRExpert (apply N A S B T) (apply N A S B U) :- T > 0, U is T - 1.
+unfoldRExpert (apply N A S B (s T)) (apply N A S B T).
 
-unfoldLExpert (apply N A S B T) (apply N A S B U) :- T > 0, U is T - 1.
+unfoldLExpert (apply N A S B (s T)) (apply N A S B T).
 
-unfoldRClerk (apply N A S B T) (apply N A S C T) :- B > 0, C is B - 1.
+unfoldRClerk (apply N A S (s B) T) (apply N A S B T).
 
 freezeLClerk (induction N A S B T) (induction N A S B T) (idx "atom").
 freezeLClerk (inductionS N A S B T I) (inductionS N A S B T I) (idx "atom").
@@ -138,10 +138,10 @@ storeRClerk search search.
 decideRClerk (apply N A S B T) (apply N A S B T).
 decideRClerk search search.
 
-releaseLExpert (apply N A S _ _) (apply M A S A S) :- N > 0, M is N - 1.
-releaseLExpert (apply 0 _ _ _ _) search.
+releaseLExpert (apply (s N) A S _ _) (apply N A S A S).
+releaseLExpert (apply z _ _ _ _) search.
 
-releaseRExpert (apply N A S _ _) (apply M A S A S) :- N > 0, M is N - 1.
-releaseRExpert (apply 0 _ _ _ _) search.
+releaseRExpert (apply (s N) A S _ _) (apply N A S A S).
+releaseRExpert (apply z _ _ _ _) search.
 
 end

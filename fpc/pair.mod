@@ -83,16 +83,16 @@ coindClerk' (pair# L R) (x\ pair# (M x) (S x)) :- coindClerk' L M, coindClerk' R
 coindClerk' (induction# N A S B T D) (x\ apply# N A S B T D).
 
 unfoldLClerk (pair# L R) (pair# M S) :- unfoldLClerk L M, unfoldLClerk R S.
-unfoldLClerk (apply# N A S B T D) (apply# N A S C T D) :- B > 0, C is B - 1.
+unfoldLClerk (apply# N A S (s B) T D) (apply# N A S B T D).
 
 unfoldRExpert (pair# L R) (pair# M S) :- unfoldRExpert L M, unfoldRExpert R S.
-unfoldRExpert (apply# N A S B T D) (apply# N A S B U D) :- T > 0, U is T - 1.
+unfoldRExpert (apply# N A S B (s T) D) (apply# N A S B T D).
 
 unfoldLExpert (pair# L R) (pair# M S) :- unfoldLExpert L M, unfoldLExpert R S.
-unfoldLExpert (apply# N A S B T D) (apply# N A S B U D) :- T > 0, U is T - 1.
+unfoldLExpert (apply# N A S B (s T) D) (apply# N A S B T D).
 
 unfoldRClerk (pair# L R) (pair# M S) :- unfoldRClerk L M, unfoldRClerk R S.
-unfoldRClerk (apply# N A S B T D) (apply# N A S C T D) :- B > 0, C is B - 1.
+unfoldRClerk (apply# N A S (s B) T D) (apply# N A S B T D).
 
 freezeLClerk (pair# L R) (pair# M S) (idx2 I J) :- freezeLClerk L M I, freezeLClerk R S J.
 freezeLClerk (induction# N A S B T D) (induction# N A S B T D) (idx "atom").
@@ -128,11 +128,11 @@ decideRClerk (pair# L R) (pair# M S) :- decideRClerk L M, decideRClerk R S.
 decideRClerk (apply# N A S B T (btlocal (idx "local") D)) (apply# N A S B T D).
 
 releaseLExpert (pair# L R) (pair# M S) :- releaseLExpert L M, releaseLExpert R S.
-releaseLExpert (apply# N A S _ _ D) (apply# M A S A S D) :- N > 0, M is N - 1.
-releaseLExpert (apply# 0 _ _ _ _ _) search.
+releaseLExpert (apply# (s N) A S _ _ D) (apply# N A S A S D).
+releaseLExpert (apply# z _ _ _ _ _) search.
 
 releaseRExpert (pair# L R) (pair# M S) :- releaseRExpert L M, releaseRExpert R S.
-releaseRExpert (apply# N A S _ _ D) (apply# M A S A S D) :- N > 0, M is N - 1.
-releaseRExpert (apply# 0 _ _ _ _ _) search.
+releaseRExpert (apply# (s N) A S _ _ D) (apply# N A S A S D).
+releaseRExpert (apply# z _ _ _ _ _) search.
 
 end

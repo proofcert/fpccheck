@@ -7,8 +7,8 @@ sig decision.
 accum_sig cert.
 
 type   induction?                         cert -> cert.
-type   case?        int        -> cert -> cert -> cert.
-type   apply?       int -> int -> idx  -> cert -> cert.
+type   case?        nat        -> cert -> cert -> cert.
+type   apply?       nat -> nat -> idx  -> cert -> cert.
 
 type   inductionS?   cert -> (i -> cert) -> (i -> bool) -> cert.
 
