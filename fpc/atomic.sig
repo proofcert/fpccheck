@@ -9,6 +9,9 @@ type   inductionS   nat -> nat -> nat -> nat -> nat -> (i -> bool) -> cert.
 type   apply        nat -> nat -> nat -> nat -> nat                -> cert.
 type   search                                                         cert.
 
-type   idx   string -> idx.
+type   idxatom    idx.
+type   idxlocal   idx.
+type   idx        nat -> idx.
+%type   idx   string -> idx.
 
 end

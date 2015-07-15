@@ -3,7 +3,7 @@
 #include "../fpc/_fpc-simple_auto_.thm".
 #include "plus-examples-sig.thm".
 #include "../kernel/kernel.thm".
-#include "plus-examples.thm".
+#include "_plus-examples_auto_.thm".
 
 #assert plus_zero _ (induction (s z) z (s z) z (s z)).
 #assert plus_zero Plus ( inductionS (s z) z (s z) z (s z)

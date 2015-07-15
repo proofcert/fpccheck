@@ -101,15 +101,15 @@ unfoldLExpert (apply N A S B (s T)) (apply N A S B T).
 
 unfoldRClerk (apply N A S (s B) T) (apply N A S B T).
 
-freezeLClerk (induction N A S B T) (induction N A S B T) (idx "atom").
-freezeLClerk (inductionS N A S B T I) (inductionS N A S B T I) (idx "atom").
-freezeLClerk (apply N A S B T) (apply N A S B T) (idx "atom").
-freezeLClerk search search (idx "atom").
+freezeLClerk (induction N A S B T) (induction N A S B T) idxatom.
+freezeLClerk (inductionS N A S B T I) (inductionS N A S B T I) idxatom.
+freezeLClerk (apply N A S B T) (apply N A S B T) idxatom.
+freezeLClerk search search idxatom.
 
-initRExpert (induction _ _ _ _ _) (idx "atom").
-initRExpert (inductionS _ _ _ _ _ _) (idx "atom").
-initRExpert (apply _ _ _ _ _) (idx "atom").
-initRExpert search (idx "atom").
+initRExpert (induction _ _ _ _ _) idxatom.
+initRExpert (inductionS _ _ _ _ _ _) idxatom.
+initRExpert (apply _ _ _ _ _) idxatom.
+initRExpert search idxatom.
 
 freezeRClerk (induction N A S B T) (induction N A S B T).
 freezeRClerk (inductionS N A S B T I) (inductionS N A S B T I).
@@ -121,12 +121,12 @@ initLExpert (inductionS _ _ _ _ _ _).
 initLExpert (apply _ _ _ _ _).
 initLExpert search.
 
-storeLClerk (induction N A S B T) (induction N A S B T) (idx "local").
-storeLClerk (inductionS N A S B T I) (inductionS N A S B T I) (idx "local").
-storeLClerk (apply N A S B T) (apply N A S B T) (idx "local").
-storeLClerk search search (idx "local").
+storeLClerk (induction N A S B T) (induction N A S B T) idxlocal.
+storeLClerk (inductionS N A S B T I) (inductionS N A S B T I) idxlocal.
+storeLClerk (apply N A S B T) (apply N A S B T) idxlocal.
+storeLClerk search search idxlocal.
 
-decideLClerk (apply N A S B T) (apply N A S B T) (idx "local").
+decideLClerk (apply N A S B T) (apply N A S B T) idxlocal.
 
 decideLClerk' (apply N A S B T) (apply N A S B T) _.
 
