@@ -95,12 +95,12 @@ unfoldRClerk (pair# L R) (pair# M S) :- unfoldRClerk L M, unfoldRClerk R S.
 unfoldRClerk (apply# N A S (s B) T D) (apply# N A S B T D).
 
 freezeLClerk (pair# L R) (pair# M S) (idx2 I J) :- freezeLClerk L M I, freezeLClerk R S J.
-freezeLClerk (induction# N A S B T D) (induction# N A S B T D) (idx "atom").
-freezeLClerk (apply# N A S B T D) (apply# N A S B T D) (idx "atom").
+freezeLClerk (induction# N A S B T D) (induction# N A S B T D) idxatom.
+freezeLClerk (apply# N A S B T D) (apply# N A S B T D) idxatom.
 
 initRExpert (pair# L R) (idx2 I J) :- initRExpert L I, initRExpert R J.
-initRExpert (induction# _ _ _ _ _ _) (idx "atom").
-initRExpert (apply# _ _ _ _ _ _) (idx "atom").
+initRExpert (induction# _ _ _ _ _ _) idxatom.
+initRExpert (apply# _ _ _ _ _ _) idxatom.
 
 freezeRClerk (pair# L R) (pair# L R).
 freezeRClerk (induction# N A S B T D) (induction# N A S B T D).
@@ -111,11 +111,11 @@ initLExpert (induction# _ _ _ _ _ _).
 initLExpert (apply# _ _ _ _ _ _).
 
 storeLClerk (pair# L R) (pair# M S) (idx2 I J) :- storeLClerk L M I, storeLClerk R S J.
-storeLClerk (induction# N A S B T D) (induction# N A S B T D) (idx "local").
-storeLClerk (apply# N A S B T D) (apply# N A S B T D) (idx "local").
+storeLClerk (induction# N A S B T D) (induction# N A S B T D) idxlocal.
+storeLClerk (apply# N A S B T D) (apply# N A S B T D) idxlocal.
 
 decideLClerk (pair# L R) (pair# M S) (idx2 I J) :- decideLClerk L M I, decideLClerk R S J.
-decideLClerk (apply# N A S B T (btlocal (idx "local") D)) (apply# N A S B T D) (idx "local").
+decideLClerk (apply# N A S B T (btlocal idxlocal D)) (apply# N A S B T D) idxlocal.
 
 decideLClerk' (pair# L R) (pair# M S) I :- decideLClerk' L M I, decideLClerk' R S I.
 decideLClerk' (apply# N A S B T (btlemma I D)) (apply# N A S B T D) I.
@@ -125,7 +125,7 @@ storeRClerk (induction# N A S B T D) (induction# N A S B T D).
 storeRClerk (apply# N A S B T D) (apply# N A S B T D).
 
 decideRClerk (pair# L R) (pair# M S) :- decideRClerk L M, decideRClerk R S.
-decideRClerk (apply# N A S B T (btlocal (idx "local") D)) (apply# N A S B T D).
+decideRClerk (apply# N A S B T (btlocal idxlocal D)) (apply# N A S B T D).
 
 releaseLExpert (pair# L R) (pair# M S) :- releaseLExpert L M, releaseLExpert R S.
 releaseLExpert (apply# (s N) A S _ _ D) (apply# N A S A S D).
