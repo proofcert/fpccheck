@@ -93,13 +93,13 @@ coindClerk (inductionS N A S B T I) (apply N A S B T) (x\ apply N A S B T) I.
 
 coindClerk' (induction N A S B T) (x\ apply N A S B T).
 
-unfoldLClerk (apply N A S (s B) T) (apply N A S B T).
+unfoldLClerk (apply N A S (ss B) T) (apply N A S B T).
 
-unfoldRExpert (apply N A S B (s T)) (apply N A S B T).
+unfoldRExpert (apply N A S B (ss T)) (apply N A S B T).
 
-unfoldLExpert (apply N A S B (s T)) (apply N A S B T).
+unfoldLExpert (apply N A S B (ss T)) (apply N A S B T).
 
-unfoldRClerk (apply N A S (s B) T) (apply N A S B T).
+unfoldRClerk (apply N A S (ss B) T) (apply N A S B T).
 
 freezeLClerk (induction N A S B T) (induction N A S B T) idxatom.
 freezeLClerk (inductionS N A S B T I) (inductionS N A S B T I) idxatom.
@@ -138,10 +138,10 @@ storeRClerk search search.
 decideRClerk (apply N A S B T) (apply N A S B T).
 decideRClerk search search.
 
-releaseLExpert (apply (s N) A S _ _) (apply N A S A S).
-releaseLExpert (apply z _ _ _ _) search.
+releaseLExpert (apply (ss N) A S _ _) (apply N A S A S).
+releaseLExpert (apply zz _ _ _ _) search.
 
-releaseRExpert (apply (s N) A S _ _) (apply N A S A S).
-releaseRExpert (apply z _ _ _ _) search.
+releaseRExpert (apply (ss N) A S _ _) (apply N A S A S).
+releaseRExpert (apply zz _ _ _ _) search.
 
 end

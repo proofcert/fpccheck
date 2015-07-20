@@ -9,9 +9,9 @@ type left, right choice.
 kind i type.
 kind bool type.
 
-kind nat type.
-type z nat.
-type s nat -> nat.
+kind numidx type.
+type z numidx.
+type s numidx -> numidx.
 
 type ffClerk cert -> o.
 type ttClerk cert -> cert -> o.
