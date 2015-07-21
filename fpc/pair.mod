@@ -8,6 +8,8 @@
 
 module pair.
 
+%accumulate atomic. % If I want to have a complete certificate loading just this specification
+
 ffClerk (pair# _ _).
 ffClerk (induction# _ _ _ _ _ _).
 ffClerk (apply# _ _ _ _ _ _).
@@ -83,16 +85,16 @@ coindClerk' (pair# L R) (x\ pair# (M x) (S x)) :- coindClerk' L M, coindClerk' R
 coindClerk' (induction# N A S B T D) (x\ apply# N A S B T D).
 
 unfoldLClerk (pair# L R) (pair# M S) :- unfoldLClerk L M, unfoldLClerk R S.
-unfoldLClerk (apply# N A S (s B) T D) (apply# N A S B T D).
+unfoldLClerk (apply# N A S (ss B) T D) (apply# N A S B T D).
 
 unfoldRExpert (pair# L R) (pair# M S) :- unfoldRExpert L M, unfoldRExpert R S.
-unfoldRExpert (apply# N A S B (s T) D) (apply# N A S B T D).
+unfoldRExpert (apply# N A S B (ss T) D) (apply# N A S B T D).
 
 unfoldLExpert (pair# L R) (pair# M S) :- unfoldLExpert L M, unfoldLExpert R S.
-unfoldLExpert (apply# N A S B (s T) D) (apply# N A S B T D).
+unfoldLExpert (apply# N A S B (ss T) D) (apply# N A S B T D).
 
 unfoldRClerk (pair# L R) (pair# M S) :- unfoldRClerk L M, unfoldRClerk R S.
-unfoldRClerk (apply# N A S (s B) T D) (apply# N A S B T D).
+unfoldRClerk (apply# N A S (ss B) T D) (apply# N A S B T D).
 
 freezeLClerk (pair# L R) (pair# M S) (idx2 I J) :- freezeLClerk L M I, freezeLClerk R S J.
 freezeLClerk (induction# N A S B T D) (induction# N A S B T D) idxatom.
@@ -128,11 +130,11 @@ decideRClerk (pair# L R) (pair# M S) :- decideRClerk L M, decideRClerk R S.
 decideRClerk (apply# N A S B T (btlocal idxlocal D)) (apply# N A S B T D).
 
 releaseLExpert (pair# L R) (pair# M S) :- releaseLExpert L M, releaseLExpert R S.
-releaseLExpert (apply# (s N) A S _ _ D) (apply# N A S A S D).
-releaseLExpert (apply# z _ _ _ _ _) search.
+releaseLExpert (apply# (ss N) A S _ _ D) (apply# N A S A S D).
+releaseLExpert (apply# zz _ _ _ _ _) search.
 
 releaseRExpert (pair# L R) (pair# M S) :- releaseRExpert L M, releaseRExpert R S.
-releaseRExpert (apply# (s N) A S _ _ D) (apply# N A S A S D).
-releaseRExpert (apply# z _ _ _ _ _) search.
+releaseRExpert (apply# (ss N) A S _ _ D) (apply# N A S A S D).
+releaseRExpert (apply# zz _ _ _ _ _) search.
 
 end

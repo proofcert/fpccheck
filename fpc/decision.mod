@@ -91,25 +91,25 @@ coindClerk (inductionS? L R I) L R I.
 
 coindClerk' (induction? C) (x\ C).
 
-unfoldLClerk (case? (s A) L R) (case? A L R).
-unfoldLClerk (apply? (s A) S I C) (apply? A S I C).
+unfoldLClerk (case? (ss A) L R) (case? A L R).
+unfoldLClerk (apply? (ss A) S I C) (apply? A S I C).
 
-unfoldRExpert (apply? A (s S) I C) (apply? A S I C).
+unfoldRExpert (apply? A (ss S) I C) (apply? A S I C).
 
-unfoldLExpert (apply? A (s S) I C) (apply? A S I C).
+unfoldLExpert (apply? A (ss S) I C) (apply? A S I C).
 
-unfoldRClerk (case? (s A) L R) (case? A L R).
-unfoldRClerk (apply? (s A) S I C) (apply? A S I C).
+unfoldRClerk (case? (ss A) L R) (case? A L R).
+unfoldRClerk (apply? (ss A) S I C) (apply? A S I C).
 
-freezeLClerk (induction? C) (induction? C) (idx "atom").
-freezeLClerk (inductionS? L R I) (inductionS? L R I) (idx "atom").
-freezeLClerk (case? A L R) (case? A L R) (idx "atom").
-freezeLClerk (apply? A S I C) (apply? A S I C) (idx "atom").
+freezeLClerk (induction? C) (induction? C) idxatom.
+freezeLClerk (inductionS? L R I) (inductionS? L R I) idxatom.
+freezeLClerk (case? A L R) (case? A L R) idxatom.
+freezeLClerk (apply? A S I C) (apply? A S I C) idxatom.
 
-initRExpert (induction? _) (idx "atom").
-initRExpert (inductionS? _ _ _) (idx "atom").
-initRExpert (case? _ _ _) (idx "atom").
-initRExpert (apply? _ _ _ _) (idx "atom").
+initRExpert (induction? _) idxatom.
+initRExpert (inductionS? _ _ _) idxatom.
+initRExpert (case? _ _ _) idxatom.
+initRExpert (apply? _ _ _ _) idxatom.
 
 freezeRClerk (induction? C) (induction? C).
 freezeRClerk (inductionS? L R I) (inductionS? L R I).
@@ -121,10 +121,10 @@ initLExpert (inductionS? _ _ _).
 initLExpert (case? _ _ _).
 initLExpert (apply? _ _ _ _).
 
-storeLClerk (induction? C) (induction? C) (idx "local").
-storeLClerk (inductionS? L R I) (inductionS? L R I) (idx "local").
-storeLClerk (case? A L R) (case? A L R) (idx "local").
-storeLClerk (apply? A S I C) (apply? A S I C) (idx "local").
+storeLClerk (induction? C) (induction? C) idxlocal.
+storeLClerk (inductionS? L R I) (inductionS? L R I) idxlocal.
+storeLClerk (case? A L R) (case? A L R) idxlocal.
+storeLClerk (apply? A S I C) (apply? A S I C) idxlocal.
 
 decideLClerk (apply? A S I C) (apply? A S I C) I.
 

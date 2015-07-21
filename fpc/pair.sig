@@ -15,7 +15,7 @@ type   btlemma, btlocal   idx -> bt -> bt.
 type   btbranch           bt -> bt -> bt.
 
 type   pair#        cert -> cert -> cert.
-type   induction#   nat -> nat -> nat -> nat -> nat -> bt -> cert.
-type   apply#       nat -> nat -> nat -> nat -> nat -> bt -> cert.
+type   induction#   nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> bt -> cert.
+type   apply#       nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> bt -> cert.
 
 end
