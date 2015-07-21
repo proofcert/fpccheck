@@ -1,0 +1,37 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/_fpc-simple_abella_.thm".
+#include "plus-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "_plus-examples_abella_.thm".
+
+#assert plus_zero _ (induction (ss zz) zz (ss zz) zz (ss zz)).
+#assert plus_zero Plus (inductionS (ss zz) zz (ss zz) zz (ss zz)
+	(Args\ all N\ imp (eq Args (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))).
+
+#assert plus_succ _ (induction (ss zz) zz (ss zz) zz (ss zz)).
+#assert plus_succ Plus (inductionS (ss zz) zz (ss zz) zz (ss zz)
+	(Args\ all K\ all M\ all N\ imp
+		(eq Args (K ++ M ++ N ++ argv))
+		(Plus (K ++ (succ M) ++ (succ N) ++ argv)))).
+
+#assert plus_comm _ _ (induction (ss (ss zz)) (ss zz) zz (ss zz) zz).
+
+#assert plus_total _ (induction (ss zz) zz (ss zz) zz (ss zz)).
+#assert plus_total Plus (inductionS (ss zz) zz (ss zz) zz (ss zz)
+	(Args\ all A\ all B\ imp
+		(eq Args (A ++ argv))
+		(some C\ Plus (A ++ B ++ C ++ argv)))).
+
+#assert plus_det _ (induction (ss zz) (ss zz) zz (ss zz) zz).
+#assert plus_det Plus (inductionS (ss zz) (ss zz) zz (ss zz) zz
+	(Args\ all A\ all B\ all C\ all D\ imp
+		(eq Args (A ++ B ++ C ++ argv)) (imp
+		(Plus (A ++ B ++ D ++ argv))
+		(eq C D)))).
+
+#assert plus_assoc _ (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)).
+
+#assert augend_nat (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)).
+
+#assert addend_nat (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)).
