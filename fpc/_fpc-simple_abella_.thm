@@ -1,0 +1,505 @@
+Kind bt type.
+Kind nonneg type.
+Kind numidx type.
+
+Type apply nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> cert.
+Type apply# nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> bt -> cert.
+Type apply? nonneg -> nonneg -> idx -> cert -> cert.
+Type btbranch bt -> bt -> bt.
+Type btinit bt.
+Type btlemma idx -> bt -> bt.
+Type btlocal idx -> bt -> bt.
+Type case? nonneg -> cert -> cert -> cert.
+Type idx nonneg -> idx.
+Type idx2 idx -> idx -> idx.
+Type idxatom idx.
+Type idxlocal idx.
+Type induction nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> cert.
+Type induction# nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> bt -> cert.
+Type induction? cert -> cert.
+Type inductionS nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> ( i -> bool ) -> cert.
+Type inductionS? cert -> ( i -> cert ) -> ( i -> bool ) -> cert.
+Type pair# cert -> cert -> cert.
+Type s numidx -> numidx.
+Type search cert.
+Type ss nonneg -> nonneg.
+Type z numidx.
+Type zz nonneg.
+
+Define unmarshal : cert -> cert -> prop by unmarshal C C.
+
+Define allClerk : cert -> ( i -> cert ) -> prop by
+allClerk (apply# N A S B T D)
+                                (x\apply# N A S B T D) ;
+allClerk (induction# N A S B T D)
+                                (x\induction# N A S B T D) ;
+allClerk (pair# L R) (x\pair# (M x) (S x)) := allClerk L M /\ allClerk R S ;
+allClerk (apply? A S I C) (x\apply? A S I C) ;
+allClerk (case? A L R) (x\case? A L R) ;
+allClerk (inductionS? L R I) (x\inductionS? L R I) ;
+allClerk (induction? C) (x\induction? C) ;
+allClerk search x\search ;
+allClerk (apply N A S B T) (x\apply N A S B T) ;
+allClerk (inductionS N A S B T I)
+                                (x\inductionS N A S B T I) ;
+allClerk (induction N A S B T)
+                           (x\induction N A S B T).
+
+Define allExpert : cert -> cert -> i -> prop by
+allExpert (apply# N A S B T D)
+                                     (apply# N A S B T D) X ;
+allExpert (induction# N A S B T D)
+                                     (induction# N A S B T D) X ;
+allExpert (pair# L R) (pair# L R) X ;
+allExpert (apply? A S I C) (apply? A S I C) X ;
+allExpert (case? A L R) (case? A L R) X ;
+allExpert (inductionS? L R I) (inductionS? L R I) X ;
+allExpert (induction? C) (induction? C) X ;
+allExpert search search X ;
+allExpert (apply N A S B T) (apply N A S B T) X ;
+allExpert (inductionS N A S B T I)
+                                     (inductionS N A S B T I) X ;
+allExpert (induction N A S B T)
+                                (induction N A S B T) X.
+
+Define andClerk : cert -> cert -> prop by
+andClerk (apply# N A S B T D)
+                                (apply# N A S B T D) ;
+andClerk (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+andClerk (pair# L R) (pair# L R) ;
+andClerk (apply? A S I C) (apply? A S I C) ;
+andClerk (case? A L R) (case? A L R) ;
+andClerk (inductionS? L R I) (inductionS? L R I) ;
+andClerk (induction? C) (induction? C) ;
+andClerk search search ;
+andClerk (apply N A S B T) (apply N A S B T) ;
+andClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+andClerk (induction N A S B T) (induction N A S B T).
+
+Define andExpert : cert -> cert -> cert -> prop by
+andExpert (apply# N A S B T D)
+                                (apply# N A S B T D) (apply# N A S B T D) ;
+andExpert (induction# N A S B T D)
+                                (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+andExpert (pair# L R) (pair# L R) (pair# L R) ;
+andExpert (apply? A S I C) (apply? A S I C)
+                      (apply? A S I C) ;
+andExpert (case? A L R) (case? A L R) (case? A L R) ;
+andExpert (inductionS? L R I) (inductionS? L R I)
+                 (inductionS? L R I) ;
+andExpert (induction? C) (induction? C) (induction? C) ;
+andExpert search search search ;
+andExpert (apply N A S B T) (apply N A S B T)
+                           (apply N A S B T) ;
+andExpert (inductionS N A S B T I)
+                                (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+andExpert (induction N A S B T)
+                           (induction N A S B T) (induction N A S B T).
+
+Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+coindClerk (inductionS? L R I) L R I ;
+coindClerk (inductionS N A S B T I)
+                                (apply N A S B T) (x\apply N A S B T) I.
+
+Define coindClerk' : cert -> ( i -> cert ) -> prop by
+coindClerk' (induction# N A S B T D)
+                                (x\apply# N A S B T D) ;
+coindClerk' (pair# L R) (x\pair# (M x) (S x)) := coindClerk' L M /\ coindClerk' R S ;
+coindClerk' (induction? C) x\C ;
+coindClerk' (induction N A S B T)
+                           (x\apply N A S B T).
+
+Define decideLClerk : cert -> cert -> idx -> prop by
+decideLClerk
+                                (apply# N A S B T (btlocal idxlocal D))
+                                (apply# N A S B T D) idxlocal ;
+decideLClerk (pair# L R) (pair# M S) (idx2 I J) := decideLClerk L M I /\ decideLClerk R S J ;
+decideLClerk (apply? A S I C) (apply? A S I C) I ;
+decideLClerk (apply N A S B T) (apply N A S B T)
+                           idxlocal.
+
+Define decideLClerk' : cert -> cert -> idx -> prop by
+decideLClerk'
+                                     (apply# N A S B T (btlemma I D))
+                                     (apply# N A S B T D) I ;
+decideLClerk' (pair# L R) (pair# M S) I := decideLClerk' L M I /\ decideLClerk' R S I ;
+decideLClerk' (apply? A S I C) (apply? A S I C) I ;
+decideLClerk' (apply N A S B T)
+                                (apply N A S B T) X.
+
+Define decideRClerk : cert -> cert -> prop by
+decideRClerk
+                                (apply# N A S B T (btlocal idxlocal D))
+                                (apply# N A S B T D) ;
+decideRClerk (pair# L R) (pair# M S) := decideRClerk L M /\ decideRClerk R S ;
+decideRClerk (apply? A S I C) (apply? A S I C) ;
+decideRClerk search search ;
+decideRClerk (apply N A S B T) (apply N A S B T).
+
+Define eqClerk : cert -> cert -> prop by
+eqClerk (apply# N A S B T D)
+                                (apply# N A S B T D) ;
+eqClerk (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+eqClerk (pair# L R) (pair# L R) ;
+eqClerk (apply? A S I C) (apply? A S I C) ;
+eqClerk (case? A L R) (case? A L R) ;
+eqClerk (inductionS? L R I) (inductionS? L R I) ;
+eqClerk (induction? C) (induction? C) ;
+eqClerk search search ;
+eqClerk (apply N A S B T) (apply N A S B T) ;
+eqClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+eqClerk (induction N A S B T) (induction N A S B T).
+
+Define eqExpert : cert -> prop by
+eqExpert (apply# X X1 X2 X3 X4 X5) ;
+eqExpert (induction# X X1 X2 X3 X4 X5) ;
+eqExpert (pair# X X1) ;
+eqExpert (apply? X X1 X2 X3) ;
+eqExpert (case? X X1 X2) ;
+eqExpert (inductionS? X X1 X2) ;
+eqExpert (induction? X) ;
+eqExpert search ;
+eqExpert (apply X X1 X2 X3 X4) ;
+eqExpert (inductionS X X1 X2 X3 X4 X5) ;
+eqExpert (induction X X1 X2 X3 X4).
+
+Define ffClerk : cert -> prop by
+ffClerk (apply# X X1 X2 X3 X4 X5) ;
+ffClerk (induction# X X1 X2 X3 X4 X5) ;
+ffClerk (pair# X X1) ;
+ffClerk (apply? X X1 X2 X3) ;
+ffClerk (case? X X1 X2) ;
+ffClerk (inductionS? X X1 X2) ;
+ffClerk (induction? X) ;
+ffClerk search ;
+ffClerk (apply X X1 X2 X3 X4) ;
+ffClerk (inductionS X X1 X2 X3 X4 X5) ;
+ffClerk (induction X X1 X2 X3 X4).
+
+Define freezeLClerk : cert -> cert -> idx -> prop by
+freezeLClerk (apply# N A S B T D)
+                                (apply# N A S B T D) idxatom ;
+freezeLClerk (induction# N A S B T D)
+                                (induction# N A S B T D) idxatom ;
+freezeLClerk (pair# L R) (pair# M S) (idx2 I J) := freezeLClerk L M I /\ freezeLClerk R S J ;
+freezeLClerk (apply? A S I C) (apply? A S I C) idxatom ;
+freezeLClerk (case? A L R) (case? A L R) idxatom ;
+freezeLClerk (inductionS? L R I) (inductionS? L R I) idxatom ;
+freezeLClerk (induction? C) (induction? C) idxatom ;
+freezeLClerk search search idxatom ;
+freezeLClerk (apply N A S B T) (apply N A S B T)
+                           idxatom ;
+freezeLClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) idxatom ;
+freezeLClerk (induction N A S B T)
+                           (induction N A S B T) idxatom.
+
+Define freezeRClerk : cert -> cert -> prop by
+freezeRClerk (apply# N A S B T D)
+                                (apply# N A S B T D) ;
+freezeRClerk (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+freezeRClerk (pair# L R) (pair# L R) ;
+freezeRClerk (apply? A S I C) (apply? A S I C) ;
+freezeRClerk (case? A L R) (case? A L R) ;
+freezeRClerk (inductionS? L R I) (inductionS? L R I) ;
+freezeRClerk (induction? C) (induction? C) ;
+freezeRClerk search search ;
+freezeRClerk (apply N A S B T) (apply N A S B T) ;
+freezeRClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+freezeRClerk (induction N A S B T)
+                           (induction N A S B T).
+
+Define impClerk : cert -> cert -> prop by
+impClerk (apply# N A S B T D)
+                                (apply# N A S B T D) ;
+impClerk (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+impClerk (pair# L R) (pair# L R) ;
+impClerk (apply? A S I C) (apply? A S I C) ;
+impClerk (case? A L R) (case? A L R) ;
+impClerk (inductionS? L R I) (inductionS? L R I) ;
+impClerk (induction? C) (induction? C) ;
+impClerk search search ;
+impClerk (apply N A S B T) (apply N A S B T) ;
+impClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+impClerk (induction N A S B T) (induction N A S B T).
+
+Define impExpert : cert -> cert -> cert -> prop by
+impExpert _ _ _ := false.
+
+Define impExpert' : cert -> cert -> cert -> prop by
+impExpert' (apply# N A S B T D)
+                                (apply# N A S B T D) (apply# N A S B T D) ;
+impExpert' (induction# N A S B T D)
+                                (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+impExpert' (pair# L R) (pair# L R) (pair# L R) ;
+impExpert' (apply? A S I C) (apply? A S I C)
+                      (apply? A S I C) ;
+impExpert' (case? A L R) (case? A L R) (case? A L R) ;
+impExpert' (inductionS? L R I) (inductionS? L R I)
+                 (inductionS? L R I) ;
+impExpert' (induction? C) (induction? C) (induction? C) ;
+impExpert' search search search ;
+impExpert' (apply N A S B T) (apply N A S B T)
+                           (apply N A S B T) ;
+impExpert' (inductionS N A S B T I)
+                                (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+impExpert' (induction N A S B T)
+                           (induction N A S B T) (induction N A S B T).
+
+Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+indClerk (inductionS? L R I) L R I ;
+indClerk (inductionS N A S B T I)
+                                (apply N A S B T) (x\apply N A S B T) I.
+
+Define indClerk' : cert -> ( i -> cert ) -> prop by
+indClerk' (induction# N A S B T D)
+                                (x\apply# N A S B T D) ;
+indClerk' (pair# L R) (x\pair# (M x) (S x)) := indClerk' L M /\ indClerk' R S ;
+indClerk' (induction? C) x\C ;
+indClerk' (induction N A S B T) (x\apply N A S B T).
+
+Define initLExpert : cert -> prop by
+initLExpert (apply# X X1 X2 X3 X4 X5) ;
+initLExpert (induction# X X1 X2 X3 X4 X5) ;
+initLExpert (pair# L R) := initLExpert L /\ initLExpert R ;
+initLExpert (apply? X X1 X2 X3) ;
+initLExpert (case? X X1 X2) ;
+initLExpert (inductionS? X X1 X2) ;
+initLExpert (induction? X) ;
+initLExpert search ;
+initLExpert (apply X X1 X2 X3 X4) ;
+initLExpert (inductionS X X1 X2 X3 X4 X5) ;
+initLExpert (induction X X1 X2 X3 X4).
+
+Define initRExpert : cert -> idx -> prop by
+initRExpert (apply# X X1 X2 X3 X4 X5)
+                                     idxatom ;
+initRExpert (induction# X X1 X2 X3 X4 X5)
+                                     idxatom ;
+initRExpert (pair# L R) (idx2 I J) := initRExpert L I /\ initRExpert R J ;
+initRExpert (apply? X X1 X2 X3) idxatom ;
+initRExpert (case? X X1 X2) idxatom ;
+initRExpert (inductionS? X X1 X2) idxatom ;
+initRExpert (induction? X) idxatom ;
+initRExpert search idxatom ;
+initRExpert (apply X X1 X2 X3 X4) idxatom ;
+initRExpert (inductionS X X1 X2 X3 X4 X5)
+                                     idxatom ;
+initRExpert (induction X X1 X2 X3 X4) idxatom.
+
+Define orClerk : cert -> cert -> cert -> prop by
+orClerk (pair# L R) (pair# M S) (pair# N T) := orClerk L M N /\ orClerk R S T ;
+orClerk (apply# N A S B T (btbranch L R))
+                                     (apply# N A S B T L)
+                                     (apply# N A S B T R) ;
+orClerk (apply? A S I C) (apply? A S I C)
+                      (apply? A S I C) ;
+orClerk (case? X L R) L R ;
+orClerk (inductionS? L R I) (inductionS? L R I)
+                 (inductionS? L R I) ;
+orClerk (induction? C) (induction? C) (induction? C) ;
+orClerk search search search ;
+orClerk (apply N A S B T) (apply N A S B T)
+                           (apply N A S B T) ;
+orClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+orClerk (induction N A S B T) (induction N A S B T)
+                           (induction N A S B T).
+
+Define orExpert : cert -> cert -> choice -> prop by
+orExpert (apply# N A S B T D)
+                                (apply# N A S B T D) right ;
+orExpert (apply# N A S B T D)
+                                (apply# N A S B T D) left ;
+orExpert (induction# N A S B T D)
+                                (induction# N A S B T D) right ;
+orExpert (induction# N A S B T D)
+                                (induction# N A S B T D) left ;
+orExpert (pair# L R) (pair# L R) right ;
+orExpert (pair# L R) (pair# L R) left ;
+orExpert (apply? A S I C) (apply? A S I C) right ;
+orExpert (apply? A S I C) (apply? A S I C) left ;
+orExpert (case? A L R) (case? A L R) right ;
+orExpert (case? A L R) (case? A L R) left ;
+orExpert (inductionS? L R I) (inductionS? L R I) right ;
+orExpert (inductionS? L R I) (inductionS? L R I) left ;
+orExpert (induction? C) (induction? C) right ;
+orExpert (induction? C) (induction? C) left ;
+orExpert search search right ;
+orExpert search search left ;
+orExpert (apply N A S B T) (apply N A S B T) right ;
+orExpert (apply N A S B T) (apply N A S B T) left ;
+orExpert (inductionS N A S B T I)
+                                (inductionS N A S B T I) right ;
+orExpert (inductionS N A S B T I)
+                                (inductionS N A S B T I) left ;
+orExpert (induction N A S B T) (induction N A S B T)
+                           right ;
+orExpert (induction N A S B T) (induction N A S B T)
+                           left.
+
+Define releaseLExpert : cert -> cert -> prop by
+releaseLExpert (apply# zz X X1 X2 X3 X4) search ;
+releaseLExpert (apply# (ss N) A S X X1 D)
+                                 (apply# N A S A S D) ;
+releaseLExpert (pair# L R) (pair# M S) := releaseLExpert L M /\ releaseLExpert R S ;
+releaseLExpert (apply? A S I C) C ;
+releaseLExpert (apply zz X X1 X2 X3) search ;
+releaseLExpert (apply (ss N) A S X X1)
+                            (apply N A S A S).
+
+Define releaseRExpert : cert -> cert -> prop by
+releaseRExpert (apply# zz X X1 X2 X3 X4) search ;
+releaseRExpert (apply# (ss N) A S X X1 D)
+                                 (apply# N A S A S D) ;
+releaseRExpert (pair# L R) (pair# M S) := releaseRExpert L M /\ releaseRExpert R S ;
+releaseRExpert (apply? A S I C) C ;
+releaseRExpert (apply zz X X1 X2 X3) search ;
+releaseRExpert (apply (ss N) A S X X1)
+                            (apply N A S A S).
+
+Define someClerk : cert -> ( i -> cert ) -> prop by
+someClerk (apply# N A S B T D)
+                                (x\apply# N A S B T D) ;
+someClerk (induction# N A S B T D)
+                                (x\induction# N A S B T D) ;
+someClerk (pair# L R) (x\pair# (M x) (S x)) := someClerk L M /\ someClerk R S ;
+someClerk (apply? A S I C) (x\apply? A S I C) ;
+someClerk (case? A L R) (x\case? A L R) ;
+someClerk (inductionS? L R I) (x\inductionS? L R I) ;
+someClerk (induction? C) (x\induction? C) ;
+someClerk search x\search ;
+someClerk (apply N A S B T) (x\apply N A S B T) ;
+someClerk (inductionS N A S B T I)
+                                (x\inductionS N A S B T I) ;
+someClerk (induction N A S B T)
+                           (x\induction N A S B T).
+
+Define someExpert : cert -> cert -> i -> prop by
+someExpert (apply# N A S B T D)
+                                     (apply# N A S B T D) X ;
+someExpert (induction# N A S B T D)
+                                     (induction# N A S B T D) X ;
+someExpert (pair# L R) (pair# L R) X ;
+someExpert (apply? A S I C) (apply? A S I C) X ;
+someExpert (case? A L R) (case? A L R) X ;
+someExpert (inductionS? L R I) (inductionS? L R I) X ;
+someExpert (induction? C) (induction? C) X ;
+someExpert search search X ;
+someExpert (apply N A S B T) (apply N A S B T)
+                                X ;
+someExpert (inductionS N A S B T I)
+                                     (inductionS N A S B T I) X ;
+someExpert (induction N A S B T)
+                                (induction N A S B T) X.
+
+Define storeLClerk : cert -> cert -> idx -> prop by
+storeLClerk (apply# N A S B T D)
+                                (apply# N A S B T D) idxlocal ;
+storeLClerk (induction# N A S B T D)
+                                (induction# N A S B T D) idxlocal ;
+storeLClerk (pair# L R) (pair# M S) (idx2 I J) := storeLClerk L M I /\ storeLClerk R S J ;
+storeLClerk (apply? A S I C) (apply? A S I C) idxlocal ;
+storeLClerk (case? A L R) (case? A L R) idxlocal ;
+storeLClerk (inductionS? L R I) (inductionS? L R I) idxlocal ;
+storeLClerk (induction? C) (induction? C) idxlocal ;
+storeLClerk search search idxlocal ;
+storeLClerk (apply N A S B T) (apply N A S B T)
+                           idxlocal ;
+storeLClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) idxlocal ;
+storeLClerk (induction N A S B T)
+                           (induction N A S B T) idxlocal.
+
+Define storeRClerk : cert -> cert -> prop by
+storeRClerk (apply# N A S B T D)
+                                (apply# N A S B T D) ;
+storeRClerk (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+storeRClerk (pair# L R) (pair# L R) ;
+storeRClerk (apply? A S I C) (apply? A S I C) ;
+storeRClerk (case? A L R) (case? A L R) ;
+storeRClerk (inductionS? L R I) (inductionS? L R I) ;
+storeRClerk (induction? C) (induction? C) ;
+storeRClerk search search ;
+storeRClerk (apply N A S B T) (apply N A S B T) ;
+storeRClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+storeRClerk (induction N A S B T)
+                           (induction N A S B T).
+
+Define ttClerk : cert -> cert -> prop by
+ttClerk (apply# N A S B T D)
+                                (apply# N A S B T D) ;
+ttClerk (induction# N A S B T D)
+                                (induction# N A S B T D) ;
+ttClerk (pair# L R) (pair# L R) ;
+ttClerk (apply? A S I C) (apply? A S I C) ;
+ttClerk (case? A L R) (case? A L R) ;
+ttClerk (inductionS? L R I) (inductionS? L R I) ;
+ttClerk (induction? C) (induction? C) ;
+ttClerk search search ;
+ttClerk (apply N A S B T) (apply N A S B T) ;
+ttClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+ttClerk (induction N A S B T) (induction N A S B T).
+
+Define ttExpert : cert -> prop by
+ttExpert (apply# X X1 X2 X3 X4 X5) ;
+ttExpert (induction# X X1 X2 X3 X4 X5) ;
+ttExpert (pair# X X1) ;
+ttExpert (apply? X X1 X2 X3) ;
+ttExpert (case? X X1 X2) ;
+ttExpert (inductionS? X X1 X2) ;
+ttExpert (induction? X) ;
+ttExpert search ;
+ttExpert (apply X X1 X2 X3 X4) ;
+ttExpert (inductionS X X1 X2 X3 X4 X5) ;
+ttExpert (induction X X1 X2 X3 X4).
+
+Define unfoldLClerk : cert -> cert -> prop by
+unfoldLClerk (apply# N A S (ss B) T D)
+                                (apply# N A S B T D) ;
+unfoldLClerk (pair# L R) (pair# M S) := unfoldLClerk L M /\ unfoldLClerk R S ;
+unfoldLClerk (apply? (ss A) S I C) (apply? A S I C) ;
+unfoldLClerk (case? (ss A) L R) (case? A L R) ;
+unfoldLClerk (apply N A S (ss B) T)
+                           (apply N A S B T).
+
+Define unfoldLExpert : cert -> cert -> prop by
+unfoldLExpert (apply# N A S B (ss T) D)
+                                (apply# N A S B T D) ;
+unfoldLExpert (pair# L R) (pair# M S) := unfoldLExpert L M /\ unfoldLExpert R S ;
+unfoldLExpert (apply? A (ss S) I C) (apply? A S I C) ;
+unfoldLExpert (apply N A S B (ss T))
+                           (apply N A S B T).
+
+Define unfoldRClerk : cert -> cert -> prop by
+unfoldRClerk (apply# N A S (ss B) T D)
+                                (apply# N A S B T D) ;
+unfoldRClerk (pair# L R) (pair# M S) := unfoldRClerk L M /\ unfoldRClerk R S ;
+unfoldRClerk (apply? (ss A) S I C) (apply? A S I C) ;
+unfoldRClerk (case? (ss A) L R) (case? A L R) ;
+unfoldRClerk (apply N A S (ss B) T)
+                           (apply N A S B T).
+
+Define unfoldRExpert : cert -> cert -> prop by
+unfoldRExpert (apply# N A S B (ss T) D)
+                                (apply# N A S B T D) ;
+unfoldRExpert (pair# L R) (pair# M S) := unfoldRExpert L M /\ unfoldRExpert R S ;
+unfoldRExpert (apply? A (ss S) I C) (apply? A S I C) ;
+unfoldRExpert (apply N A S B (ss T))
+                           (apply N A S B T).
