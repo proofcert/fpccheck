@@ -1,6 +1,6 @@
 #include "../kernel/logic.thm".
 #include "../kernel/cert-sig.thm".
-#include "../fpc/_fpc-simple_abella_.thm".
+#include "../fpc/_fpc-atomic_abella_.thm".
 #include "plus-examples-sig.thm".
 #include "../kernel/kernel.thm".
 #include "_plus-examples_abella_.thm".
