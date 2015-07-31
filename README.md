@@ -60,10 +60,10 @@ versions).
 
 For more information you can refer to the following working paper:
 
-> *Defining inference rules by certificate checking*
+> *Proof outlines as proof certificates: a system description*
 > by Roberto Blanco and Dale Miller.
 > [Draft](http://www.lix.polytechnique.fr/Labo/Dale.Miller/papers/acheck.pdf)
-> dated 19 May 2015
+> dated 5 July 2015
 
 The script `acheck.pl` automates a simple workflow given an Abella session file
 and full paths to both Abella and Bedwyr. As with the other scripts, it is quick
