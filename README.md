@@ -63,7 +63,7 @@ For more information you can refer to the following working paper:
 > *Proof outlines as proof certificates: a system description*
 > by Roberto Blanco and Dale Miller.
 > [Draft](http://www.lix.polytechnique.fr/Labo/Dale.Miller/papers/acheck.pdf)
-> dated 5 July 2015
+> dated 15 September 2015
 
 The script `acheck.pl` automates a simple workflow given an Abella session file
 and full paths to both Abella and Bedwyr. As with the other scripts, it is quick
