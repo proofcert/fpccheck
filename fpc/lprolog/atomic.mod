@@ -4,6 +4,11 @@
 
 module atomic.
 
+% Typing judgment %%%%%%%%%%%%%%%
+is_nonneg zz.
+is_nonneg (ss N) :- is_nonneg N.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ffClerk (induction _ _ _ _ _).
 ffClerk (inductionS _ _ _ _ _ _).
 ffClerk (apply _ _ _ _ _).

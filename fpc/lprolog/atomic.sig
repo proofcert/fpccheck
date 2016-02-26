@@ -8,6 +8,8 @@ kind nonneg type.
 type zz nonneg.
 type ss nonneg -> nonneg.
 
+type   is_nonneg   nonneg -> o.
+
 type   induction    nonneg -> nonneg -> nonneg -> nonneg -> nonneg                -> cert.
 type   inductionS   nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> (i -> bool) -> cert.
 type   apply        nonneg -> nonneg -> nonneg -> nonneg -> nonneg                -> cert.
