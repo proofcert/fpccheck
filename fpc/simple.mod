@@ -2,6 +2,7 @@ module simple.
 
 accumulate atomic.
 accumulate decision.
+accumulate lemma.
 accumulate pair.
 
 %releaseLExpert
