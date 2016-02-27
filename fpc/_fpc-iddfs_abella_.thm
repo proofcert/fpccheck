@@ -3,6 +3,7 @@ Kind numidx type.
 
 Type apply nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> cert.
 Type iddfs nonneg -> cert.
+Type iddfsidx idx.
 Type idx nonneg -> idx.
 Type idx2 idx -> idx -> idx.
 Type idxatom idx.
@@ -97,7 +98,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 decideLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR) := decideLClerk L0 L1 IL /\ decideLClerk R0 R1 IR /\ println "decideLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR)" ;
-decideLClerk (iddfs N) (iddfs N) X := println "decideLClerk (iddfs N) (iddfs N) X" ;
+decideLClerk (iddfs N) (iddfs N) iddfsidx := println "decideLClerk (iddfs N) (iddfs N) iddfsidx" ;
 decideLClerk (apply N A S B T) (apply N A S B T)
                            idxlocal := println "decideLClerk (apply N A S B T) (apply N A S B T)
                            idxlocal".
@@ -145,7 +146,7 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 freezeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR) := freezeLClerk L0 L1 IL /\ freezeLClerk R0 R1 IR /\ println "freezeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR)" ;
-freezeLClerk (iddfs N) (iddfs N) idxatom := println "freezeLClerk (iddfs N) (iddfs N) idxatom" ;
+freezeLClerk (iddfs N) (iddfs N) iddfsidx := println "freezeLClerk (iddfs N) (iddfs N) iddfsidx" ;
 freezeLClerk search search idxatom := println "freezeLClerk search search idxatom" ;
 freezeLClerk (apply N A S B T) (apply N A S B T)
                            idxatom := println "freezeLClerk (apply N A S B T) (apply N A S B T)
@@ -227,7 +228,7 @@ initLExpert (induction X X1 X2 X3 X4) := println "initLExpert (induction X X1 X2
 
 Define initRExpert : cert -> idx -> prop by
 initRExpert (pair# L0 R0) (idx2 IL IR) := initRExpert L0 IL /\ initRExpert R0 IR /\ println "initRExpert (pair# L0 R0) (idx2 IL IR)" ;
-initRExpert (iddfs X) X1 := println "initRExpert (iddfs X) X1" ;
+initRExpert (iddfs X) iddfsidx := println "initRExpert (iddfs X) iddfsidx" ;
 initRExpert search idxatom := println "initRExpert search idxatom" ;
 initRExpert (apply X X1 X2 X3 X4) idxatom := println "initRExpert (apply X X1 X2 X3 X4) idxatom" ;
 initRExpert (inductionS X X1 X2 X3 X4 X5)
@@ -324,7 +325,7 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 storeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR) := storeLClerk L0 L1 IL /\ storeLClerk R0 R1 IR /\ println "storeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR)" ;
-storeLClerk (iddfs N) (iddfs N) idxlocal := println "storeLClerk (iddfs N) (iddfs N) idxlocal" ;
+storeLClerk (iddfs N) (iddfs N) iddfsidx := println "storeLClerk (iddfs N) (iddfs N) iddfsidx" ;
 storeLClerk search search idxlocal := println "storeLClerk search search idxlocal" ;
 storeLClerk (apply N A S B T) (apply N A S B T)
                            idxlocal := println "storeLClerk (apply N A S B T) (apply N A S B T)

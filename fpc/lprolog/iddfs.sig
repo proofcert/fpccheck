@@ -7,7 +7,6 @@ accum_sig atomic.
 type   startiddfs   cert.
 type   iddfs        nonneg -> cert.
 
-%type   idxatom    idx.
-%type   idxlocal   idx.
+type   iddfsidx     idx.
 
 end

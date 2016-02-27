@@ -56,18 +56,19 @@ unfoldLExpert (iddfs N) (iddfs N).
 
 unfoldRClerk (iddfs N) (iddfs N).
 
-freezeLClerk (iddfs N) (iddfs N) idxatom. % idxatom
+freezeLClerk (iddfs N) (iddfs N) iddfsidx.
 
-initRExpert (iddfs _) _. % idxatom
+initRExpert (iddfs _) iddfsidx.
 
 freezeRClerk (iddfs N) (iddfs N).
 
 initLExpert (iddfs _).
 
-storeLClerk (iddfs N) (iddfs N) idxlocal. % idxlocal
+storeLClerk (iddfs N) (iddfs N) iddfsidx.
 
-decideLClerk (iddfs N) (iddfs N) _. % idxlocal
+decideLClerk (iddfs N) (iddfs N) iddfsidx.
 
+% Potentially risky without external guidance (and good pairing composition).
 decideLClerk' (iddfs N) (iddfs N) _.
 
 storeRClerk (iddfs N) (iddfs N).
