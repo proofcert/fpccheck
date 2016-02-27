@@ -40,6 +40,7 @@ allClerk (induction N A S B T)
 
 Define allExpert : cert -> cert -> i -> prop by
 allExpert (pair# L0 R0) (pair# L1 R1) T := allExpert L0 L1 T /\ allExpert R0 R1 T /\ println "allExpert (pair# L0 R0) (pair# L1 R1) T" ;
+allExpert startiddfs (iddfs N) X := is_nonneg N /\ println "allExpert startiddfs (iddfs N) X" ;
 allExpert (iddfs N) (iddfs N) X := println "allExpert (iddfs N) (iddfs N) X" ;
 allExpert search search X := println "allExpert search search X" ;
 allExpert (apply N A S B T) (apply N A S B T) X := println "allExpert (apply N A S B T) (apply N A S B T) X" ;
@@ -52,6 +53,7 @@ allExpert (induction N A S B T)
 
 Define andClerk : cert -> cert -> prop by
 andClerk (pair# L0 R0) (pair# L1 R1) := andClerk L0 L1 /\ andClerk R0 R1 /\ println "andClerk (pair# L0 R0) (pair# L1 R1)" ;
+andClerk startiddfs (iddfs N) := is_nonneg N /\ println "andClerk startiddfs (iddfs N)" ;
 andClerk (iddfs N) (iddfs N) := println "andClerk (iddfs N) (iddfs N)" ;
 andClerk search search := println "andClerk search search" ;
 andClerk (apply N A S B T) (apply N A S B T) := println "andClerk (apply N A S B T) (apply N A S B T)" ;
@@ -64,6 +66,7 @@ Define andExpert : cert -> cert -> cert -> prop by
 andExpert (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2) := andExpert L0 L1 L2 /\ andExpert R0 R1 R2 /\ println "andExpert (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2)" ;
+andExpert startiddfs (iddfs N) (iddfs N) := is_nonneg N /\ println "andExpert startiddfs (iddfs N) (iddfs N)" ;
 andExpert (iddfs N) (iddfs N) (iddfs N) := println "andExpert (iddfs N) (iddfs N) (iddfs N)" ;
 andExpert search search search := println "andExpert search search search" ;
 andExpert (apply N A S B T) (apply N A S B T)
@@ -82,6 +85,7 @@ Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
 coindClerk (pair# L0 R0) (pair# L1 R1)
                                         (x\pair# (L2 x) (R2 x)) S := coindClerk L0 L1 L2 S /\ coindClerk R0 R1 R2 S /\ println "coindClerk (pair# L0 R0) (pair# L1 R1)
                                         (x\pair# (L2 x) (R2 x)) S" ;
+coindClerk startiddfs (iddfs N) (x\iddfs N) X := is_nonneg N /\ println "coindClerk startiddfs (iddfs N) (x\iddfs N) X" ;
 coindClerk (iddfs N) (iddfs N) (x\iddfs N) X := println "coindClerk (iddfs N) (iddfs N) (x\iddfs N) X" ;
 coindClerk (inductionS N A S B T I)
                                 (apply N A S B T) (x\apply N A S B T) I := println "coindClerk (inductionS N A S B T I)
@@ -89,6 +93,7 @@ coindClerk (inductionS N A S B T I)
 
 Define coindClerk' : cert -> ( i -> cert ) -> prop by
 coindClerk' (pair# L0 R0) (x\pair# (L1 x) (R1 x)) := coindClerk' L0 L1 /\ coindClerk' R0 R1 /\ println "coindClerk' (pair# L0 R0) (x\pair# (L1 x) (R1 x))" ;
+coindClerk' startiddfs (x\iddfs N) := is_nonneg N /\ println "coindClerk' startiddfs (x\iddfs N)" ;
 coindClerk' (iddfs N) (x\iddfs N) := println "coindClerk' (iddfs N) (x\iddfs N)" ;
 coindClerk' (induction N A S B T)
                            (x\apply N A S B T) := println "coindClerk' (induction N A S B T)
@@ -98,6 +103,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 decideLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR) := decideLClerk L0 L1 IL /\ decideLClerk R0 R1 IR /\ println "decideLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR)" ;
+decideLClerk startiddfs (iddfs N) iddfsidx := is_nonneg N /\ println "decideLClerk startiddfs (iddfs N) iddfsidx" ;
 decideLClerk (iddfs N) (iddfs N) iddfsidx := println "decideLClerk (iddfs N) (iddfs N) iddfsidx" ;
 decideLClerk (apply N A S B T) (apply N A S B T)
                            idxlocal := println "decideLClerk (apply N A S B T) (apply N A S B T)
@@ -105,6 +111,7 @@ decideLClerk (apply N A S B T) (apply N A S B T)
 
 Define decideLClerk' : cert -> cert -> idx -> prop by
 decideLClerk' (pair# L0 R0) (pair# L1 R1) I := decideLClerk' L0 L1 I /\ decideLClerk' R0 R1 I /\ println "decideLClerk' (pair# L0 R0) (pair# L1 R1) I" ;
+decideLClerk' startiddfs (iddfs N) X := is_nonneg N /\ println "decideLClerk' startiddfs (iddfs N) X" ;
 decideLClerk' (iddfs N) (iddfs N) X := println "decideLClerk' (iddfs N) (iddfs N) X" ;
 decideLClerk' (apply N A S B T)
                                 (apply N A S B T) X := println "decideLClerk' (apply N A S B T)
@@ -112,12 +119,14 @@ decideLClerk' (apply N A S B T)
 
 Define decideRClerk : cert -> cert -> prop by
 decideRClerk (pair# L0 R0) (pair# L1 R1) := decideRClerk L0 L1 /\ decideRClerk R0 R1 /\ println "decideRClerk (pair# L0 R0) (pair# L1 R1)" ;
+decideRClerk startiddfs (iddfs N) := is_nonneg N /\ println "decideRClerk startiddfs (iddfs N)" ;
 decideRClerk (iddfs N) (iddfs N) := println "decideRClerk (iddfs N) (iddfs N)" ;
 decideRClerk search search := println "decideRClerk search search" ;
 decideRClerk (apply N A S B T) (apply N A S B T) := println "decideRClerk (apply N A S B T) (apply N A S B T)".
 
 Define eqClerk : cert -> cert -> prop by
 eqClerk (pair# L0 R0) (pair# L1 R1) := eqClerk L0 L1 /\ eqClerk R0 R1 /\ println "eqClerk (pair# L0 R0) (pair# L1 R1)" ;
+eqClerk startiddfs (iddfs N) := is_nonneg N /\ println "eqClerk startiddfs (iddfs N)" ;
 eqClerk (iddfs N) (iddfs N) := println "eqClerk (iddfs N) (iddfs N)" ;
 eqClerk search search := println "eqClerk search search" ;
 eqClerk (apply N A S B T) (apply N A S B T) := println "eqClerk (apply N A S B T) (apply N A S B T)" ;
@@ -128,6 +137,7 @@ eqClerk (induction N A S B T) (induction N A S B T) := println "eqClerk (inducti
 
 Define eqExpert : cert -> prop by
 eqExpert (pair# L0 R0) := eqExpert L0 /\ eqExpert R0 /\ println "eqExpert (pair# L0 R0)" ;
+eqExpert startiddfs := println "eqExpert startiddfs" ;
 eqExpert (iddfs X) := println "eqExpert (iddfs X)" ;
 eqExpert search := println "eqExpert search" ;
 eqExpert (apply X X1 X2 X3 X4) := println "eqExpert (apply X X1 X2 X3 X4)" ;
@@ -136,6 +146,7 @@ eqExpert (induction X X1 X2 X3 X4) := println "eqExpert (induction X X1 X2 X3 X4
 
 Define ffClerk : cert -> prop by
 ffClerk (pair# L0 R0) := ffClerk L0 /\ ffClerk R0 /\ println "ffClerk (pair# L0 R0)" ;
+ffClerk startiddfs := println "ffClerk startiddfs" ;
 ffClerk (iddfs X) := println "ffClerk (iddfs X)" ;
 ffClerk search := println "ffClerk search" ;
 ffClerk (apply X X1 X2 X3 X4) := println "ffClerk (apply X X1 X2 X3 X4)" ;
@@ -146,6 +157,7 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 freezeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR) := freezeLClerk L0 L1 IL /\ freezeLClerk R0 R1 IR /\ println "freezeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR)" ;
+freezeLClerk startiddfs (iddfs N) iddfsidx := is_nonneg N /\ println "freezeLClerk startiddfs (iddfs N) iddfsidx" ;
 freezeLClerk (iddfs N) (iddfs N) iddfsidx := println "freezeLClerk (iddfs N) (iddfs N) iddfsidx" ;
 freezeLClerk search search idxatom := println "freezeLClerk search search idxatom" ;
 freezeLClerk (apply N A S B T) (apply N A S B T)
@@ -160,6 +172,7 @@ freezeLClerk (induction N A S B T)
 
 Define freezeRClerk : cert -> cert -> prop by
 freezeRClerk (pair# L0 R0) (pair# L1 R1) := freezeRClerk L0 L1 /\ freezeRClerk R0 R1 /\ println "freezeRClerk (pair# L0 R0) (pair# L1 R1)" ;
+freezeRClerk startiddfs (iddfs N) := is_nonneg N /\ println "freezeRClerk startiddfs (iddfs N)" ;
 freezeRClerk (iddfs N) (iddfs N) := println "freezeRClerk (iddfs N) (iddfs N)" ;
 freezeRClerk search search := println "freezeRClerk search search" ;
 freezeRClerk (apply N A S B T) (apply N A S B T) := println "freezeRClerk (apply N A S B T) (apply N A S B T)" ;
@@ -172,6 +185,7 @@ freezeRClerk (induction N A S B T)
 
 Define impClerk : cert -> cert -> prop by
 impClerk (pair# L0 R0) (pair# L1 R1) := impClerk L0 L1 /\ impClerk R0 R1 /\ println "impClerk (pair# L0 R0) (pair# L1 R1)" ;
+impClerk startiddfs (iddfs N) := is_nonneg N /\ println "impClerk startiddfs (iddfs N)" ;
 impClerk (iddfs N) (iddfs N) := println "impClerk (iddfs N) (iddfs N)" ;
 impClerk search search := println "impClerk search search" ;
 impClerk (apply N A S B T) (apply N A S B T) := println "impClerk (apply N A S B T) (apply N A S B T)" ;
@@ -184,12 +198,14 @@ Define impExpert : cert -> cert -> cert -> prop by
 impExpert (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2) := impExpert L0 L1 L2 /\ impExpert R0 R1 R2 /\ println "impExpert (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2)" ;
+impExpert startiddfs (iddfs N) (iddfs N) := is_nonneg N /\ println "impExpert startiddfs (iddfs N) (iddfs N)" ;
 impExpert (iddfs N) (iddfs N) (iddfs N) := println "impExpert (iddfs N) (iddfs N) (iddfs N)".
 
 Define impExpert' : cert -> cert -> cert -> prop by
 impExpert' (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2) := impExpert' L0 L1 L2 /\ impExpert' R0 R1 R2 /\ println "impExpert' (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2)" ;
+impExpert' startiddfs (iddfs N) (iddfs N) := is_nonneg N /\ println "impExpert' startiddfs (iddfs N) (iddfs N)" ;
 impExpert' (iddfs N) (iddfs N) (iddfs N) := println "impExpert' (iddfs N) (iddfs N) (iddfs N)" ;
 impExpert' search search search := println "impExpert' search search search" ;
 impExpert' (apply N A S B T) (apply N A S B T)
@@ -208,6 +224,7 @@ Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
 indClerk (pair# L0 R0) (pair# L1 R1)
                                         (x\pair# (L2 x) (R2 x)) S := indClerk L0 L1 L2 S /\ indClerk R0 R1 R2 S /\ println "indClerk (pair# L0 R0) (pair# L1 R1)
                                         (x\pair# (L2 x) (R2 x)) S" ;
+indClerk startiddfs (iddfs N) (x\iddfs N) X := is_nonneg N /\ println "indClerk startiddfs (iddfs N) (x\iddfs N) X" ;
 indClerk (iddfs N) (iddfs N) (x\iddfs N) X := println "indClerk (iddfs N) (iddfs N) (x\iddfs N) X" ;
 indClerk (inductionS N A S B T I)
                                 (apply N A S B T) (x\apply N A S B T) I := println "indClerk (inductionS N A S B T I)
@@ -215,11 +232,13 @@ indClerk (inductionS N A S B T I)
 
 Define indClerk' : cert -> ( i -> cert ) -> prop by
 indClerk' (pair# L0 R0) (x\pair# (L1 x) (R1 x)) := indClerk' L0 L1 /\ indClerk' R0 R1 /\ println "indClerk' (pair# L0 R0) (x\pair# (L1 x) (R1 x))" ;
+indClerk' startiddfs (x\iddfs N) := is_nonneg N /\ println "indClerk' startiddfs (x\iddfs N)" ;
 indClerk' (iddfs N) (x\iddfs N) := println "indClerk' (iddfs N) (x\iddfs N)" ;
 indClerk' (induction N A S B T) (x\apply N A S B T) := println "indClerk' (induction N A S B T) (x\apply N A S B T)".
 
 Define initLExpert : cert -> prop by
 initLExpert (pair# L0 R0) := initLExpert L0 /\ initLExpert R0 /\ println "initLExpert (pair# L0 R0)" ;
+initLExpert startiddfs := println "initLExpert startiddfs" ;
 initLExpert (iddfs X) := println "initLExpert (iddfs X)" ;
 initLExpert search := println "initLExpert search" ;
 initLExpert (apply X X1 X2 X3 X4) := println "initLExpert (apply X X1 X2 X3 X4)" ;
@@ -228,6 +247,7 @@ initLExpert (induction X X1 X2 X3 X4) := println "initLExpert (induction X X1 X2
 
 Define initRExpert : cert -> idx -> prop by
 initRExpert (pair# L0 R0) (idx2 IL IR) := initRExpert L0 IL /\ initRExpert R0 IR /\ println "initRExpert (pair# L0 R0) (idx2 IL IR)" ;
+initRExpert startiddfs iddfsidx := println "initRExpert startiddfs iddfsidx" ;
 initRExpert (iddfs X) iddfsidx := println "initRExpert (iddfs X) iddfsidx" ;
 initRExpert search idxatom := println "initRExpert search idxatom" ;
 initRExpert (apply X X1 X2 X3 X4) idxatom := println "initRExpert (apply X X1 X2 X3 X4) idxatom" ;
@@ -244,6 +264,7 @@ Define orClerk : cert -> cert -> cert -> prop by
 orClerk (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2) := orClerk L0 L1 L2 /\ orClerk R0 R1 R2 /\ println "orClerk (pair# L0 R0) (pair# L1 R1)
                                   (pair# L2 R2)" ;
+orClerk startiddfs (iddfs N) (iddfs N) := is_nonneg N /\ println "orClerk startiddfs (iddfs N) (iddfs N)" ;
 orClerk (iddfs N) (iddfs N) (iddfs N) := println "orClerk (iddfs N) (iddfs N) (iddfs N)" ;
 orClerk search search search := println "orClerk search search search" ;
 orClerk (apply N A S B T) (apply N A S B T)
@@ -260,6 +281,7 @@ orClerk (induction N A S B T) (induction N A S B T)
 
 Define orExpert : cert -> cert -> choice -> prop by
 orExpert (pair# L0 R0) (pair# L1 R1) C := orExpert L0 L1 C /\ orExpert R0 R1 C /\ println "orExpert (pair# L0 R0) (pair# L1 R1) C" ;
+orExpert startiddfs (iddfs N) X := is_nonneg N /\ println "orExpert startiddfs (iddfs N) X" ;
 orExpert (iddfs N) (iddfs N) right := println "orExpert (iddfs N) (iddfs N) right" ;
 orExpert (iddfs N) (iddfs N) left := println "orExpert (iddfs N) (iddfs N) left" ;
 orExpert search search right := println "orExpert search search right" ;
@@ -281,6 +303,7 @@ orExpert (induction N A S B T) (induction N A S B T)
 
 Define releaseLExpert : cert -> cert -> prop by
 releaseLExpert (pair# L0 R0) (pair# L1 R1) := releaseLExpert L0 L1 /\ releaseLExpert R0 R1 /\ println "releaseLExpert (pair# L0 R0) (pair# L1 R1)" ;
+releaseLExpert startiddfs (iddfs N) := is_nonneg N /\ println "releaseLExpert startiddfs (iddfs N)" ;
 releaseLExpert (iddfs (ss N)) (iddfs N) := println "releaseLExpert (iddfs (ss N)) (iddfs N)" ;
 releaseLExpert (apply zz X X1 X2 X3) search := println "releaseLExpert (apply zz X X1 X2 X3) search" ;
 releaseLExpert (apply (ss N) A S X X1)
@@ -289,6 +312,7 @@ releaseLExpert (apply (ss N) A S X X1)
 
 Define releaseRExpert : cert -> cert -> prop by
 releaseRExpert (pair# L0 R0) (pair# L1 R1) := releaseRExpert L0 L1 /\ releaseRExpert R0 R1 /\ println "releaseRExpert (pair# L0 R0) (pair# L1 R1)" ;
+releaseRExpert startiddfs (iddfs N) := is_nonneg N /\ println "releaseRExpert startiddfs (iddfs N)" ;
 releaseRExpert (iddfs (ss N)) (iddfs N) := println "releaseRExpert (iddfs (ss N)) (iddfs N)" ;
 releaseRExpert (apply zz X X1 X2 X3) search := println "releaseRExpert (apply zz X X1 X2 X3) search" ;
 releaseRExpert (apply (ss N) A S X X1)
@@ -297,6 +321,7 @@ releaseRExpert (apply (ss N) A S X X1)
 
 Define someClerk : cert -> ( i -> cert ) -> prop by
 someClerk (pair# L0 R0) (x\pair# (L1 x) (R1 x)) := someClerk L0 L1 /\ someClerk R0 R1 /\ println "someClerk (pair# L0 R0) (x\pair# (L1 x) (R1 x))" ;
+someClerk startiddfs (x\iddfs N) := is_nonneg N /\ println "someClerk startiddfs (x\iddfs N)" ;
 someClerk (iddfs N) (x\iddfs N) := println "someClerk (iddfs N) (x\iddfs N)" ;
 someClerk search x\search := println "someClerk search x\search" ;
 someClerk (apply N A S B T) (x\apply N A S B T) := println "someClerk (apply N A S B T) (x\apply N A S B T)" ;
@@ -309,6 +334,7 @@ someClerk (induction N A S B T)
 
 Define someExpert : cert -> cert -> i -> prop by
 someExpert (pair# L0 R0) (pair# L1 R1) T := someExpert L0 L1 T /\ someExpert R0 R1 T /\ println "someExpert (pair# L0 R0) (pair# L1 R1) T" ;
+someExpert startiddfs (iddfs N) X := is_nonneg N /\ println "someExpert startiddfs (iddfs N) X" ;
 someExpert (iddfs N) (iddfs N) X := println "someExpert (iddfs N) (iddfs N) X" ;
 someExpert search search X := println "someExpert search search X" ;
 someExpert (apply N A S B T) (apply N A S B T)
@@ -325,6 +351,7 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 storeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR) := storeLClerk L0 L1 IL /\ storeLClerk R0 R1 IR /\ println "storeLClerk (pair# L0 R0) (pair# L1 R1)
                                   (idx2 IL IR)" ;
+storeLClerk startiddfs (iddfs N) iddfsidx := is_nonneg N /\ println "storeLClerk startiddfs (iddfs N) iddfsidx" ;
 storeLClerk (iddfs N) (iddfs N) iddfsidx := println "storeLClerk (iddfs N) (iddfs N) iddfsidx" ;
 storeLClerk search search idxlocal := println "storeLClerk search search idxlocal" ;
 storeLClerk (apply N A S B T) (apply N A S B T)
@@ -339,6 +366,7 @@ storeLClerk (induction N A S B T)
 
 Define storeRClerk : cert -> cert -> prop by
 storeRClerk (pair# L0 R0) (pair# L1 R1) := storeRClerk L0 L1 /\ storeRClerk R0 R1 /\ println "storeRClerk (pair# L0 R0) (pair# L1 R1)" ;
+storeRClerk startiddfs (iddfs N) := is_nonneg N /\ println "storeRClerk startiddfs (iddfs N)" ;
 storeRClerk (iddfs N) (iddfs N) := println "storeRClerk (iddfs N) (iddfs N)" ;
 storeRClerk search search := println "storeRClerk search search" ;
 storeRClerk (apply N A S B T) (apply N A S B T) := println "storeRClerk (apply N A S B T) (apply N A S B T)" ;
@@ -351,6 +379,7 @@ storeRClerk (induction N A S B T)
 
 Define ttClerk : cert -> cert -> prop by
 ttClerk (pair# L0 R0) (pair# L1 R1) := ttClerk L0 L1 /\ ttClerk R0 R1 /\ println "ttClerk (pair# L0 R0) (pair# L1 R1)" ;
+ttClerk startiddfs (iddfs N) := is_nonneg N /\ println "ttClerk startiddfs (iddfs N)" ;
 ttClerk (iddfs N) (iddfs N) := println "ttClerk (iddfs N) (iddfs N)" ;
 ttClerk search search := println "ttClerk search search" ;
 ttClerk (apply N A S B T) (apply N A S B T) := println "ttClerk (apply N A S B T) (apply N A S B T)" ;
@@ -361,6 +390,7 @@ ttClerk (induction N A S B T) (induction N A S B T) := println "ttClerk (inducti
 
 Define ttExpert : cert -> prop by
 ttExpert (pair# L0 R0) := ttExpert L0 /\ ttExpert R0 /\ println "ttExpert (pair# L0 R0)" ;
+ttExpert startiddfs := println "ttExpert startiddfs" ;
 ttExpert (iddfs X) := println "ttExpert (iddfs X)" ;
 ttExpert search := println "ttExpert search" ;
 ttExpert (apply X X1 X2 X3 X4) := println "ttExpert (apply X X1 X2 X3 X4)" ;
@@ -369,6 +399,7 @@ ttExpert (induction X X1 X2 X3 X4) := println "ttExpert (induction X X1 X2 X3 X4
 
 Define unfoldLClerk : cert -> cert -> prop by
 unfoldLClerk (pair# L0 R0) (pair# L1 R1) := unfoldLClerk L0 L1 /\ unfoldLClerk R0 R1 /\ println "unfoldLClerk (pair# L0 R0) (pair# L1 R1)" ;
+unfoldLClerk startiddfs (iddfs N) := is_nonneg N /\ println "unfoldLClerk startiddfs (iddfs N)" ;
 unfoldLClerk (iddfs N) (iddfs N) := println "unfoldLClerk (iddfs N) (iddfs N)" ;
 unfoldLClerk (apply N A S (ss B) T)
                            (apply N A S B T) := println "unfoldLClerk (apply N A S (ss B) T)
@@ -376,6 +407,7 @@ unfoldLClerk (apply N A S (ss B) T)
 
 Define unfoldLExpert : cert -> cert -> prop by
 unfoldLExpert (pair# L0 R0) (pair# L1 R1) := unfoldLExpert L0 L1 /\ unfoldLExpert R0 R1 /\ println "unfoldLExpert (pair# L0 R0) (pair# L1 R1)" ;
+unfoldLExpert startiddfs (iddfs N) := is_nonneg N /\ println "unfoldLExpert startiddfs (iddfs N)" ;
 unfoldLExpert (iddfs N) (iddfs N) := println "unfoldLExpert (iddfs N) (iddfs N)" ;
 unfoldLExpert (apply N A S B (ss T))
                            (apply N A S B T) := println "unfoldLExpert (apply N A S B (ss T))
@@ -383,6 +415,7 @@ unfoldLExpert (apply N A S B (ss T))
 
 Define unfoldRClerk : cert -> cert -> prop by
 unfoldRClerk (pair# L0 R0) (pair# L1 R1) := unfoldRClerk L0 L1 /\ unfoldRClerk R0 R1 /\ println "unfoldRClerk (pair# L0 R0) (pair# L1 R1)" ;
+unfoldRClerk startiddfs (iddfs N) := is_nonneg N /\ println "unfoldRClerk startiddfs (iddfs N)" ;
 unfoldRClerk (iddfs N) (iddfs N) := println "unfoldRClerk (iddfs N) (iddfs N)" ;
 unfoldRClerk (apply N A S (ss B) T)
                            (apply N A S B T) := println "unfoldRClerk (apply N A S (ss B) T)
@@ -390,6 +423,7 @@ unfoldRClerk (apply N A S (ss B) T)
 
 Define unfoldRExpert : cert -> cert -> prop by
 unfoldRExpert (pair# L0 R0) (pair# L1 R1) := unfoldRExpert L0 L1 /\ unfoldRExpert R0 R1 /\ println "unfoldRExpert (pair# L0 R0) (pair# L1 R1)" ;
+unfoldRExpert startiddfs (iddfs N) := is_nonneg N /\ println "unfoldRExpert startiddfs (iddfs N)" ;
 unfoldRExpert (iddfs N) (iddfs N) := println "unfoldRExpert (iddfs N) (iddfs N)" ;
 unfoldRExpert (apply N A S B (ss T))
                            (apply N A S B T) := println "unfoldRExpert (apply N A S B (ss T))
