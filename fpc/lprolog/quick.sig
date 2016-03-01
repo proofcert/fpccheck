@@ -39,11 +39,14 @@ type   qmap   string -> qform.
 %qmap "is_int" (qor 20 80 qnone (qand qnone (qname "is_int")))
 %qmap "is_intlist" (qor 50 50 qnone (qand (qand qnone (qname "is_int")) (qname "is_intlist")))
 
-%WIP At the very least, a certificate takes maps for both left and right side
-% of the sequent.
-type   qcert   list qmap -> qmap -> cert.
+%WIP At the very least, a certificate takes a map and traversal forms for both
+% left and right side of the sequent.
+type   qcert   list qmap -> list qform -> qform -> cert.
 
 % To stay out of trouble, a dummy index.
 type   qidx   idx.
+% In a more general setting, stored formulas must keep their structural
+% information.
+%type   qidx   qmap -> idx.
 
 end
