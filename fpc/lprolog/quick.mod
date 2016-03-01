@@ -1,6 +1,11 @@
 module quick.
 
-% Placeholders for the asynchronous phase
+% Set membership
+type   member   A -> list A -> o.
+member X [X | _].
+member X [_ | L] :-
+	member X L.
+
 %ffClerk (qcert _ _).
 %
 %ttClerk (qcert D G) (qcert D G).
@@ -45,9 +50,9 @@ orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Cho
 %someClerk (qcert D G)(x\ qcert D G).
 %
 %allExpert (qcert D G)(qcert D G) _.
-%
-%someExpert (qcert D G)(qcert D G) _.
-%
+
+someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _.
+
 %indClerk (qcert D G)(qcert D G)(x\ qcert D G) _.
 %
 %indClerk' (qcert D G)(x\ qcert D G).
@@ -57,9 +62,11 @@ orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Cho
 %coindClerk' (qcert D G)(x\ qcert D G).
 %
 %unfoldLClerk (qcert D G)(qcert D G).
-%
-%unfoldRExpert (qcert D G)(qcert D G).
-%
+
+unfoldRExpert (qcert Map Delta qnone)        (qcert Map Delta qnone).
+unfoldRExpert (qcert Map Delta (qname Name)) (qcert Map Delta Form) :-
+	member (qmap Name Form) Map.
+
 %unfoldLExpert (qcert D G)(qcert D G).
 %
 %unfoldRClerk (qcert D G)(qcert D G).
@@ -77,11 +84,11 @@ orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Cho
 %decideLClerk (qcert D G)(qcert D G) qidx.
 %
 %decideLClerk' (qcert D G)(qcert D G) _.
-%
-%storeRClerk (qcert D G)(qcert D G).
-%
-%decideRClerk (qcert D G)(qcert D G).
-%
+
+storeRClerk (qcert Map Delta Goal) (qcert Map Delta Goal).
+
+decideRClerk (qcert Map Delta Goal) (qcert Map Delta Goal).
+
 %releaseLExpert (qcert D G)(qcert D G).
 %
 %releaseRExpert (qcert D G)(qcert D G).

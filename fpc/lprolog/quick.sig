@@ -30,7 +30,7 @@ type   qnone   qform.
 % to match the sequents to be proved. A context will be a list (used as a set)
 % of mappings.
 kind   qmap   type.
-type   qmap   string -> qform.
+type   qmap   string -> qform -> qmap.
 
 % Examples of maps: integers and lists of integers. Care must be taken to
 % ensure that probabilities add up, and to respect the structure of the
