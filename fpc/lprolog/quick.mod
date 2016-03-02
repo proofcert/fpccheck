@@ -42,9 +42,9 @@ orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Cho
 %impExpert (qcert D G)(qcert D G)(qcert D G).
 %
 %impExpert' (qcert D G)(qcert D G)(qcert D G).
-%
-%eqExpert (qcert D G).
-%
+
+eqExpert (qcert _ _ _).
+
 %allClerk (qcert D G)(x\ qcert D G).
 %
 %someClerk (qcert D G)(x\ qcert D G).

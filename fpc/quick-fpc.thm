@@ -1,0 +1,146 @@
+% Common hacky declarations
+Kind   numidx   type.
+Type   z        numidx.
+Type   s        numidx -> numidx.
+
+% Domain-specific declarations
+Kind   qform   type.
+Type   qor     nat -> nat -> qform -> qform -> qform.
+Type   qand                  qform -> qform -> qform.
+Type   qname   string -> qform.
+Type   qnone   qform.
+
+Kind   qmap   type.
+Type   qmap   string -> qform -> qmap.
+
+Type   qcert   list qmap -> list qform -> qform -> cert.
+
+Type   qidx   idx.
+
+Define unmarshal : cert -> cert -> prop by unmarshal C C.
+
+% member is predefined.
+
+Define releaseRExpert : cert -> cert -> prop by
+releaseRExpert _ _ := false.
+
+Define releaseLExpert : cert -> cert -> prop by
+releaseLExpert _ _ := false.
+
+Define decideRClerk : cert -> cert -> prop by
+decideRClerk (qcert Map Delta Goal) (qcert Map Delta Goal).
+
+Define storeRClerk : cert -> cert -> prop by
+storeRClerk (qcert Map Delta Goal) (qcert Map Delta Goal).
+
+Define decideLClerk' : cert -> cert -> idx -> prop by
+decideLClerk' _ _ _ := false.
+
+Define decideLClerk : cert -> cert -> idx -> prop by
+decideLClerk _ _ _ := false.
+
+Define storeLClerk : cert -> cert -> idx -> prop by
+storeLClerk _ _ _ := false.
+
+Define initLExpert : cert -> prop by
+initLExpert _ := false.
+
+Define freezeRClerk : cert -> cert -> prop by
+freezeRClerk _ _ := false.
+
+Define initRExpert : cert -> idx -> prop by
+initRExpert _ _ := false.
+
+Define freezeLClerk : cert -> cert -> idx -> prop by
+freezeLClerk _ _ _ := false.
+
+Define unfoldRClerk : cert -> cert -> prop by
+unfoldRClerk _ _ := false.
+
+Define unfoldLExpert : cert -> cert -> prop by
+unfoldLExpert _ _ := false.
+
+Define unfoldRExpert : cert -> cert -> prop by
+unfoldRExpert (qcert Map Delta qnone)        (qcert Map Delta qnone) ;
+unfoldRExpert (qcert Map Delta (qname Name)) (qcert Map Delta Form) :=
+	member (qmap Name Form) Map.
+
+Define unfoldLClerk : cert -> cert -> prop by
+unfoldLClerk _ _ := false.
+
+Define coindClerk' : cert -> ( i -> cert ) -> prop by
+coindClerk' _ _ := false.
+
+Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+coindClerk _ _ _ _ := false.
+
+Define indClerk' : cert -> ( i -> cert ) -> prop by
+indClerk' _ _ := false.
+
+Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+indClerk _ _ _ _ := false.
+
+Define someExpert : cert -> cert -> i -> prop by
+someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _.
+
+Define allExpert : cert -> cert -> i -> prop by
+allExpert _ _ _ := false.
+
+Define someClerk : cert -> ( i -> cert ) -> prop by
+someClerk _ _ := false.
+
+Define allClerk : cert -> ( i -> cert ) -> prop by
+allClerk _ _ := false.
+
+Define eqExpert : cert -> prop by
+eqExpert (qcert _ _ _).
+
+Define impExpert' : cert -> cert -> cert -> prop by
+impExpert' _ _ _ := false.
+
+Define impExpert : cert -> cert -> cert -> prop by
+impExpert _ _ _ := false.
+
+% Major simplification to see if things work. Obviously inductive input of
+% numbers is a pain, and so are numeric literals working exclusively as
+% constants (defining operation tables is a possible, quadratic and very ugly
+% hack).
+Define orExpert : cert -> cert -> choice -> prop by
+orExpert (qcert Map Delta qnone)                     (qcert Map Delta qnone) _ ;
+orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Choice :=
+	print "Toss a coin \"0.\" or \"1.\": " /\
+	read Random /\
+	(
+		Random = 0 /\ %Random <= Pr1 /\
+		Form = Form1 /\
+		Choice = left
+	\/
+		Random = 1 /\ %Random > Pr1 /\
+		Form = Form2 /\
+		Choice = right
+	).
+
+Define andExpert : cert -> cert -> cert -> prop by
+andExpert (qcert Map Delta qnone)              (qcert Map Delta qnone) (qcert Map Delta qnone) ;
+andExpert (qcert Map Delta (qand Form1 Form2)) (qcert Map Delta Form1) (qcert Map Delta Form2).
+
+Define ttExpert : cert -> prop by
+ttExpert _ := false.
+
+Define eqClerk : cert -> cert -> prop by
+eqClerk _ _ := false.
+
+Define impClerk : cert -> cert -> prop by
+impClerk _ _ := false.
+
+Define orClerk : cert -> cert -> cert -> prop by
+orClerk _ _ _ := false.
+
+Define andClerk : cert -> cert -> prop by
+andClerk _ _ := false.
+
+Define ttClerk : cert -> cert -> prop by
+ttClerk _ _ := false.
+
+Define ffClerk : cert -> prop by
+ffClerk _ := false.

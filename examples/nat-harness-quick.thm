@@ -1,0 +1,13 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/quick-fpc.thm".
+#include "nat-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "nat-examples.thm".
+
+#assert exists_nat
+	(qcert
+		((qmap "is_nat" (qand qnone (qor _ _ qnone (qand qnone (qname "is_nat"))))) :: nil)
+		nil
+		(qname "is_nat")
+	).
