@@ -256,8 +256,9 @@ syncR Debug Lambda Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	spy_syncR Debug Lambda Xi'' Sigma Phi Gamma Q ;
 
 syncR Debug Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi',
-	(orExpert Xi Xi' left  /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma P) \/
-	(orExpert Xi Xi' right /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma Q) ;
+	orExpert Xi Xi' C /\ (
+	(C = left  /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma P) \/
+	(C = right /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma Q) ) ;
 
 syncL Debug Lambda Xi Sigma Phi Gamma (imp P Q) G := exists Xi' Xi'',
 	impExpert Xi Xi' Xi'' /\
