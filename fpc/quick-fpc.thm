@@ -17,6 +17,9 @@ Type   qcert   list qmap -> list qform -> qform -> cert.
 
 Type   qidx   idx.
 
+% Quick and dirty reuse.
+#include "debug-simple-fpc.thm".
+
 Define unmarshal : cert -> cert -> prop by unmarshal C C.
 
 % member is predefined.
@@ -100,6 +103,11 @@ impExpert' _ _ _ := false.
 
 Define impExpert : cert -> cert -> cert -> prop by
 impExpert _ _ _ := false.
+
+% A clearer alternative (but still limited scope.)
+%Define orExpert_aux : nat -> qform -> qform -> qform -> choice -> prop by
+%orExpert_aux 0 Form _ Form left ;
+%orExpert_aux 1 _ Form Form right.
 
 % Major simplification to see if things work. Obviously inductive input of
 % numbers is a pain, and so are numeric literals working exclusively as
