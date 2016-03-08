@@ -3,6 +3,10 @@ Kind   numidx   type.
 Type   z        numidx.
 Type   s        numidx -> numidx.
 
+%%%%%%%%%%%%%%
+% Generation %
+%%%%%%%%%%%%%%
+
 % Domain-specific declarations
 Kind   qform   type.
 Type   qor     nat -> nat -> qform -> qform -> qform.
@@ -15,7 +19,30 @@ Type   qmap   string -> qform -> qmap.
 
 Type   qcert   list qmap -> list qform -> qform -> cert.
 
+%%%%%%%%%%%%
+% Checking %
+%%%%%%%%%%%%
+
+Type   qsearch   cert.
+
+%%%%%%%%%%%
+% Staging %
+%%%%%%%%%%%
+
+% Trivial, single-branch staging. Currently a simple wrapper on a pair of
+% certificates assumed to cover the generation (qcert) and checking (qsearch)
+% stages, respectively.
+Type   qstart   cert -> cert -> cert.
+
+%%%%%%%%%%%%
+% Indexing %
+%%%%%%%%%%%%
+
 Type   qidx   idx.
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Clerks and experts %
+%%%%%%%%%%%%%%%%%%%%%%
 
 % Quick and dirty reuse.
 #include "debug-simple-fpc.thm".
@@ -25,16 +52,20 @@ Define unmarshal : cert -> cert -> prop by unmarshal C C.
 % member is predefined.
 
 Define releaseRExpert : cert -> cert -> prop by
-releaseRExpert _ _ := false.
+releaseRExpert qsearch qsearch.
 
 Define releaseLExpert : cert -> cert -> prop by
 releaseLExpert _ _ := false.
 
 Define decideRClerk : cert -> cert -> prop by
-decideRClerk (qcert Map Delta Goal) (qcert Map Delta Goal).
+decideRClerk (qcert Map Delta Goal) (qcert Map Delta Goal) ;
+%
+decideRClerk (qstart Gen Check) (qstart Gen Check).
 
 Define storeRClerk : cert -> cert -> prop by
-storeRClerk (qcert Map Delta Goal) (qcert Map Delta Goal).
+storeRClerk (qcert Map Delta Goal) (qcert Map Delta Goal) ;
+%
+storeRClerk (qstart Gen Check) (qstart Gen Check).
 
 Define decideLClerk' : cert -> cert -> idx -> prop by
 decideLClerk' _ _ _ := false.
@@ -66,7 +97,9 @@ unfoldLExpert _ _ := false.
 Define unfoldRExpert : cert -> cert -> prop by
 unfoldRExpert (qcert Map Delta qnone)        (qcert Map Delta qnone) ;
 unfoldRExpert (qcert Map Delta (qname Name)) (qcert Map Delta Form) :=
-	member (qmap Name Form) Map.
+	member (qmap Name Form) Map ;
+%
+unfoldRExpert qsearch qsearch.
 
 Define unfoldLClerk : cert -> cert -> prop by
 unfoldLClerk _ _ := false.
@@ -84,7 +117,9 @@ Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
 indClerk _ _ _ _ := false.
 
 Define someExpert : cert -> cert -> i -> prop by
-someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _.
+someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _ ;
+%
+someExpert (qstart Gen Check) (qstart Gen Check) _.
 
 Define allExpert : cert -> cert -> i -> prop by
 allExpert _ _ _ := false.
@@ -130,16 +165,20 @@ orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Cho
 
 Define andExpert : cert -> cert -> cert -> prop by
 andExpert (qcert Map Delta qnone)              (qcert Map Delta qnone) (qcert Map Delta qnone) ;
-andExpert (qcert Map Delta (qand Form1 Form2)) (qcert Map Delta Form1) (qcert Map Delta Form2).
+andExpert (qcert Map Delta (qand Form1 Form2)) (qcert Map Delta Form1) (qcert Map Delta Form2) ;
+%
+andExpert qsearch qsearch qsearch ;
+%
+andExpert (qstart Gen Check) Gen Check.
 
 Define ttExpert : cert -> prop by
 ttExpert _ := false.
 
 Define eqClerk : cert -> cert -> prop by
-eqClerk _ _ := false.
+eqClerk qsearch qsearch.
 
 Define impClerk : cert -> cert -> prop by
-impClerk _ _ := false.
+impClerk qsearch qsearch.
 
 Define orClerk : cert -> cert -> cert -> prop by
 orClerk _ _ _ := false.

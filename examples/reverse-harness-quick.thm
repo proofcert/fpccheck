@@ -5,10 +5,13 @@
 #include "../kernel/kernel.thm".
 #include "reverse-examples.thm".
 
-#assert test_reverse_involutive
-	(qcert
-		((qmap "is_natlist" qnone) ::
-		 (qmap "is_nat" qnone):: nil)
-		nil
-		(qname "is_natlist")
+#assert_not test_reverse_involutive
+	(qstart
+		(qcert
+			((qmap "is_natlist" (qand qnone (qor _ _ qnone (qand qnone (qand (qname "is_nat") (qname "is_natlist")))))) ::
+			 (qmap "is_nat" (qand qnone (qor _ _ qnone (qand qnone (qname "is_nat"))))) :: nil)
+			nil
+			(qname "is_natlist")
+		)
+		qsearch
 	).
