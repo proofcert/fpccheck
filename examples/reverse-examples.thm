@@ -1,0 +1,9 @@
+#include "template.thm".
+
+Define reverse_total : cert -> prop by
+	reverse_total Cert :=
+		reverse Reverse /\ is_list IsList /\
+		is_total2 Cert Reverse IsList.
+
+%reverse_det
+%reverse_assoc
