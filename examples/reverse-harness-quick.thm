@@ -1,0 +1,14 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/quick-fpc.thm".
+#include "reverse-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "reverse-examples.thm".
+
+#assert test_reverse_involutive
+	(qcert
+		((qmap "is_natlist" qnone) ::
+		 (qmap "is_nat" qnone):: nil)
+		nil
+		(qname "is_natlist")
+	).
