@@ -1,0 +1,23 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/_fpc-iddfs_abella_.thm".
+#include "plus-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "_plus-examples_abella_.thm".
+
+%#assert plus_zero _ (induction (ss zz) zz (ss zz) zz (ss zz)).
+#assert plus_zero _ (pair# (induction _ zz (ss zz) zz (ss zz)) startiddfs).
+
+#assert plus_succ _ (pair# (induction _ zz (ss zz) zz (ss zz)) startiddfs).
+
+#assert plus_comm _ _ (pair# (induction _ (ss zz) zz (ss zz) zz) startiddfs).
+
+#assert plus_total _ (pair# (induction _ zz (ss zz) zz (ss zz)) startiddfs).
+
+#assert plus_det _ (pair# (induction _ (ss zz) zz (ss zz) zz) startiddfs).
+
+#assert plus_assoc _ (pair# (induction _ (ss zz) (ss zz) (ss zz) (ss zz)) startiddfs).
+
+#assert augend_nat (pair# (induction _ (ss zz) (ss zz) (ss zz) (ss zz)) startiddfs).
+
+#assert addend_nat (pair# (induction _ (ss zz) (ss zz) (ss zz) (ss zz)) startiddfs).

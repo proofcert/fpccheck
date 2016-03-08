@@ -1,0 +1,30 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/admin-fpc.thm".
+#include "bisim-undef-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "bisim-undef-examples.thm".
+
+#assert bisim_refl
+	(induction
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits z z z (s z) z z z z (s z)) (names nil (name "X"))))).
+
+% Mimicking the Abella proof here is a bit more delicate, partly because we are
+% not nesting certificates, but also because our "translation patterns" are very
+% different when greatest fixed points (as opposed to least fixed points) are
+% involved. Note also that two events now cause our bipoles under the present
+% encoding and we are forced to discriminate (should they be expected to be
+% coupled?). In addition, we now have to release on the right in circumstances
+% where, previously, a terminating computation was expected to take place, if
+% the proof was at all possible: such is the nature of the interaction between
+% both types of fixed points.
+#assert bisim_symm
+	(induction
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s (s z)) z z (s z) z z z z (s (s z))) (names nil (name "X"))))).
+
+#assert bisim_trans
+	(induction
+		(ctrl (limits z z z z z z z z z) (names nil (name "X"))) (name "X")
+		(dummy\ search (ctrl (limits (s (s (s (s z)))) z z (s (s z)) z z z z (s (s z))) (names nil (name "X"))))).

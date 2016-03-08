@@ -1,0 +1,242 @@
+Kind nonneg type.
+Kind numidx type.
+
+Type idx nonneg -> idx.
+Type idxlocal idx.
+Type idxatom idx.
+Type search cert.
+Type apply nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> cert.
+Type inductionS nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> ( i -> bool ) -> cert.
+Type induction nonneg -> nonneg -> nonneg -> nonneg -> nonneg -> cert.
+Type ss nonneg -> nonneg.
+Type zz nonneg.
+Type s numidx -> numidx.
+Type z numidx.
+
+Define unmarshal : cert -> cert -> prop by unmarshal C C.
+
+Define releaseRExpert : cert -> cert -> prop by
+releaseRExpert (apply zz X X1 X2 X3) search ;
+releaseRExpert (apply (ss N) A S X X1)
+                            (apply N A S A S).
+
+Define releaseLExpert : cert -> cert -> prop by
+releaseLExpert (apply zz X X1 X2 X3) search ;
+releaseLExpert (apply (ss N) A S X X1)
+                            (apply N A S A S).
+
+Define decideRClerk : cert -> cert -> prop by
+decideRClerk search search ;
+decideRClerk (apply N A S B T) (apply N A S B T).
+
+Define storeRClerk : cert -> cert -> prop by
+storeRClerk search search ;
+storeRClerk (apply N A S B T) (apply N A S B T) ;
+storeRClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+storeRClerk (induction N A S B T)
+                           (induction N A S B T).
+
+Define decideLClerk' : cert -> cert -> idx -> prop by
+decideLClerk' (apply N A S B T)
+                                (apply N A S B T) X.
+
+Define decideLClerk : cert -> cert -> idx -> prop by
+decideLClerk (apply N A S B T) (apply N A S B T)
+                           idxlocal.
+
+Define storeLClerk : cert -> cert -> idx -> prop by
+storeLClerk search search idxlocal ;
+storeLClerk (apply N A S B T) (apply N A S B T)
+                           idxlocal ;
+storeLClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) idxlocal ;
+storeLClerk (induction N A S B T)
+                           (induction N A S B T) idxlocal.
+
+Define initLExpert : cert -> prop by
+initLExpert search ;
+initLExpert (apply X X1 X2 X3 X4) ;
+initLExpert (inductionS X X1 X2 X3 X4 X5) ;
+initLExpert (induction X X1 X2 X3 X4).
+
+Define freezeRClerk : cert -> cert -> prop by
+freezeRClerk search search ;
+freezeRClerk (apply N A S B T) (apply N A S B T) ;
+freezeRClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+freezeRClerk (induction N A S B T)
+                           (induction N A S B T).
+
+Define initRExpert : cert -> idx -> prop by
+initRExpert search idxatom ;
+initRExpert (apply X X1 X2 X3 X4) idxatom ;
+initRExpert (inductionS X X1 X2 X3 X4 X5)
+                                     idxatom ;
+initRExpert (induction X X1 X2 X3 X4) idxatom.
+
+Define freezeLClerk : cert -> cert -> idx -> prop by
+freezeLClerk search search idxatom ;
+freezeLClerk (apply N A S B T) (apply N A S B T)
+                           idxatom ;
+freezeLClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) idxatom ;
+freezeLClerk (induction N A S B T)
+                           (induction N A S B T) idxatom.
+
+Define unfoldRClerk : cert -> cert -> prop by
+unfoldRClerk (apply N A S (ss B) T)
+                           (apply N A S B T).
+
+Define unfoldLExpert : cert -> cert -> prop by
+unfoldLExpert (apply N A S B (ss T))
+                           (apply N A S B T).
+
+Define unfoldRExpert : cert -> cert -> prop by
+unfoldRExpert (apply N A S B (ss T))
+                           (apply N A S B T).
+
+Define unfoldLClerk : cert -> cert -> prop by
+unfoldLClerk (apply N A S (ss B) T)
+                           (apply N A S B T).
+
+Define coindClerk' : cert -> ( i -> cert ) -> prop by
+coindClerk' (induction N A S B T)
+                           (x\apply N A S B T).
+
+Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+coindClerk (inductionS N A S B T I)
+                                (apply N A S B T) (x\apply N A S B T) I.
+
+Define indClerk' : cert -> ( i -> cert ) -> prop by
+indClerk' (induction N A S B T) (x\apply N A S B T).
+
+Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+indClerk (inductionS N A S B T I)
+                                (apply N A S B T) (x\apply N A S B T) I.
+
+Define someExpert : cert -> cert -> i -> prop by
+someExpert search search X ;
+someExpert (apply N A S B T) (apply N A S B T)
+                                X ;
+someExpert (inductionS N A S B T I)
+                                     (inductionS N A S B T I) X ;
+someExpert (induction N A S B T)
+                                (induction N A S B T) X.
+
+Define allExpert : cert -> cert -> i -> prop by
+allExpert search search X ;
+allExpert (apply N A S B T) (apply N A S B T) X ;
+allExpert (inductionS N A S B T I)
+                                     (inductionS N A S B T I) X ;
+allExpert (induction N A S B T)
+                                (induction N A S B T) X.
+
+Define someClerk : cert -> ( i -> cert ) -> prop by
+someClerk search x\search ;
+someClerk (apply N A S B T) (x\apply N A S B T) ;
+someClerk (inductionS N A S B T I)
+                                (x\inductionS N A S B T I) ;
+someClerk (induction N A S B T)
+                           (x\induction N A S B T).
+
+Define allClerk : cert -> ( i -> cert ) -> prop by
+allClerk search x\search ;
+allClerk (apply N A S B T) (x\apply N A S B T) ;
+allClerk (inductionS N A S B T I)
+                                (x\inductionS N A S B T I) ;
+allClerk (induction N A S B T)
+                           (x\induction N A S B T).
+
+Define eqExpert : cert -> prop by
+eqExpert search ;
+eqExpert (apply X X1 X2 X3 X4) ;
+eqExpert (inductionS X X1 X2 X3 X4 X5) ;
+eqExpert (induction X X1 X2 X3 X4).
+
+Define impExpert' : cert -> cert -> cert -> prop by
+impExpert' search search search ;
+impExpert' (apply N A S B T) (apply N A S B T)
+                           (apply N A S B T) ;
+impExpert' (inductionS N A S B T I)
+                                (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+impExpert' (induction N A S B T)
+                           (induction N A S B T) (induction N A S B T).
+
+Define impExpert : cert -> cert -> cert -> prop by
+impExpert _ _ _ := false.
+
+Define orExpert : cert -> cert -> choice -> prop by
+orExpert search search right ;
+orExpert search search left ;
+orExpert (apply N A S B T) (apply N A S B T) right ;
+orExpert (apply N A S B T) (apply N A S B T) left ;
+orExpert (inductionS N A S B T I)
+                                (inductionS N A S B T I) right ;
+orExpert (inductionS N A S B T I)
+                                (inductionS N A S B T I) left ;
+orExpert (induction N A S B T) (induction N A S B T)
+                           right ;
+orExpert (induction N A S B T) (induction N A S B T)
+                           left.
+
+Define andExpert : cert -> cert -> cert -> prop by
+andExpert search search search ;
+andExpert (apply N A S B T) (apply N A S B T)
+                           (apply N A S B T) ;
+andExpert (inductionS N A S B T I)
+                                (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+andExpert (induction N A S B T)
+                           (induction N A S B T) (induction N A S B T).
+
+Define ttExpert : cert -> prop by
+ttExpert search ;
+ttExpert (apply X X1 X2 X3 X4) ;
+ttExpert (inductionS X X1 X2 X3 X4 X5) ;
+ttExpert (induction X X1 X2 X3 X4).
+
+Define eqClerk : cert -> cert -> prop by
+eqClerk search search ;
+eqClerk (apply N A S B T) (apply N A S B T) ;
+eqClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+eqClerk (induction N A S B T) (induction N A S B T).
+
+Define impClerk : cert -> cert -> prop by
+impClerk search search ;
+impClerk (apply N A S B T) (apply N A S B T) ;
+impClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+impClerk (induction N A S B T) (induction N A S B T).
+
+Define orClerk : cert -> cert -> cert -> prop by
+orClerk search search search ;
+orClerk (apply N A S B T) (apply N A S B T)
+                           (apply N A S B T) ;
+orClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+orClerk (induction N A S B T) (induction N A S B T)
+                           (induction N A S B T).
+
+Define andClerk : cert -> cert -> prop by
+andClerk search search ;
+andClerk (apply N A S B T) (apply N A S B T) ;
+andClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+andClerk (induction N A S B T) (induction N A S B T).
+
+Define ttClerk : cert -> cert -> prop by
+ttClerk search search ;
+ttClerk (apply N A S B T) (apply N A S B T) ;
+ttClerk (inductionS N A S B T I)
+                                (inductionS N A S B T I) ;
+ttClerk (induction N A S B T) (induction N A S B T).
+
+Define ffClerk : cert -> prop by
+ffClerk search ;
+ffClerk (apply X X1 X2 X3 X4) ;
+ffClerk (inductionS X X1 X2 X3 X4 X5) ;
+ffClerk (induction X X1 X2 X3 X4).

@@ -1,0 +1,23 @@
+#include "ccs.thm".
+
+Define copy_i : list imap -> i -> i -> prop by
+	copy_i Theta argv argv ;
+	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	copy_i Theta a a ;
+	copy_i Theta tau tau ;
+	copy_i Theta (bar X) (bar U) := copy_i Theta X U ;
+	copy_i Theta null null ;
+	copy_i Theta (out X Y) (out U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	copy_i Theta (plus X Y) (plus U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	copy_i Theta (par X Y) (par U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	% Assuming these "process fixed points" are closed, and inspired by the
+	% original copy_bool on fixed points in the logic.
+	copy_i Theta (pmu X) (pmu X) ;
+	%
+	copy_i Theta X U := member (imap X U) Theta.
+
+Define name_mnu : string -> (i -> bool) -> prop by
+	name_mnu "comp" Comp := comp Comp ;
+	name_mnu "step" Step := step Step ;
+	name_mnu "sim"  Sim  := sim  Sim.

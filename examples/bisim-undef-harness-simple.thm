@@ -1,0 +1,12 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/simple-fpc.thm".
+#include "bisim-undef-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "bisim-undef-examples.thm".
+
+#assert bisim_refl (induction 1 1 0 1 0).
+
+#assert bisim_symm (induction 4 0 1 0 1).
+
+#assert bisim_trans (induction 6 0 2 0 2).

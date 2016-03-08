@@ -1,0 +1,45 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/_fpc-simple_auto_.thm".
+#include "plus-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "_plus-examples_auto_.thm".
+
+#assert plus_zero _ (induction (s z) z (s z) z (s z)).
+%#assert plus_zero _ (pair# (induction (s z) z (s z) z (s z)) (induction# (s z) z (s z) z (s z) Idx)).
+#assert plus_zero Plus ( inductionS (s z) z (s z) z (s z)
+	(Args\ all N\ imp (eq Args (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))).
+
+#assert plus_succ _ (induction (s z) z (s z) z (s z)).
+%#assert plus_succ _ (pair# (induction (s z) z (s z) z (s z)) (induction# (s z) z (s z) z (s z) Idx)).
+#assert plus_succ Plus (inductionS (s z) z (s z) z (s z)
+	(Args\ all K\ all M\ all N\ imp
+		(eq Args (K ++ M ++ N ++ argv))
+		(Plus (K ++ (succ M) ++ (succ N) ++ argv)))).
+
+#assert plus_comm _ _ (induction (s (s z)) (s z) z (s z) z).
+%#assert plus_comm _ _ (pair# (induction (s (s z)) (s z) z (s z) z) (induction# (s (s z)) (s z) z (s z) z Idx)).
+
+#assert plus_total _ (induction (s z) z (s z) z (s z)).
+%#assert plus_total _ (pair# (induction (s z) z (s z) z (s z)) (induction# (s z) z (s z) z (s z) Idx)).
+#assert plus_total Plus (inductionS (s z) z (s z) z (s z)
+	(Args\ all A\ all B\ imp
+		(eq Args (A ++ argv))
+		(some C\ Plus (A ++ B ++ C ++ argv)))).
+
+#assert plus_det _ (induction (s z) (s z) z (s z) z).
+%#assert plus_det _ (pair# (induction (s z) (s z) z (s z) z) (induction# (s z) (s z) z (s z) z Idx)).
+#assert plus_det Plus (inductionS (s z) (s z) z (s z) z
+	(Args\ all A\ all B\ all C\ all D\ imp
+		(eq Args (A ++ B ++ C ++ argv)) (imp
+		(Plus (A ++ B ++ D ++ argv))
+		(eq C D)))).
+
+#assert plus_assoc _ (induction (s z) (s z) (s z) (s z) (s z)).
+%#assert plus_assoc _ (pair# (induction (s z) (s z) (s z) (s z) (s z)) (induction# (s z) (s z) (s z) (s z) (s z) Idx)).
+
+#assert augend_nat (induction (s z) (s z) (s z) (s z) (s z)).
+%#assert augend_nat (pair# (induction (s z) (s z) (s z) (s z) (s z)) (induction# (s z) (s z) (s z) (s z) (s z) Idx)).
+
+#assert addend_nat (induction (s z) (s z) (s z) (s z) (s z)).
+%#assert addend_nat (pair# (induction (s z) (s z) (s z) (s z) (s z)) (induction# (s z) (s z) (s z) (s z) (s z) Idx)).

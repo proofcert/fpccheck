@@ -1,0 +1,9 @@
+Define copy_i : list imap -> i -> i -> prop by
+	copy_i Theta argv argv ;
+	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	%...
+	%
+	copy_i Theta X U := member (imap X U) Theta.
+
+Define name_mnu : string -> (i -> bool) -> prop by name_mnu _ _ := false.

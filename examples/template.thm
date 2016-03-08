@@ -1,0 +1,86 @@
+%%%%%%%%%%%%%%%%%%%%%%
+% Property templates %
+%%%%%%%%%%%%%%%%%%%%%%
+
+%TODO Some refactoring to do here, cleanup of variants, etc.
+
+% Determinacy
+Define deterministic : (i -> bool) -> bool -> prop by
+	deterministic Op
+		(all A\ all B\ all C\ all D\ (imp
+			(Op (A ++ B ++ C ++ argv)) (imp
+			(Op (A ++ B ++ D ++ argv))
+			(eq C D)))).
+
+Define is_deterministic : cert -> (i -> bool) -> prop by
+	is_deterministic Cert Op := exists F,
+		deterministic Op F /\
+		prove Cert F.
+
+Define is_deterministic' : cert -> (i -> bool) -> list lemma -> prop by
+	is_deterministic' Cert Op Lemmas := exists F,
+		deterministic Op F /\
+		prove_with_lemmas Cert F Lemmas.
+
+% Totality
+Define total : (i -> bool) -> (i -> bool) -> bool -> prop by
+	total Op Memb
+		(all A\ all B\ (imp
+			(Memb (A ++ argv))
+			(some C\ (Op (A ++ B ++ C ++ argv))))).
+
+Define is_total : cert -> (i -> bool) -> (i -> bool) -> prop by
+	is_total Cert Op Memb := exists F,
+		total Op Memb F /\
+		prove Cert F.
+
+% Strengthened totality
+Define total' : (i -> bool) -> (i -> bool) -> bool -> prop by
+	total' Op Memb
+		(all A\ all B\ (imp
+			(Memb (A ++ argv))
+			(some C\ (and
+				(Op (A ++ B ++ C ++ argv))
+				(Memb (C ++ argv)))))).
+
+% (This will be used with lemmas... so no is_total' here, yet)
+
+% Totality for single-input predicates [rename the others to total3, etc.?]
+Define total2 : (i -> bool) -> (i -> bool) -> bool -> prop by
+	total2 Op Memb
+		(all A\ (imp
+			(Memb (A ++ argv))
+			(some B\ (Op (A ++ B ++ argv))))).
+
+Define is_total2 : cert -> (i -> bool) -> (i -> bool) -> prop by
+	is_total2 Cert Op Memb := exists F,
+		total2 Op Memb F /\
+		prove Cert F.
+
+% Associativity
+Define associative : (i -> bool) -> bool -> prop by
+	associative Op
+		(all A\ all B\ all C\ all AB\ all ABC\ (imp
+			(Op (A ++ B ++ AB ++ argv)) (imp
+			(Op (AB ++ C ++ ABC ++ argv))
+			(some BC\ (and
+				(Op (B ++ C ++ BC ++ argv))
+				(Op (A ++ BC ++ ABC ++ argv))))))).
+
+Define is_associative : cert -> (i -> bool) -> prop by
+	is_associative Cert Op := exists F,
+		associative Op F /\
+		prove Cert F.
+
+% Commutativity
+Define commutative : (i -> bool) -> (i -> bool) -> bool -> prop by
+	commutative Op Memb
+		(all A\ all B\ all C\ (imp
+			(Op (A ++ B ++ C ++ argv)) (imp
+			(Memb (C ++ argv))
+			(Op (B ++ A ++ C ++ argv))))).
+
+Define is_commutative : cert -> (i -> bool) -> (i -> bool) -> list lemma -> prop by
+	is_commutative Cert Op Memb Lemmas := exists F,
+		commutative Op Memb F /\
+		prove_with_lemmas Cert F Lemmas.

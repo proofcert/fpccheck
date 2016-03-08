@@ -1,0 +1,14 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/simple-fpc.thm".
+#include "ccs-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "ccs-examples.thm".
+
+#assert_not mu_id_step_absurd search.
+
+#assert mu_id_step_absurd (induction 0 0 0 0 0).
+
+#assert sim_mu_par_ext (induction 0 2 0 2 0).
+
+#assert sim_mu_par (apply 0 2 0 2 0).

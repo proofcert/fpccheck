@@ -1,0 +1,70 @@
+%%% Abstraction types for CCS entities
+%%Kind   proc, act   type.
+
+% CCS constructors
+%   While it would be great to wrap them in "type abstractors" either 'act' or
+% 'proc' and produced an 'i', the necessity to decompose and bind them
+% syntactically in formulas in our logic hinders this, and I don't think it's
+% possible as the system is now. One can, of course, define predicates
+% expressing typing judgments ('is_act', 'is_proc') and apply them to every
+% interface as necessary... even though this makes the formulas more verbose, it
+% should not increase significantly the complexity of the proof (i.e., the
+% additions should be shallow). As a cautionary tale, remember the burden of
+% adding too many typing judgments to the arithmetic predicates!
+%   Currently, no explicit typing is given.
+Type   a, tau      i.               % act
+Type   bar         i -> i.          % act -> act
+
+Type   null        i.               % proc
+Type   out         i -> i -> i.     % act -> proc -> proc
+Type   plus, par   i -> i -> i.     % proc -> proc -> proc
+Type   pmu         (i -> i) -> i.   % (proc -> proc) -> proc
+
+Define comp : (i -> bool) -> prop by
+	comp (mu Pred\Args\
+		(some A\ some B\ (and (eq Args (A ++ B ++ argv))
+		(or
+			(eq B (bar A))
+			(eq A (bar B)))))).
+
+% The fixed point here was interesting, first I feared encoding it within a
+% unitype system could be hard, but because expressions are assumed to be closed
+% we should be safe. Still, this is a point I should check at if things ever go
+% wrong!
+%   Ideally, variably naming will mimic that in the Abella repository, however
+% the need to name and decompose the main arguments in steps makes this a little
+% more cumbersome.
+Define step : (i -> bool) -> prop by
+	step (mu Pred\Args\
+		(some P\ some A\ some Q\ (and (eq Args (P ++ A ++ Q ++ argv))
+		(or
+			(eq P (out A Q)) (or
+			(some P1\ some P2\ and
+				(eq P (plus P1 P2))
+				(Pred (P1 ++ A ++ Q ++ argv))) (or
+			(some P1\ some P2\ and
+				(eq P (plus P1 P2))
+				(Pred (P2 ++ A ++ Q ++ argv))) (or
+			(some P1\ some P2\ some Q1\ and
+				(eq P (par P1 P2)) (and
+				(eq Q (par Q1 P2))
+				(Pred (P1 ++ A ++ Q1 ++ argv)))) (or
+			(some P1\ some P2\ some Q2\ and
+				(eq P (par P1 P2)) (and
+				(eq Q (par P1 Q2))
+				(Pred (P2 ++ A ++ Q2 ++ argv)))) (or
+			(some P1\ and
+				(eq P (pmu x\ P1))
+				(Pred (((x\ P1) (pmu x\ P1)) ++ A ++ Q ++ argv)))
+			(some P1\ some P2\ some Q1\ some Q2\ some B\ and
+				(eq P (par P1 P2)) (and
+				(eq P (par Q1 Q2)) (and
+				(eq A tau) (and
+				(Comp (A ++ B ++ argv)) (and
+				(Pred (P1 ++ A ++ Q1 ++ argv))
+				(Pred (P2 ++ A ++ Q2 ++ argv)))))))
+	)))))))))
+	:=
+	comp Comp.
+
+#include "sim.thm".
