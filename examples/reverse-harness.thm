@@ -1,9 +1,0 @@
-#include "logic.thm".               % First-order logic syntax
-#include "cert-sig.thm".            % Certificate declarations
-#include "admin-fpc.thm".           % Concrete FPC (needed before kernel!)
-#include "reverse-examples-sig.thm".% Concrete signature (needed before kernel!)
-#include "kernel.thm".              % Kernel
-#include "reverse-examples.thm".    % Concrete examples
-
-#assert reverse_total
-	(autoinduce z z z (dummy\ start z z (s z))).
