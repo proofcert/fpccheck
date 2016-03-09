@@ -151,7 +151,11 @@ impExpert _ _ _ := false.
 Define orExpert : cert -> cert -> choice -> prop by
 orExpert (qcert Map Delta qnone)                     (qcert Map Delta qnone) _ ;
 orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Choice :=
-	print "Toss a coin \"0.\" or \"1.\": " /\
+	print "Toss a coin \"0.\" or \"1.\" on (" /\
+	print Pr1 /\
+	print "," /\
+	print Pr2 /\
+	print "): " /\
 	read Random /\
 	(
 		Random = 0 /\ %Random <= Pr1 /\

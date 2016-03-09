@@ -7,7 +7,7 @@
 
 #assert exists_nat
 	(qcert
-		((qmap "is_nat" (qand qnone (qor _ _ qnone (qand qnone (qname "is_nat"))))) :: nil)
+		((qmap "is_nat" (qand qnone (qor 20 80 qnone (qand qnone (qname "is_nat"))))) :: nil)
 		nil
 		(qname "is_nat")
 	).
