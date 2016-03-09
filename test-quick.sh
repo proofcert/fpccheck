@@ -7,8 +7,8 @@
 
 # Launch client as coprocess and rig its standard input and output
 coproc bedwyr (
-	#TODO Better integration with test battery, or command line selection
-	bedwyr -t -I examples/nat-harness-quick.thm
+	# Single command-line argument pointing to harness file
+	bedwyr -t -I $1
 ) # No redirects needed
 
 # Seed random number generator (TODO parameterize, use better generator)
