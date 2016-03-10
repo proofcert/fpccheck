@@ -31,14 +31,29 @@ Type   qsearch   cert.
 
 % Trivial, single-branch staging. Currently a simple wrapper on a pair of
 % certificates assumed to cover the generation (qcert) and checking (qsearch)
-% stages, respectively.
-Type   qstart   cert -> cert -> cert.
+% stages, respectively, which a hacky number to determine the number of tries
+% (this is a simple and convenient point of entry, which may conceivably be
+% extended to starting qforms with a wrapper).
+Type   qstart   numidx -> cert -> cert -> cert.
 
 %%%%%%%%%%%%
 % Indexing %
 %%%%%%%%%%%%
 
 Type   qidx   idx.
+
+%%%%%%%%%%%
+% Helpers %
+%%%%%%%%%%%
+
+% Number of attempts iterator
+Define iterate : numidx -> prop by
+iterate (s _)
+%	:= println "Try..." %DEBUG
+ ;
+iterate (s N) :=
+%	print "... left " /\ println N /\ %DEBUG
+	iterate N.
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -60,12 +75,12 @@ releaseLExpert _ _ := false.
 Define decideRClerk : cert -> cert -> prop by
 decideRClerk (qcert Map Delta Goal) (qcert Map Delta Goal) ;
 %
-decideRClerk (qstart Gen Check) (qstart Gen Check).
+decideRClerk (qstart Tries Gen Check) (qstart Tries Gen Check).
 
 Define storeRClerk : cert -> cert -> prop by
 storeRClerk (qcert Map Delta Goal) (qcert Map Delta Goal) ;
 %
-storeRClerk (qstart Gen Check) (qstart Gen Check).
+storeRClerk (qstart Tries Gen Check) (qstart Tries Gen Check).
 
 Define decideLClerk' : cert -> cert -> idx -> prop by
 decideLClerk' _ _ _ := false.
@@ -119,7 +134,7 @@ indClerk _ _ _ _ := false.
 Define someExpert : cert -> cert -> i -> prop by
 someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _ ;
 %
-someExpert (qstart Gen Check) (qstart Gen Check) _.
+someExpert (qstart Tries Gen Check) (qstart Tries Gen Check) _.
 
 Define allExpert : cert -> cert -> i -> prop by
 allExpert _ _ _ := false.
@@ -173,7 +188,8 @@ andExpert (qcert Map Delta (qand Form1 Form2)) (qcert Map Delta Form1) (qcert Ma
 %
 andExpert qsearch qsearch qsearch ;
 %
-andExpert (qstart Gen Check) Gen Check.
+andExpert (qstart Tries Gen Check) Gen Check :=
+	iterate Tries.
 
 Define ttExpert : cert -> prop by
 ttExpert _ := false.
