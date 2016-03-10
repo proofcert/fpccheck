@@ -13,3 +13,19 @@ Define is_nat : (i -> bool) -> prop by
 			(some N'\ (and
 				(eq N (succ N'))
 				(Pred (N' ++ argv)))))))).
+
+Define le_nat : (i -> bool) -> prop by
+	le_nat (mu Pred\Args\ or
+		(some N\
+			eq Args (zero ++ N ++ argv))
+		(some M\ some N\ and
+			(eq Args ((succ M) ++ (succ N) ++ argv))
+			(Pred (M ++ N ++ argv)))).
+
+Define gt_nat : (i -> bool) -> prop by
+	gt_nat (mu Pred\Args\ or
+		(some M\
+			eq Args ((succ M) ++ zero ++ argv))
+		(some M\ some N\ and
+			(eq Args ((succ M) ++ (succ N) ++ argv))
+			(Pred (M ++ N ++ argv)))).
