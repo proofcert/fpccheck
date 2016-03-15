@@ -7,10 +7,10 @@
 
 #assert_not test_reverse_involutive
 	(qstart
-		(s (s (s z)))
+		(s (s (s (s (s (s (s (s (s (s z))))))))))
 		(qcert
-			((qmap "is_natlist" (qand qnone (qor 20 80 qnone (qand qnone (qand (qname "is_nat") (qname "is_natlist")))))) ::
-			 (qmap "is_nat" (qand qnone (qor 30 70 qnone (qand qnone (qname "is_nat"))))) :: nil)
+			((qmap "is_natlist" (qand qnone (qor 50 50 qnone (qand qnone (qand (qname "is_nat") (qname "is_natlist")))))) ::
+			 (qmap "is_nat" (qand qnone (qor 90 10 qnone (qand qnone (qname "is_nat"))))) :: nil)
 			nil
 			(qname "is_natlist")
 		)
