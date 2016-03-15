@@ -116,8 +116,9 @@ unfoldRExpert (qcert Map Delta (qname Name)) (qcert Map Delta Form) :=
 %
 unfoldRExpert qsearch qsearch.
 
+%NOTE Ensure termination!
 Define unfoldLClerk : cert -> cert -> prop by
-unfoldLClerk _ _ := false.
+unfoldLClerk qsearch qsearch.
 
 Define coindClerk' : cert -> ( i -> cert ) -> prop by
 coindClerk' _ _ := false.
@@ -134,19 +135,23 @@ indClerk _ _ _ _ := false.
 Define someExpert : cert -> cert -> i -> prop by
 someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _ ;
 %
-someExpert (qstart Tries Gen Check) (qstart Tries Gen Check) _.
+someExpert (qstart Tries Gen Check) (qstart Tries Gen Check) _ ;
+%
+someExpert qsearch qsearch _.
 
 Define allExpert : cert -> cert -> i -> prop by
 allExpert _ _ _ := false.
 
 Define someClerk : cert -> ( i -> cert ) -> prop by
-someClerk _ _ := false.
+someClerk qsearch (_\ qsearch).
 
 Define allClerk : cert -> ( i -> cert ) -> prop by
 allClerk _ _ := false.
 
 Define eqExpert : cert -> prop by
-eqExpert (qcert _ _ _).
+eqExpert (qcert _ _ _) ;
+%
+eqExpert qsearch.
 
 Define impExpert' : cert -> cert -> cert -> prop by
 impExpert' _ _ _ := false.
@@ -180,7 +185,9 @@ orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Cho
 		Random = 1 /\ %Random > Pr1 /\
 		Form = Form2 /\
 		Choice = right
-	).
+	) ;
+%
+orExpert qsearch qsearch _.
 
 Define andExpert : cert -> cert -> cert -> prop by
 andExpert (qcert Map Delta qnone)              (qcert Map Delta qnone) (qcert Map Delta qnone) ;
@@ -201,10 +208,10 @@ Define impClerk : cert -> cert -> prop by
 impClerk qsearch qsearch.
 
 Define orClerk : cert -> cert -> cert -> prop by
-orClerk _ _ _ := false.
+orClerk qsearch qsearch qsearch.
 
 Define andClerk : cert -> cert -> prop by
-andClerk _ _ := false.
+andClerk qsearch qsearch.
 
 Define ttClerk : cert -> cert -> prop by
 ttClerk _ _ := false.
