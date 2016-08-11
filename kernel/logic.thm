@@ -26,6 +26,16 @@ Type   cons_i   i -> list_i -> list_i.
 Kind   imap   type.
 Type   imap   i -> i -> imap.
 
+% List type
+Kind   list_imap   type.
+Type   nil_imap    list_imap.
+Type   cons_imap   imap -> list_imap -> list_imap.
+
+Define member_imap : imap -> list_imap -> prop by
+	member_imap Imap (cons_imap Imap  Rest) ;
+	member_imap Imap (cons_imap Imap' Rest) :=
+		member_imap Imap Rest.
+
 % Fixed point argument lists
 Type   argv   i.
 Type   ++     i -> i -> i.
