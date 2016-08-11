@@ -27,25 +27,25 @@
 % replaced where possible with (sto ff), which cannot be proved
 
 % ffL (ex falso quodlibet)
-#assert async (debug z) nil dummy nil nil nil (ff :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil (cons_bool ff nil_bool) (sto ff).
 % ttR
 #assert syncR (debug z) nil dummy nil nil nil tt.
 % decideR -> ttR
-#assert async (debug z) nil dummy nil nil nil nil (sto tt).
+#assert async (debug z) nil dummy nil nil nil nil_bool (sto tt).
 % ttL -> decideR -> ttR
-#assert async (debug z) nil dummy nil nil nil (tt :: nil) (sto tt).
+#assert async (debug z) nil dummy nil nil nil (cons_bool tt nil_bool) (sto tt).
 % andL -> ffL (and-RHS doesn't do anything)
-#assert async (debug z) nil dummy nil nil nil ((and ff ff) :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil (cons_bool (and ff ff) nil_bool) (sto ff).
 % andL -> ttL -> ffL
-#assert async (debug z) nil dummy nil nil nil ((and tt ff) :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil (cons_bool (and tt ff) nil_bool) (sto ff).
 % orL -> ffL | ffL
-#assert async (debug z) nil dummy nil nil nil ((or ff ff) :: nil) (sto ff).
+#assert async (debug z) nil dummy nil nil nil (cons_bool (or ff ff) nil_bool) (sto ff).
 % storeR -> decideR -> ttR
-#assert async (debug z) nil dummy nil nil nil nil (unk tt).
+#assert async (debug z) nil dummy nil nil nil nil_bool (unk tt).
 % impR -> ffL (imp-RSH doesn't do anything, but it can't be proved anyway)
-#assert async (debug z) nil dummy nil nil nil nil (unk (imp ff ff)).
+#assert async (debug z) nil dummy nil nil nil nil_bool (unk (imp ff ff)).
 % impR -> ttL -> storeR -> decideR -> ttR
-#assert async (debug z) nil dummy nil nil nil nil (unk (imp tt tt)).
+#assert async (debug z) nil dummy nil nil nil nil_bool (unk (imp tt tt)).
 % andR -> ttR | ttR
 #assert syncR (debug z) nil dummy nil nil nil (and tt tt).
 % orR -> ttR (left)
