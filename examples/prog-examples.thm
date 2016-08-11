@@ -22,7 +22,7 @@ Define sum_ctx_indep_f : bool -> prop by
 Define sum_ctx_indep : cert -> prop by
 	sum_ctx_indep Cert :=
 		ctx_sum_free_f CtxSumFree /\ sum_ctx_indep_f SumCtxIndep /\
-		prove_with_lemmas Cert SumCtxIndep ((lemma (idx "ctx_sum_free") CtxSumFree) :: nil).
+		prove_with_lemmas Cert SumCtxIndep (cons_lemma (lemma (idx "ctx_sum_free") CtxSumFree) nil_lemma).
 
 %TODO Same as above, for multiplication: refactor
 Define ctx_mult_free_f : bool -> prop by
@@ -49,4 +49,4 @@ Define mult_ctx_indep_f : bool -> prop by
 Define mult_ctx_indep : cert -> prop by
 	mult_ctx_indep Cert :=
 		ctx_mult_free_f CtxMultFree /\ mult_ctx_indep_f MultCtxIndep /\
-		prove_with_lemmas Cert MultCtxIndep ((lemma (idx "ctx_mult_free") CtxMultFree) :: nil).
+		prove_with_lemmas Cert MultCtxIndep (cons_lemma (lemma (idx "ctx_mult_free") CtxMultFree) nil_lemma).

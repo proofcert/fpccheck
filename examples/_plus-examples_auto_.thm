@@ -17,8 +17,9 @@ Define plus_succ : (i -> bool) -> cert -> prop by
 Define plus_comm : (i -> bool) -> (i -> bool) -> cert -> prop by
 	plus_comm Plus IsNat Cert :=
 		plus Plus /\ is_nat IsNat /\ is_commutative Cert Plus IsNat
-			((lemma (idx z) (all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv))))) ::
-			 (lemma (idx (s z)) (all K\ all M\ all N\ (imp (Plus (K ++ M  ++ N  ++ argv)) (Plus (K ++ (succ M) ++ (succ N) ++ argv))))) :: nil).
+			(cons_lemma (lemma (idx z) (all N\ (imp (IsNat (N ++ argv)) (Plus (N ++ zero ++ N ++ argv)))))
+			(cons_lemma (lemma (idx (s z)) (all K\ all M\ all N\ (imp (Plus (K ++ M  ++ N  ++ argv)) (Plus (K ++ (succ M) ++ (succ N) ++ argv)))))
+			nil_lemma)).
 
 Define plus_total : (i -> bool) -> cert -> prop by
 	plus_total Plus Cert :=
@@ -84,7 +85,8 @@ Define plus_assoc_rl : cert -> prop by
 		commutative Plus IsNat PlusComm /\ associative Plus PlusAssoc /\
 		% Theorem
 		plus_assoc_rl_f PlusAssocRL /\
-		prove_with_lemmas Cert PlusAssocRL (
-			(lemma (idx z) AddendNat) ::
-			(lemma (idx (s z)) PlusComm ) ::
-			(lemma (idx (s (s z))) PlusAssoc) :: nil).
+		prove_with_lemmas Cert PlusAssocRL
+			(cons_lemma (lemma (idx z) AddendNat)
+			(cons_lemma (lemma (idx (s z)) PlusComm)
+			(cons_lemma (lemma (idx (s (s z))) PlusAssoc)
+			nil_lemma))).

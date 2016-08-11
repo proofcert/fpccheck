@@ -16,6 +16,16 @@
 Kind   lemma   type.
 Type   lemma   idx -> bool -> lemma.
 
+% List type
+Kind   list_lemma   type.
+Type   nil_lemma    list_lemma.
+Type   cons_lemma   lemma -> list_lemma -> list_lemma.
+
+Define member_lemma : lemma -> list_lemma -> prop by
+	member_lemma Lemma (cons_lemma Lemma  Rest) ;
+	member_lemma Lemma (cons_lemma Lemma' Rest) :=
+		member_lemma Lemma Rest.
+
 % A type for traces and debugging information
 %NOTE I'm kind of cheating by using numidx here (it should be internal).
 Kind   debug   type.
@@ -156,13 +166,13 @@ Define coindInvariant' : list_i -> list_ctx -> i -> (i -> bool) -> prop by
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Zones:       Debug    Lambda        Xi      Sigma     Phi         Gamma       Delta        Goal
-Define async : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
-       syncL : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
-       syncR : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx              -> bool -> prop,
+Define async : debug -> list_lemma -> cert -> list_i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
+       syncL : debug -> list_lemma -> cert -> list_i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
+       syncR : debug -> list_lemma -> cert -> list_i -> list_ctx -> list_ctx              -> bool -> prop,
 % Spies (replace standard calls, i.e. prefix spy_, where so desired)
-   spy_async : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
-   spy_syncL : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
-   spy_syncR : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx              -> bool -> prop by
+   spy_async : debug -> list_lemma -> cert -> list_i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
+   spy_syncL : debug -> list_lemma -> cert -> list_i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
+   spy_syncR : debug -> list_lemma -> cert -> list_i -> list_ctx -> list_ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
@@ -337,7 +347,7 @@ async Debug Lambda Xi Sigma Phi Gamma nil_bool (sto G) := exists Xi',
 async Debug Lambda Xi Sigma Phi Gamma nil_bool G := exists Xi' Idx C,
 	(G = (sto _) \/ G = (frz _)) /\
 	decideLClerk' Xi Xi' Idx /\
-	member (lemma Idx C) Lambda /\
+	member_lemma (lemma Idx C) Lambda /\
 %	print "Lemma" /\ println Idx /\ %DEBUG
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
 
@@ -400,10 +410,10 @@ spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 Define prove : cert -> bool -> prop by
 	prove Cert Form :=
 		unmarshal Cert Cert' /\
-		async (debug (s z)) nil Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).
+		async (debug (s z)) nil_lemma Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).
 
 % Hacky but fast for now
-Define prove_with_lemmas : cert -> bool -> list lemma -> prop by
+Define prove_with_lemmas : cert -> bool -> list_lemma -> prop by
 	prove_with_lemmas Cert Form Lemmas :=
 		unmarshal Cert Cert' /\
 		async (debug (s z)) Lemmas Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).

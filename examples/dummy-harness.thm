@@ -27,39 +27,39 @@
 % replaced where possible with (sto ff), which cannot be proved
 
 % ffL (ex falso quodlibet)
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx (cons_bool ff nil_bool) (sto ff).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (cons_bool ff nil_bool) (sto ff).
 % ttR
-#assert syncR (debug z) nil dummy nil_i nil_ctx nil_ctx tt.
+#assert syncR (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx tt.
 % decideR -> ttR
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx nil_bool (sto tt).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx nil_bool (sto tt).
 % ttL -> decideR -> ttR
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx (cons_bool tt nil_bool) (sto tt).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (cons_bool tt nil_bool) (sto tt).
 % andL -> ffL (and-RHS doesn't do anything)
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx (cons_bool (and ff ff) nil_bool) (sto ff).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (cons_bool (and ff ff) nil_bool) (sto ff).
 % andL -> ttL -> ffL
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx (cons_bool (and tt ff) nil_bool) (sto ff).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (cons_bool (and tt ff) nil_bool) (sto ff).
 % orL -> ffL | ffL
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx (cons_bool (or ff ff) nil_bool) (sto ff).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (cons_bool (or ff ff) nil_bool) (sto ff).
 % storeR -> decideR -> ttR
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx nil_bool (unk tt).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx nil_bool (unk tt).
 % impR -> ffL (imp-RSH doesn't do anything, but it can't be proved anyway)
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx nil_bool (unk (imp ff ff)).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx nil_bool (unk (imp ff ff)).
 % impR -> ttL -> storeR -> decideR -> ttR
-#assert async (debug z) nil dummy nil_i nil_ctx nil_ctx nil_bool (unk (imp tt tt)).
+#assert async (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx nil_bool (unk (imp tt tt)).
 % andR -> ttR | ttR
-#assert syncR (debug z) nil dummy nil_i nil_ctx nil_ctx (and tt tt).
+#assert syncR (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (and tt tt).
 % orR -> ttR (left)
-#assert syncR (debug z) nil dummy nil_i nil_ctx nil_ctx (or tt ff).
+#assert syncR (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (or tt ff).
 % orR -> ttR (right)
-#assert syncR (debug z) nil dummy nil_i nil_ctx nil_ctx (or ff tt).
+#assert syncR (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (or ff tt).
 % releaseL -> ffL
-#assert syncL (debug z) nil dummy nil_i nil_ctx nil_ctx ff (sto ff).
+#assert syncL (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx ff (sto ff).
 % impL -> (releaseL -> ffL) | ttR
-#assert syncL (debug z) nil dummy nil_i nil_ctx nil_ctx (imp tt ff) (sto ff).
+#assert syncL (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (imp tt ff) (sto ff).
 
 
 % releaseR -> impR -> ffL (resolving as fast as we can)
-#assert syncR (debug z) nil dummy nil_i nil_ctx nil_ctx (imp ff ff).
+#assert syncR (debug z) nil_lemma dummy nil_i nil_ctx nil_ctx (imp ff ff).
 
 % decideL
 % storeL
