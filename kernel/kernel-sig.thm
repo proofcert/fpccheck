@@ -7,3 +7,13 @@ Type   unk, sto, frz   bool -> goal.
 % An indexed context of formulas (key-value pair) for Gamma
 Kind   ctx   type.
 Type   kvp   idx -> bool -> ctx.
+
+% List type
+Kind   list_ctx   type.
+Type   nil_ctx    list_ctx.
+Type   cons_ctx   ctx -> list_ctx -> list_ctx.
+
+Define member_ctx : ctx -> list_ctx -> prop by
+	member_ctx Ctx (cons_ctx Ctx Rest) ;
+	member_ctx Ctx (cons_ctx Ctx' Rest) :=
+		member_ctx Ctx Rest.
