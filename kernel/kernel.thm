@@ -87,10 +87,10 @@ Define copy_bool : list imap -> bool -> bool -> prop by
 % corresponds to a list of arguments according to the arity of the fixed point
 % in question.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Define abst : list i -> list imap -> bool -> bool -> prop by
-	abst (X :: Sigma) Theta S (all R) := forall x,
+Define abst : list_i -> list imap -> bool -> bool -> prop by
+	abst (cons_i X Sigma) Theta S (all R) := forall x,
 		abst Sigma ((imap X x) :: Theta) S (R x) ;
-	abst nil Theta S R :=
+	abst nil_i Theta S R :=
 		copy_bool Theta S R.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,15 +101,15 @@ Define abst : list i -> list imap -> bool -> bool -> prop by
 %   Current limitations: stored formulas (Gamma, (sto Goal)) are not used by the
 % predicate.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Define indInvariant' : list i -> list_bool -> goal -> i -> (i -> bool) -> prop
+Define indInvariant' : list_i -> list_bool -> goal -> i -> (i -> bool) -> prop
 by
 	indInvariant' Sigma nil_bool (unk Goal) T S := forall x, exists R,
-		abst (x :: Sigma) nil (imp (eq x T)        Goal ) R /\
+		abst (cons_i x Sigma) nil (imp (eq x T)        Goal ) R /\
 		R = (all S) ;
 	indInvariant' Sigma Delta    (unk Goal) T S := forall x, exists R,
 		Delta = (cons_bool _ _) /\
 		joinL and tt Delta Q /\
-		abst (x :: Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
+		abst (cons_i x Sigma) nil (imp (eq x T) (imp Q Goal)) R /\
 		R = (all S).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,10 +117,10 @@ by
 %NOTE Note entirely sure about the first case...
 %TODO Refactor common code, introduce e.g. quantifier parameters, etc.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Define coabst : list i -> list imap -> bool -> bool -> prop by
-	coabst (X :: Sigma) Theta S (some R) := forall x,
+Define coabst : list_i -> list imap -> bool -> bool -> prop by
+	coabst (cons_i X Sigma) Theta S (some R) := forall x,
 		coabst Sigma ((imap X x) :: Theta) S (R x) ;
-	coabst nil Theta S R :=
+	coabst nil_i Theta S R :=
 		copy_bool Theta S R.
 
 Define ctx2bool : list_ctx -> list_bool -> prop by
@@ -128,15 +128,15 @@ Define ctx2bool : list_ctx -> list_bool -> prop by
 	ctx2bool (cons_ctx (kvp _ F) Ctx) (cons_bool F Bool) :=
 		ctx2bool Ctx Bool.
 
-Define coindInvariant' : list i -> list_ctx -> i -> (i -> bool) -> prop by
+Define coindInvariant' : list_i -> list_ctx -> i -> (i -> bool) -> prop by
 	coindInvariant' Sigma nil_ctx T S := forall x, exists R,
-		coabst (x :: Sigma) nil      (eq x T)    R /\
+		coabst (cons_i x Sigma) nil      (eq x T)    R /\
 		R = (some S) ;
 	coindInvariant' Sigma Gamma   T S := forall x, exists R,
 		Gamma = (cons_ctx _ _) /\
 		ctx2bool Gamma Gamma' /\
 		joinL and tt Gamma' Q /\
-		coabst (x :: Sigma) nil (and (eq x T) Q) R /\
+		coabst (cons_i x Sigma) nil (and (eq x T) Q) R /\
 		R = (some S).
 
 %%%%%%%%%%%%%%%%%%
@@ -156,13 +156,13 @@ Define coindInvariant' : list i -> list_ctx -> i -> (i -> bool) -> prop by
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Zones:       Debug    Lambda        Xi      Sigma     Phi         Gamma       Delta        Goal
-Define async : debug -> list lemma -> cert -> list i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
-       syncL : debug -> list lemma -> cert -> list i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
-       syncR : debug -> list lemma -> cert -> list i -> list_ctx -> list_ctx              -> bool -> prop,
+Define async : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
+       syncL : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
+       syncR : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx              -> bool -> prop,
 % Spies (replace standard calls, i.e. prefix spy_, where so desired)
-   spy_async : debug -> list lemma -> cert -> list i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
-   spy_syncL : debug -> list lemma -> cert -> list i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
-   spy_syncR : debug -> list lemma -> cert -> list i -> list_ctx -> list_ctx              -> bool -> prop by
+   spy_async : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx -> list_bool -> goal -> prop,
+   spy_syncL : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx ->      bool -> goal -> prop,
+   spy_syncR : debug -> list lemma -> cert -> list_i -> list_ctx -> list_ctx              -> bool -> prop by
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Asynchronous rules %
@@ -190,11 +190,11 @@ async Debug Lambda Xi Sigma Phi Gamma (cons_bool tt Delta) G := exists Xi',
 
 async Debug Lambda Xi Sigma Phi Gamma nil_bool (unk (all P)) := exists Xi',
 	allClerk Xi Xi' /\
-	forall x, spy_async Debug Lambda (Xi' x) (x :: Sigma) Phi Gamma nil_bool (unk (P x)) ;
+	forall x, spy_async Debug Lambda (Xi' x) (cons_i x Sigma) Phi Gamma nil_bool (unk (P x)) ;
 
 async Debug Lambda Xi Sigma Phi Gamma (cons_bool (some P) Delta) G := exists Xi',
 	someClerk Xi Xi' /\
-	forall x, spy_async Debug Lambda (Xi' x) (x :: Sigma) Phi Gamma (cons_bool (P x) Delta) G ;
+	forall x, spy_async Debug Lambda (Xi' x) (cons_i x Sigma) Phi Gamma (cons_bool (P x) Delta) G ;
 
 % This can wreak all kinds of havoc in the structure of Sigma: beware!
 async Debug Lambda Xi Sigma Phi Gamma (cons_bool (eq P Q) Delta) G := exists Xi',
@@ -210,8 +210,8 @@ async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi'
 % sensitive to extensions in the kernel.
 async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi' Xi'' S,
 	indClerk Xi Xi' Xi'' S /\
-	          spy_async Debug Lambda  Xi'     Sigma      Phi Gamma (cons_bool (S T)   Delta   ) G /\
-	forall x, spy_async Debug Lambda (Xi'' x) (x :: nil) Phi Gamma (cons_bool (B S x) nil_bool) (unk (S x)) ;
+	          spy_async Debug Lambda  Xi'     Sigma            Phi Gamma (cons_bool (S T)   Delta   ) G /\
+	forall x, spy_async Debug Lambda (Xi'' x) (cons_i x nil_i) Phi Gamma (cons_bool (B S x) nil_bool) (unk (S x)) ;
 
 % Immediate induction. The main issues are the treatment of Sigma and missing
 % sets of formulas for the invariant. Critically, this addition to the trusted
@@ -219,7 +219,7 @@ async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi'
 async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi' S,
 	indClerk' Xi Xi' /\
 	indInvariant' Sigma Delta G T S /\
-	forall x, spy_async Debug Lambda (Xi'  x) (x :: nil) Phi Gamma (cons_bool (B S x) nil_bool) (unk (S x)) ;
+	forall x, spy_async Debug Lambda (Xi'  x) (cons_i x nil_i) Phi Gamma (cons_bool (B S x) nil_bool) (unk (S x)) ;
 
 async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi',
 	freezeLClerk Xi Xi' Idx /\
@@ -233,14 +233,14 @@ async Debug Lambda Xi Sigma Phi Gamma nil_bool (unk (nu B T)) := exists Xi',
 % formulas that are discarded and kept, respectively.
 async Debug Lambda Xi Sigma Phi Gamma nil_bool (unk (nu B T)) := exists Xi' Xi'' S,
 	coindClerk Xi Xi' Xi'' S /\
-	          spy_async Debug Lambda  Xi'     Sigma      Phi Gamma   nil_bool                   (unk (S T)) /\
-	forall x, spy_async Debug Lambda (Xi'' x) (x :: nil) Phi nil_ctx (cons_bool (S x) nil_bool) (unk (B S x)) ;
+	          spy_async Debug Lambda  Xi'     Sigma            Phi Gamma   nil_bool                   (unk (S T)) /\
+	forall x, spy_async Debug Lambda (Xi'' x) (cons_i x nil_i) Phi nil_ctx (cons_bool (S x) nil_bool) (unk (B S x)) ;
 
 % Immediate coinduction (document, see immediate induction above for details)
 async Debug Lambda Xi Sigma Phi Gamma nil_bool (unk (nu B T)) := exists Xi' S,
 	coindClerk' Xi Xi' /\
 	coindInvariant' Sigma Gamma T S /\
-	forall x, spy_async Debug Lambda (Xi'  x) (x :: nil) Phi nil_ctx (cons_bool (S x) nil_bool) (unk (B S x)) ;
+	forall x, spy_async Debug Lambda (Xi'  x) (cons_i x nil_i) Phi nil_ctx (cons_bool (S x) nil_bool) (unk (B S x)) ;
 
 async Debug Lambda Xi Sigma Phi Gamma nil_bool (unk (nu B T)) := exists Xi',
 	freezeRClerk Xi Xi' /\
@@ -400,10 +400,10 @@ spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 Define prove : cert -> bool -> prop by
 	prove Cert Form :=
 		unmarshal Cert Cert' /\
-		async (debug (s z)) nil Cert' nil nil_ctx nil_ctx nil_bool (unk Form).
+		async (debug (s z)) nil Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).
 
 % Hacky but fast for now
 Define prove_with_lemmas : cert -> bool -> list lemma -> prop by
 	prove_with_lemmas Cert Form Lemmas :=
 		unmarshal Cert Cert' /\
-		async (debug (s z)) Lemmas Cert' nil nil_ctx nil_ctx nil_bool (unk Form).
+		async (debug (s z)) Lemmas Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).

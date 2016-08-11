@@ -18,6 +18,10 @@ Kind   list_bool   type.
 Type   nil_bool    list_bool.
 Type   cons_bool   bool -> list_bool -> list_bool.
 
+Kind   list_i   type.
+Type   nil_i    list_i.
+Type   cons_i   i -> list_i -> list_i.
+
 % Variable maps for term rewriting (optimal location?)
 Kind   imap   type.
 Type   imap   i -> i -> imap.
