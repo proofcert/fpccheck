@@ -6,7 +6,7 @@
 % the arguments of fixed points.
 % [This predicate should be relocated, see print_i.]
 Define print_argv_rec : i -> prop by
-	print_argv_rec (T ++ U) :=
+	print_argv_rec (arg@ T U) :=
 		printstr "," /\ print T /\
 		print_argv_rec U ;
 	print_argv_rec argv :=
@@ -15,7 +15,7 @@ Define print_argv : i -> prop by
 	print_argv argv :=
 		printstr "{" /\
 		print_argv_rec argv ;
-	print_argv (T ++ U) :=
+	print_argv (arg@ T U) :=
 		printstr "{" /\ print T /\
 		print_argv_rec U.
 

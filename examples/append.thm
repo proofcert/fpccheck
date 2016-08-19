@@ -5,7 +5,7 @@ Type   a, b, c, d, e, f   i.
 
 Define append : (i -> bool) -> prop by
 	append (mu A\Args\
-		(some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv))
+		(some L1\ some L2\ some L3\ (and (eq Args (arg@ L1 (arg@ L2 (arg@ L3 argv))))
 		(or
 			(and
 				(eq L1 null)
@@ -13,4 +13,4 @@ Define append : (i -> bool) -> prop by
 			(some N\ some L1'\ some L3'\ (and (and
 				(eq L1 (cons N L1'))
 				(eq L3 (cons N L3')))
-				(A (L1' ++ L2 ++ L3' ++ argv)))))))).
+				(A (arg@ L1' (arg@ L2 (arg@ L3' argv)))))))))).
