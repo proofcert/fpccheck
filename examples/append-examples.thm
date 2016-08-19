@@ -1,18 +1,18 @@
 #include "template.thm".
 
 Define appendable : cert -> i -> i -> i -> prop by
-	appendable Cert L1 L2 L3 :=
+	appendable Cert L1 L2 L3 := exists Append,
 		append Append /\ prove Cert (Append (arg@ L1 (arg@ L2 (arg@ L3 argv)))).
 
 Define eigen_unify : cert -> prop by
-	eigen_unify Cert :=
+	eigen_unify Cert := exists Append,
 		append Append /\ 
 		prove Cert (all a\ all b\ all c\ (imp
 			(Append (arg@ a (arg@ b (arg@ c argv))))
 			(some d\ some e\ some f\ Append (arg@ d (arg@ e (arg@ f argv)))))).
 
 Define append_total : (i -> bool) -> cert -> prop by
-	append_total Append Cert :=
+	append_total Append Cert := exists IsList,
 		append Append /\ is_list IsList /\ is_total Cert Append IsList.
 
 Define append_assoc : (i -> bool) -> cert -> prop by
