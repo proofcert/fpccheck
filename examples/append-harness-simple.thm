@@ -5,28 +5,28 @@
 #include "../kernel/kernel.thm".
 #include "append-examples.thm".
 
-#assert appendable (apply 1 0 1 0 1) null null null.
-#assert appendable (pair# (apply 1 0 1 0 1) (apply# 1 0 1 0 1 Idx)) null null null.
+#assert appendable (apply (ss zz) zz (ss zz) zz (ss zz)) null null null.
+#assert appendable (pair# (apply (ss zz) zz (ss zz) zz (ss zz)) (apply# (ss zz) zz (ss zz) zz (ss zz) Idx)) null null null.
 
-#assert appendable (apply 1 0 2 0 2) (cons a null) null (cons a null).
-#assert appendable (pair# (apply 1 0 2 0 2) (apply# 1 0 2 0 2 Idx)) (cons a null) null (cons a null).
+#assert appendable (apply (ss zz) zz (ss (ss zz)) zz (ss (ss zz))) (cons a null) null (cons a null).
+#assert appendable (pair# (apply (ss zz) zz (ss (ss zz)) zz (ss (ss zz))) (apply# (ss zz) zz (ss (ss zz)) zz (ss (ss zz)) Idx)) (cons a null) null (cons a null).
 
-#assert appendable (apply 1 0 1 0 1) null (cons a null) (cons a null).
-#assert appendable (pair# (apply 1 0 1 0 1) (apply# 1 0 1 0 1 Idx)) null (cons a null) (cons a null).
+#assert appendable (apply (ss zz) zz (ss zz) zz (ss zz)) null (cons a null) (cons a null).
+#assert appendable (pair# (apply (ss zz) zz (ss zz) zz (ss zz)) (apply# (ss zz) zz (ss zz) zz (ss zz) Idx)) null (cons a null) (cons a null).
 
-#assert appendable (apply 1 0 2 0 2)
+#assert appendable (apply (ss zz) zz (ss (ss zz)) zz (ss (ss zz)))
 	(cons a null) (cons b null) (cons a (cons b null)).
-#assert appendable (pair# (apply 1 0 2 0 2) (apply# 1 0 2 0 2 Idx))
+#assert appendable (pair# (apply (ss zz) zz (ss (ss zz)) zz (ss (ss zz))) (apply# (ss zz) zz (ss (ss zz)) zz (ss (ss zz)) Idx))
 	(cons a null) (cons b null) (cons a (cons b null)).
 
-#assert eigen_unify (apply 1 0 0 0 0).
-#assert eigen_unify (pair# (apply 1 0 0 0 0) (apply# 1 0 0 0 0 Idx)).
+#assert eigen_unify (apply (ss zz) zz zz zz zz).
+#assert eigen_unify (pair# (apply (ss zz) zz zz zz zz) (apply# (ss zz) zz zz zz zz Idx)).
 
-#assert append_total _ (induction 1 0 1 0 1).
-#assert append_total _ (pair# (induction 1 0 1 0 1) (induction# 1 0 1 0 1 Idx)).
+#assert append_total _ (induction (ss zz) zz (ss zz) zz (ss zz)).
+#assert append_total _ (pair# (induction (ss zz) zz (ss zz) zz (ss zz)) (induction# (ss zz) zz (ss zz) zz (ss zz) Idx)).
 
-#assert append_det _ (induction 1 1 0 1 0).
-#assert append_det _ (pair# (induction 1 1 0 1 0) (induction# 1 1 0 1 0 Idx)).
+#assert append_det _ (induction (ss zz) (ss zz) zz (ss zz) zz).
+#assert append_det _ (pair# (induction (ss zz) (ss zz) zz (ss zz) zz) (induction# (ss zz) (ss zz) zz (ss zz) zz Idx)).
 
-#assert append_assoc _ (induction 1 1 1 1 1).
-#assert append_assoc _ (pair# (induction 1 1 1 1 1) (induction# 1 1 1 1 1 Idx)).
+#assert append_assoc _ (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)).
+#assert append_assoc _ (pair# (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)) (induction# (ss zz) (ss zz) (ss zz) (ss zz) (ss zz) Idx)).
