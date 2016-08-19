@@ -11,6 +11,11 @@ Kind   idx           type.
 % Nested indexing for fixed points in a formula [is this its place?]
 Kind   boolidx       type.
 
+% List type
+Kind   list_boolidx   type.
+Type   nil_boolidx    list_boolidx.
+Type   cons_boolidx   boolidx -> list_boolidx -> list_boolidx.
+
 % From human-readable to machine-usable certificates
 %unmarshal   cert -> cert -> prop
 
