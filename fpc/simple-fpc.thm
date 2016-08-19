@@ -18,11 +18,18 @@
 %	inc 12 13 ; inc 13 14 ; inc 14 15 ; inc 15 16 ; inc 16 17 ; inc 17 18 ;
 %	inc 18 19 ; inc 19 20.
 
-Define dec : nat -> nat -> prop by
-	dec  1  0 ; dec  2  1 ; dec  3  2 ; dec  4  3 ; dec  5  4 ; dec  6  5 ;
-	dec  7  6 ; dec  8  7 ; dec  9  8 ; dec 10  9 ; dec 11 10 ; dec 12 11 ;
-	dec 13 12 ; dec 14 13 ; dec 15 14 ; dec 16 15 ; dec 17 16 ; dec 18 17 ;
-	dec 19 18 ; dec 20 19.
+Kind   nnat   type.
+Type   zz    nnat.
+Type   ss    nnat -> nnat.
+
+Define dec : nnat -> nnat -> prop by
+	dec (ss X) X.
+
+%Define dec : nat -> nat -> prop by
+%	dec  1  0 ; dec  2  1 ; dec  3  2 ; dec  4  3 ; dec  5  4 ; dec  6  5 ;
+%	dec  7  6 ; dec  8  7 ; dec  9  8 ; dec 10  9 ; dec 11 10 ; dec 12 11 ;
+%	dec 13 12 ; dec 14 13 ; dec 15 14 ; dec 16 15 ; dec 17 16 ; dec 18 17 ;
+%	dec 19 18 ; dec 20 19.
 
 %%%%%%%%%%%%%%%%
 % Full indexes %
@@ -34,8 +41,10 @@ Type   z        numidx.
 Type   s        numidx -> numidx.
 
 % Indexes (names) and index pairs
-Type   idx    string -> idx.
-Type   idx2   idx -> idx -> idx.
+Type   idx        numidx -> idx.
+Type   idxlocal   idx.
+Type   idxatom    idx.
+Type   idx2       idx -> idx -> idx.
 
 % Binare trees of indexes
 Kind   bt                 type.
@@ -59,13 +68,13 @@ Type   btbranch           bt -> bt -> bt.
 % counts and are meant to be passive: one should not try to mess with them.
 % The search certificate simply tries to end this within the current bipole
 % without doing anything particularly smart.
-Type   induction   nat -> nat -> nat -> nat -> nat -> cert.
-Type   apply       nat -> nat -> nat -> nat -> nat -> cert.
-Type   search                                         cert.
+Type   induction   nnat -> nnat -> nnat -> nnat -> nnat -> cert.
+Type   apply       nnat -> nnat -> nnat -> nnat -> nnat -> cert.
+Type   search                                              cert.
 
 % Wrapped versions of self-contained certificates
-Type   induction!   nat -> nat -> nat -> cert.
-Type   apply!       nat -> nat -> nat -> cert.
+Type   induction!   nnat -> nnat -> nnat -> cert.
+Type   apply!       nnat -> nnat -> nnat -> cert.
 
 % Chained certificates: they perform their mandate and proceed to the next
 % continuation certificate(s) when they are done; a chain or branch thereof will
@@ -76,9 +85,9 @@ Type   apply!       nat -> nat -> nat -> cert.
 %  - apply, which represents a bipole with concrete allowances for both kinds of
 %    unfolding operations and ends upon release; the index directs whether a
 %    local or a global decide will be performed.
-Type   induction?                         cert -> cert.
-Type   case?        nat        -> cert -> cert -> cert.
-Type   apply?       nat -> nat -> idx  -> cert -> cert.
+Type   induction?                           cert -> cert.
+Type   case?        nnat         -> cert -> cert -> cert.
+Type   apply?       nnat -> nnat -> idx  -> cert -> cert.
 
 % Elaboration certificates: mimic the structure of self-contained certificates
 % and add a binary tree of decisions that will enable elaboration into a chain
@@ -88,11 +97,11 @@ Type   apply?       nat -> nat -> idx  -> cert -> cert.
 % scheme seems straightforward in my mind. (For now, however, I'm keeping the
 % auxiliary members of pair#, which "should" be pretty much innocuous...)
 Type   pair#        cert -> cert -> cert.
-Type   induction#   nat -> nat -> nat -> nat -> nat -> bt -> cert.
-Type   apply#       nat -> nat -> nat -> nat -> nat -> bt -> cert.
+Type   induction#   nnat -> nnat -> nnat -> nnat -> nnat -> bt -> cert.
+Type   apply#       nnat -> nnat -> nnat -> nnat -> nnat -> bt -> cert.
 
 % Variants for explicit induction with invariant
-Type   inductionS    nat -> nat -> nat -> nat -> nat -> (i -> bool) -> cert.
+Type   inductionS    nnat -> nnat -> nnat -> nnat -> nnat -> (i -> bool) -> cert.
 Type   inductionS?   cert -> (i -> cert) -> (i -> bool) -> cert.
 
 #include "debug-simple-fpc.thm".
@@ -105,18 +114,18 @@ Type   inductionS?   cert -> (i -> cert) -> (i -> bool) -> cert.
 Define unmarshal : cert -> cert -> prop by
 	unmarshal (induction! B A S) (induction B A S A S) ;
 	unmarshal (apply! B A S) (apply B A S A S) ;
-	unmarshal Cert Cert := (
-		Cert = (induction _ _ _ _ _) \/
-		Cert = (inductionS _ _ _ _ _ _) \/
-		Cert = (apply _ _ _ _ _) \/
+	unmarshal Cert Cert := exists ?Bx ?C1 ?C2 ?Cx ?I ?N1 ?N2 ?N3 ?N4 ?N5 ?T, (
+		Cert = (induction ?N1 ?N2 ?N3 ?N4 ?N5) \/
+		Cert = (inductionS ?N1 ?N2 ?N3 ?N4 ?N5 ?Bx) \/
+		Cert = (apply ?N1 ?N2 ?N3 ?N4 ?N5) \/
 		Cert = search \/
-		Cert = (induction? _) \/
-		Cert = (inductionS? _ _ _) \/
-		Cert = (case? _ _ _) \/
-		Cert = (apply? _ _ _ _) \/
-		Cert = (pair# _ _) \/
-		Cert = (induction# _ _ _ _ _ _) \/
-		Cert = (apply# _ _ _ _ _ _)
+		Cert = (induction? ?C1) \/
+		Cert = (inductionS? ?C1 ?Cx ?Bx) \/
+		Cert = (case? ?N1 ?C1 ?C2) \/
+		Cert = (apply? ?N1 ?N2 ?I ?C1) \/
+		Cert = (pair# ?C1 ?C2) \/
+		Cert = (induction# ?N1 ?N2 ?N3 ?N4 ?N5 ?T) \/
+		Cert = (apply# ?N1 ?N2 ?N3 ?N4 ?N5 ?T)
 	).
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -146,35 +155,35 @@ Define unfoldSync : cert -> cert -> prop by
 % but as we get mixed results, e.g. unexhausted bipole depths, this may well be
 % different.
 Define endBipole : cert -> cert -> prop by
-	endBipole (apply N AU SU _ _) (apply N' AU SU AU SU) := dec N N' ;
-	endBipole (apply 0 _  _  _ _) search ;
-	endBipole (apply? _ _ _ C) C ;
-	endBipole (pair# (apply N  AU SU _  _ ) (apply# N  AU SU _  _  Idx))
-	          (pair# (apply N' AU SU AU SU) (apply# N' AU SU AU SU Idx)) :=
+	endBipole (apply N  AU SU X1? X2?) (apply N' AU SU AU SU) := dec N N' ;
+	endBipole (apply zz X1? X2? X3? X4?) search ;
+	endBipole (apply? X1? X2? X3? C) C ;
+	endBipole (pair# (apply N  AU  SU  X1? X2?) (apply# N  AU  SU  X3? X4? Idx))
+	          (pair# (apply N' AU  SU  AU  SU ) (apply# N' AU  SU  AU  SU  Idx)) :=
 		dec N N' ;
-	endBipole (pair# (apply 0 _ _ _ _) (apply# 0 _ _ _ _ Idx))
+	endBipole (pair# (apply zz X1? X2? X3? X4?) (apply# zz X5? X6? X7? X8? Idx))
 	          (pair# search search).
 
 Define isSimpleCase : cert -> prop by
-	isSimpleCase (induction _ _ _ _ _) ;
-	isSimpleCase (inductionS _ _ _ _ _ _) ;
-	isSimpleCase (apply _ _ _ _ _) ;
+	isSimpleCase (induction X1? X2? X3? X4? X5?) ;
+	isSimpleCase (inductionS X1? X2? X3? X4? X5? X6?) ;
+	isSimpleCase (apply X1? X2? X3? X4? X5?) ;
 	isSimpleCase search ;
-	isSimpleCase (induction? _) ;
-	isSimpleCase (inductionS? _ _ _) ;
-	isSimpleCase (apply? _ _ _ _).
+	isSimpleCase (induction? X1?) ;
+	isSimpleCase (inductionS? X1? X2? X3?) ;
+	isSimpleCase (apply? X1? X2? X3? X4?).
 
 Define isNotPair : cert -> prop by
-	isNotPair (induction _ _ _ _ _) ;
-	isNotPair (inductionS _ _ _ _ _ _) ;
-	isNotPair (apply _ _ _ _ _) ;
+	isNotPair (induction X1? X2? X3? X4? X5?) ;
+	isNotPair (inductionS X1? X2? X3? X4? X5? X6?) ;
+	isNotPair (apply X1? X2? X3? X4? X5?) ;
 	isNotPair search ;
-	isNotPair (induction? _) ;
-	isNotPair (inductionS? _ _ _) ;
-	isNotPair (case? _ _ _) ;
-	isNotPair (apply? _ _ _ _) ;
-	isNotPair (induction# _ _ _ _ _ _) ;
-	isNotPair (apply# _ _ _ _ _ _).
+	isNotPair (induction? X1?) ;
+	isNotPair (inductionS? X1? X2? X3?) ;
+	isNotPair (case? X1? X2? X3?) ;
+	isNotPair (apply? X1? X2? X3? X4?) ;
+	isNotPair (induction# X1? X2? X3? X4? X5? X6?) ;
+	isNotPair (apply# X1? X2? X3? X4? X5? X6?).
 
 %%%%%%%%%%%%%%%%%%%%%%
 % Clerks and experts %
@@ -206,7 +215,7 @@ Define orClerk : cert -> cert -> cert -> prop by
 		isSimpleCase Cert
 %		/\ println "orClerk simple case" /\ print_cert Cert %DEBUG
 		;
-	orClerk (case? _ CertL CertR) CertL CertR
+	orClerk (case? X? CertL CertR) CertL CertR
 %	:= println "orClerk case?" /\ print_cert CertL /\ print_cert CertR %DEBUG
 	;
 	orClerk (apply# N AU SU AC SC (btbranch IdxL IdxR))
@@ -252,7 +261,7 @@ Define orExpert : cert -> cert -> choice -> prop by
 %	:= println "orExpert right" /\ print_cert Cert %DEBUG
 	.
 
-Define impExpert : cert -> cert -> cert -> prop by impExpert _ _ _ := false.
+Define impExpert : cert -> cert -> cert -> prop by impExpert X1? X2? X3? := false.
 
 Define impExpert' : cert -> cert -> cert -> prop by
 	impExpert' Cert Cert Cert
@@ -269,7 +278,7 @@ Define eqExpert : cert -> prop by
 %-------------%
 
 Define allClerk : cert -> (i -> cert) -> prop by
-	allClerk Cert (_\ Cert) :=
+	allClerk Cert (x\ Cert) :=
 		isNotPair Cert
 %		/\ println "allClerk" /\ print_cert Cert %DEBUG
 		;
@@ -280,7 +289,7 @@ Define allClerk : cert -> (i -> cert) -> prop by
 		.
 
 Define someClerk : cert -> (i -> cert) -> prop by
-	someClerk Cert (_\ Cert) :=
+	someClerk Cert (x\ Cert) :=
 		isNotPair Cert
 %		/\ println "someClerk" /\ print_cert Cert %DEBUG
 		;
@@ -291,12 +300,12 @@ Define someClerk : cert -> (i -> cert) -> prop by
 		.
 
 Define allExpert : cert -> cert -> i -> prop by
-	allExpert Cert Cert _
+	allExpert Cert Cert X
 %	:= println "allExpert" /\ print_cert Cert %DEBUG
 	.
 
 Define someExpert : cert -> cert -> i -> prop by
-	someExpert Cert Cert _
+	someExpert Cert Cert X
 %	:= println "someExpert" /\ print_cert Cert %DEBUG
 	.
 
@@ -307,7 +316,7 @@ Define someExpert : cert -> cert -> i -> prop by
 Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	indClerk (inductionS N AU SU AC SC S)
 	         (   apply   N AU SU AC SC  )
-	         (_\ apply   N AU SC AC SC  )
+	         (x\ apply   N AU SC AC SC  )
 	         S;
 	indClerk (inductionS? Cert1 Cert2 S) Cert1 Cert2 S.
 %	% Separate branching event?
@@ -323,13 +332,13 @@ Define indClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 %		indClerk Cert2 Cert2' Cert2x' S.
 
 Define indClerk' : cert -> (i -> cert) -> prop by
-	indClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
+	indClerk' (induction N AU SU AC SC) (x\ apply N AU SU AC SC)
 %	:= println "indClerk' induction" %DEBUG
 	;
-	indClerk' (induction? Cert) (_\ Cert)
+	indClerk' (induction? Cert) (x\ Cert)
 %	:= println "indClerk' induction?" %DEBUG
 	;
-	indClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
+	indClerk' (induction# N AU SU AC SC Idx) (x\ (apply# N AU SU AC SC Idx))
 %	:= println "indClerk' induction#" %DEBUG
 	;
 	indClerk' (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
@@ -341,19 +350,19 @@ Define indClerk' : cert -> (i -> cert) -> prop by
 Define coindClerk : cert -> cert -> (i -> cert) -> (i -> bool) -> prop by
 	coindClerk (inductionS N AU SU AC SC S)
 	           (   apply   N AU SU AC SC  )
-	           (_\ apply   N AU SC AC SC  )
+	           (x\ apply   N AU SC AC SC  )
 	           S;
 	coindClerk (inductionS? Cert1 Cert2 S) Cert1 Cert2 S.
 % Same considerations as indClerk re: pairing, etc.
 
 Define coindClerk' : cert -> (i -> cert) -> prop by
-	coindClerk' (induction N AU SU AC SC) (_\ apply N AU SU AC SC)
+	coindClerk' (induction N AU SU AC SC) (x\ apply N AU SU AC SC)
 %	:= println "coindClerk' induction" %DEBUG
 	;
-	coindClerk' (induction? Cert) (_\ Cert)
+	coindClerk' (induction? Cert) (x\ Cert)
 %	:= println "coindClerk' induction?" %DEBUG
 	;
-	coindClerk' (induction# N AU SU AC SC Idx) (_\ (apply# N AU SU AC SC Idx))
+	coindClerk' (induction# N AU SU AC SC Idx) (x\ (apply# N AU SU AC SC Idx))
 %	:= println "coindClerk' induction#" %DEBUG
 	;
 	coindClerk' (pair# Cert1 Cert2) (x\ pair# (Cert1' x) (Cert2' x)) :=
@@ -395,7 +404,7 @@ Define unfoldRClerk : cert -> cert -> prop by
 %----------------------------------%
 
 Define freezeLClerk : cert -> cert -> idx -> prop by
-	freezeLClerk Cert Cert (idx "atom") :=
+	freezeLClerk Cert Cert idxatom :=
 		isNotPair Cert
 %		/\ println "freezeLClerk" /\ print_cert Cert %DEBUG
 		;
@@ -406,7 +415,7 @@ Define freezeLClerk : cert -> cert -> idx -> prop by
 		.
 
 Define initRExpert : cert -> idx -> prop by
-	initRExpert Cert (idx "atom") :=
+	initRExpert Cert idxatom :=
 		isNotPair Cert
 %		/\ println "initRExpert" /\ print_cert Cert %DEBUG
 		;
@@ -437,7 +446,7 @@ Define initLExpert : cert -> prop by
 %------------------%
 
 Define storeLClerk : cert -> cert -> idx -> prop by
-	storeLClerk Cert Cert (idx "local") :=
+	storeLClerk Cert Cert idxlocal :=
 		isNotPair Cert
 %		/\ println "storeLClerk" /\ print_cert Cert %DEBUG
 		;
@@ -449,17 +458,17 @@ Define storeLClerk : cert -> cert -> idx -> prop by
 
 %TODO Return singleton index?
 Define decideLClerk : cert -> cert -> idx -> prop by
-	decideLClerk Cert Cert (idx "local") :=
-		Cert = (apply _ _ _ _ _)
+	decideLClerk Cert Cert idxlocal := exists ?1 ?2 ?3 ?4 ?5,
+		Cert = (apply ?1 ?2 ?3 ?4 ?5)
 %		/\ println "decideLClerk apply" /\ print_cert Cert %DEBUG
 		;
-	decideLClerk Cert Cert Idx :=
-		Cert = (apply? _ _ Idx _)
+	decideLClerk Cert Cert Idx := exists Idx ?1 ?2 ?3,
+		Cert = (apply? ?1 ?2 Idx ?3)
 %		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
 		;
-	decideLClerk (apply# N AU SU AC SC (btlocal (idx "local") Idx))
+	decideLClerk (apply# N AU SU AC SC (btlocal idxlocal Idx))
 	             (apply# N AU SU AC SC Idx)
-	             (idx "local")
+	             idxlocal
 %	:= println "decideLClerk apply#" %DEBUG
 	;
 	decideLClerk (pair# Cert1 Cert2) (pair# Cert1' Cert2') (idx2 Idx1 Idx2) :=
@@ -473,12 +482,12 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 % elaboration does not transcend to lemmas, at least yet! This is the only
 % exception in the scheme.
 Define decideLClerk' : cert -> cert -> idx -> prop by
-	decideLClerk' Cert Cert Idx :=
-		Cert = (apply _ _ _ _ _)
+	decideLClerk' Cert Cert Idx := exists ?1 ?2 ?3 ?4 ?5,
+		Cert = (apply ?1 ?2 ?3 ?4 ?5)
 %		/\ print "decideLClerk' apply" /\ println Idx /\ print_cert Cert %DEBUG
 		;
-	decideLClerk' Cert Cert Idx :=
-		Cert = (apply? _ _ Idx _)
+	decideLClerk' Cert Cert Idx := exists Idx ?1 ?2 ?3,
+		Cert = (apply? ?1 ?2 Idx ?3)
 %		/\ print "decideLClerk' apply?" /\ println Idx /\ print_cert Cert %DEBUG
 		;
 	decideLClerk' (apply# N AU SU AC SC (btlemma Idx Idx')) (apply# N AU SU AC SC Idx') Idx
@@ -508,13 +517,13 @@ Define storeRClerk : cert -> cert -> prop by
 %TODO Compare with previous version, everything else looks ok... checking the
 % resulting elaboration certificates is what would be needed.
 Define decideRClerk : cert -> cert -> prop by
-	decideRClerk Cert Cert := (
-		Cert = (apply _ _ _ _ _) \/
-		Cert = (apply? _ _ _ _) \/
-		Cert = search )
+	decideRClerk Cert Cert := exists ?C ?I ?N1 ?N2 ?N3 ?N4 ?N5, (
+		Cert = (apply ?N1 ?N2 ?N3 ?N4 ?N5) \/
+		Cert = (apply? ?N1 ?N2 ?I ?C) \/
+		Cert = search)
 %		/\ println "decideRClerk" /\ print_cert Cert %DEBUG
 		;
-	decideRClerk (apply# N AU SU AC SC (btlocal (idx "local") Idx))
+	decideRClerk (apply# N AU SU AC SC (btlocal idxlocal Idx))
 	             (apply# N AU SU AC SC Idx)
 %	:= println "decideRClerk apply#" %DEBUG
 	;
