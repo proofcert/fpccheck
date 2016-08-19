@@ -38,7 +38,7 @@ Define member_imap : imap -> list_imap -> prop by
 
 % Fixed point argument lists
 Type   argv   i.
-Type   ++     i -> i -> i.
+Type   arg@   i -> i -> i.
 
 % Logical constants
 Type   tt, ff         bool.
@@ -49,13 +49,13 @@ Type   mu, nu         ((i -> bool) -> i -> bool) -> i -> bool.
 
 % Polarities
 Define negative : bool -> prop by
-  negative (imp _ _) ;
-  negative (all _) ;
-  negative (nu _ _).
+  negative (imp P Q) ;
+  negative (all P) ;
+  negative (nu B T).
 
 Define positive : bool -> prop by
   positive tt ; positive ff ;
-  positive (and _ _) ; positive (or _ _) ;
-  positive (some _) ;
-  positive (eq _ _) ;
-  positive (mu _ _).
+  positive (and P Q) ; positive (or P Q) ;
+  positive (some P) ;
+  positive (eq P Q) ;
+  positive (mu B T).
