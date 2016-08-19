@@ -116,8 +116,8 @@ by
 	indInvariant' Sigma nil_bool (unk Goal) T S := forall x, exists R,
 		abst (cons_i x Sigma) nil_imap (imp (eq x T)        Goal ) R /\
 		R = (all S) ;
-	indInvariant' Sigma Delta    (unk Goal) T S := forall x, exists R,
-		Delta = (cons_bool _ _) /\
+	indInvariant' Sigma Delta    (unk Goal) T S := forall x, exists R Q ?1 ?2,
+		Delta = (cons_bool ?1 ?2) /\
 		joinL and tt Delta Q /\
 		abst (cons_i x Sigma) nil_imap (imp (eq x T) (imp Q Goal)) R /\
 		R = (all S).
@@ -135,15 +135,15 @@ Define coabst : list_i -> list_imap -> bool -> bool -> prop by
 
 Define ctx2bool : list_ctx -> list_bool -> prop by
 	ctx2bool nil_ctx nil_bool ;
-	ctx2bool (cons_ctx (kvp _ F) Ctx) (cons_bool F Bool) :=
+	ctx2bool (cons_ctx (kvp X? F) Ctx) (cons_bool F Bool) :=
 		ctx2bool Ctx Bool.
 
 Define coindInvariant' : list_i -> list_ctx -> i -> (i -> bool) -> prop by
 	coindInvariant' Sigma nil_ctx T S := forall x, exists R,
 		coabst (cons_i x Sigma) nil_imap      (eq x T)    R /\
 		R = (some S) ;
-	coindInvariant' Sigma Gamma   T S := forall x, exists R,
-		Gamma = (cons_ctx _ _) /\
+	coindInvariant' Sigma Gamma   T S := forall x, exists R Q Gamma' ?1 ?2,
+		Gamma = (cons_ctx ?1 ?2) /\
 		ctx2bool Gamma Gamma' /\
 		joinL and tt Gamma' Q /\
 		coabst (cons_i x Sigma) nil_imap (and (eq x T) Q) R /\
@@ -231,7 +231,7 @@ async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi'
 	indInvariant' Sigma Delta G T S /\
 	forall x, spy_async Debug Lambda (Xi'  x) (cons_i x nil_i) Phi Gamma (cons_bool (B S x) nil_bool) (unk (S x)) ;
 
-async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi',
+async Debug Lambda Xi Sigma Phi Gamma (cons_bool (mu B T) Delta) G := exists Xi' Idx,
 	freezeLClerk Xi Xi' Idx /\
 	spy_async Debug Lambda Xi' Sigma (cons_ctx (kvp Idx (mu B T)) Phi) Gamma Delta G ;
 
@@ -301,7 +301,7 @@ syncL Debug Lambda Xi Sigma Phi Gamma (nu B T) G := exists Xi',
 	unfoldLExpert Xi Xi' /\
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma (B (nu B) T) G ;
 
-syncR Debug Lambda Xi Sigma Phi Gamma (mu B T) :=
+syncR Debug Lambda Xi Sigma Phi Gamma (mu B T) := exists Idx,
 	initRExpert Xi Idx /\
 	member_ctx (kvp Idx (mu B T)) Phi ;
 
@@ -330,8 +330,8 @@ async Debug Lambda Xi Sigma Phi Gamma nil_bool (unk G) := exists Xi',
 	spy_async Debug Lambda Xi' Sigma Phi Gamma nil_bool (sto G) ;
 
 % Important: the chosen formula never leaves Gamma, i.e. it is duplicated
-async Debug Lambda Xi Sigma Phi Gamma nil_bool G := exists Xi' Idx C,
-	(G = (sto _) \/ G = (frz _)) /\
+async Debug Lambda Xi Sigma Phi Gamma nil_bool G := exists Xi' Idx C ?1,
+	(G = (sto ?1) \/ G = (frz ?1)) /\
 	decideLClerk Xi Xi' Idx /\
 	member_ctx (kvp Idx C) Gamma /\
 	spy_syncL Debug Lambda Xi' Sigma Phi Gamma C G ;
@@ -344,8 +344,8 @@ async Debug Lambda Xi Sigma Phi Gamma nil_bool (sto G) := exists Xi',
 % chances, since looping backtracking used to be a rather real possibility. Note
 % the standard index encoding used throughout (idx, lemma), and consider whether
 % readability can be improved through refactoring their composition.
-async Debug Lambda Xi Sigma Phi Gamma nil_bool G := exists Xi' Idx C,
-	(G = (sto _) \/ G = (frz _)) /\
+async Debug Lambda Xi Sigma Phi Gamma nil_bool G := exists Xi' Idx C ?1,
+	(G = (sto ?1) \/ G = (frz ?1)) /\
 	decideLClerk' Xi Xi' Idx /\
 	member_lemma (lemma Idx C) Lambda /\
 %	print "Lemma" /\ println Idx /\ %DEBUG
@@ -408,12 +408,12 @@ spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 %%%%%%%%%%%%%%%
 
 Define prove : cert -> bool -> prop by
-	prove Cert Form :=
+	prove Cert Form := exists Cert',
 		unmarshal Cert Cert' /\
 		async (debug (s z)) nil_lemma Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).
 
 % Hacky but fast for now
 Define prove_with_lemmas : cert -> bool -> list_lemma -> prop by
-	prove_with_lemmas Cert Form Lemmas :=
+	prove_with_lemmas Cert Form Lemmas := exists Cert',
 		unmarshal Cert Cert' /\
 		async (debug (s z)) Lemmas Cert' nil_i nil_ctx nil_ctx nil_bool (unk Form).
