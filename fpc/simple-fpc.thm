@@ -462,7 +462,7 @@ Define decideLClerk : cert -> cert -> idx -> prop by
 		Cert = (apply ?1 ?2 ?3 ?4 ?5)
 %		/\ println "decideLClerk apply" /\ print_cert Cert %DEBUG
 		;
-	decideLClerk Cert Cert Idx := exists Idx ?1 ?2 ?3,
+	decideLClerk Cert Cert Idx := exists ?1 ?2 ?3,
 		Cert = (apply? ?1 ?2 Idx ?3)
 %		/\ println "decideLClerk apply?" /\ print_cert Cert %DEBUG
 		;
@@ -486,7 +486,7 @@ Define decideLClerk' : cert -> cert -> idx -> prop by
 		Cert = (apply ?1 ?2 ?3 ?4 ?5)
 %		/\ print "decideLClerk' apply" /\ println Idx /\ print_cert Cert %DEBUG
 		;
-	decideLClerk' Cert Cert Idx := exists Idx ?1 ?2 ?3,
+	decideLClerk' Cert Cert Idx := exists ?1 ?2 ?3,
 		Cert = (apply? ?1 ?2 Idx ?3)
 %		/\ print "decideLClerk' apply?" /\ println Idx /\ print_cert Cert %DEBUG
 		;
