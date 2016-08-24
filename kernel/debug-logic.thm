@@ -52,25 +52,25 @@ Define print_bool : bool -> prop by
 
 % The following list printers follow a very clear pattern and should be
 % modularized if possible (while retaining type-specific element printers).
-Define print_list_bool_rec : list bool -> prop by
-	print_list_bool_rec nil ;
-	print_list_bool_rec (First :: Rest) :=
+Define print_list_bool_rec : list_bool -> prop by
+	print_list_bool_rec nil_bool ;
+	print_list_bool_rec (cons_bool First Rest) :=
 		printstr ", " /\ print_bool First /\
 		print_list_bool_rec Rest.
-Define print_list_bool : list bool -> prop by
-	print_list_bool nil ;
-	print_list_bool (First :: Rest) :=
+Define print_list_bool : list_bool -> prop by
+	print_list_bool nil_bool ;
+	print_list_bool (cons_bool First Rest) :=
 		print_bool First /\
 		print_list_bool_rec Rest.
 
 % The following would make use of print_i
-Define print_list_i_rec : list i -> prop by
-	print_list_i_rec nil ;
-	print_list_i_rec (First :: Rest) :=
+Define print_list_i_rec : list_i -> prop by
+	print_list_i_rec nil_i ;
+	print_list_i_rec (cons_i First Rest) :=
 		printstr ", " /\ print First /\
 		print_list_i_rec Rest.
-Define print_list_i : list i -> prop by
-	print_list_i nil ;
-	print_list_i (First :: Rest) :=
+Define print_list_i : list_i -> prop by
+	print_list_i nil_i ;
+	print_list_i (cons_i First Rest) :=
 		print First /\
 		print_list_i_rec Rest.
