@@ -2,7 +2,7 @@
 
 Define plus : (i -> bool) -> prop by
 	plus (mu Pred\Args\
-		(some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv))
+		(some K\ some M\ some N\ (and (eq Args (arg@ K (arg@ M (arg@ N argv))))
 		(or
 			(and
 				(eq K zero)
@@ -10,4 +10,4 @@ Define plus : (i -> bool) -> prop by
 			(some K'\ some N'\ (and (and
 				(eq K (succ K'))
 				(eq N (succ N')))
-				(Pred (K' ++ M ++ N' ++ argv)))))))).
+				(Pred (arg@ K' (arg@ M (arg@ N' argv)))))))))).
