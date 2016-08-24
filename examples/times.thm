@@ -2,14 +2,14 @@
 
 Define times : (i -> bool) -> prop by
 	times (mu Pred\Args\
-		(some K\ some M\ some N\ (and (eq Args (K ++ M ++ N ++ argv))
+		(some K\ some M\ some N\ (and (eq Args (arg@ K (arg@ M (arg@ N argv))))
 		(or
 			(and
 				(eq K zero)
 				(eq N zero))
 			(some K'\ some N'\ (and (and
 				(eq K (succ K'))
-				(Pred (K' ++ M ++ N' ++ argv)))
-				(Plus (N' ++ M ++ N  ++ argv))))))))
+				(Pred (arg@ K' (arg@ M (arg@ N' argv)))))
+				(Plus (arg@ N' (arg@ M (arg@ N  argv))))))))))
 	:=
 	plus Plus.

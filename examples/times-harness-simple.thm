@@ -5,25 +5,25 @@
 #include "../kernel/kernel.thm".
 #include "times-examples.thm".
 
-#assert times_zero (induction 2 0 2 0 2).
-#assert times_zero (pair# (induction 2 0 2 0 2) (induction# 2 0 2 0 2 Idx)).
+#assert times_zero (induction (ss (ss zz)) zz (ss (ss zz)) zz (ss (ss zz))).
+#assert times_zero (pair# (induction (ss (ss zz)) zz (ss (ss zz)) zz (ss (ss zz))) (induction# (ss (ss zz)) zz (ss (ss zz)) zz (ss (ss zz)) Idx)).
 
-#assert times_total' (induction 2 0 1 0 1).
-#assert times_total' (pair# (induction 2 0 1 0 1) (induction# 2 0 1 0 1 Idx)).
+#assert times_total' (induction (ss (ss zz)) zz (ss zz) zz (ss zz)).
+#assert times_total' (pair# (induction (ss (ss zz)) zz (ss zz) zz (ss zz)) (induction# (ss (ss zz)) zz (ss zz) zz (ss zz) Idx)).
 
-#assert times_det (induction 2 1 0 1 0).
-#assert times_det (pair# (induction 2 1 0 1 0) (induction# 2 1 0 1 0 Idx)).
+#assert times_det (induction (ss (ss zz)) (ss zz) zz (ss zz) zz).
+#assert times_det (pair# (induction (ss (ss zz)) (ss zz) zz (ss zz) zz) (induction# (ss (ss zz)) (ss zz) zz (ss zz) zz Idx)).
 
 #assert times_comm
 	(induction?
-	(case? 0
-		(apply? 0 0 (idx "times_zero")
+	(case? zz
+		(apply?     zz  zz (idx          z   )
 		search)
-		(apply? 1 0 (idx "augend_nat")
-		(apply? 0 0 (idx "local")
-		(apply? 0 0 (idx "times_succ'")
-		(apply? 0 0 (idx "plus_det")
+		(apply? (ss zz) zz (idx       (s z)  )
+		(apply?     zz  zz idxlocal
+		(apply?     zz  zz (idx    (s (s z)) )
+		(apply?     zz  zz (idx (s (s (s z))))
 		search)))))).
 
 % Slow!!
-%#assert times_comm (induction 4 1 0 1 0).
+%#assert times_comm (induction (ss (ss (ss (ss zz)))) (ss zz) zz (ss zz) zz).

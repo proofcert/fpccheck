@@ -2,74 +2,74 @@
 #include "plus-examples.thm".
 
 Define times_zero_f : bool -> prop by
-	times_zero_f F :=
+	times_zero_f F := exists Times IsNat,
 		times Times /\ is_nat IsNat /\ F =
 		(all N\ (imp
-			(IsNat (N ++ argv))
-			(Times (N ++ zero ++ zero ++ argv)))).
+			(IsNat (arg@ N argv))
+			(Times (arg@ N (arg@ zero (arg@ zero argv)))))).
 
 Define times_zero : cert -> prop by
-	times_zero Cert :=
+	times_zero Cert := exists TimesZero,
 		times_zero_f TimesZero /\ prove Cert TimesZero.
 
 Define times_succ : cert -> prop by
-	times_succ Cert :=
+	times_succ Cert := exists Times Plus IsNat,
 		times Times /\ plus Plus /\ is_nat IsNat /\
 		prove Cert 
 			(all K\ all M\ all N\ (imp
-				(IsNat (K ++ argv)) (imp
-				(Times (K ++ (succ M) ++ N ++ argv))
+				(IsNat (arg@ K argv)) (imp
+				(Times (arg@ K (arg@ (succ M) (arg@ N argv))))
 				(some KM\ (and
-					(Times (K ++ M ++ KM ++ argv))
-					(Plus (K ++ KM ++ N))))))).
+					(Times (arg@ K (arg@ M (arg@ KM argv))))
+					(Plus (arg@ K (arg@ KM (arg@ N argv))))))))).
 
 % Need a better naming scheme!
 Define times_succ_f' : bool -> prop by
-	times_succ_f' F :=
+	times_succ_f' F := exists Times Plus IsNat,
 		times Times /\ plus Plus /\ is_nat IsNat /\ F =
 		(all M\ all N\ all MN\ imp
-			(Times (M ++ N ++ MN ++ argv)) (imp
-			(IsNat (M  ++ argv)) (imp
-			(IsNat (N  ++ argv)) (imp
-			(IsNat (MN ++ argv))
+			(Times (arg@ M (arg@ N (arg@ MN argv)))) (imp
+			(IsNat (arg@ M  argv)) (imp
+			(IsNat (arg@ N  argv)) (imp
+			(IsNat (arg@ MN argv))
 			(some K\ and
-				(IsNat (K ++ argv)) (and
-				(Plus (MN ++ M ++ K ++ argv))
-				(Times (M ++ (succ N) ++ K ++ argv)))))))).
+				(IsNat (arg@ K argv)) (and
+				(Plus (arg@ MN (arg@ M (arg@ K argv))))
+				(Times (arg@ M (arg@ (succ N) (arg@ K argv)))))))))).
 
 Define times_total : cert -> prop by
-	times_total Cert :=
+	times_total Cert := exists Times IsNat,
 		times Times /\ is_nat IsNat /\
 		is_total Cert Times IsNat.
 
 % Revisiting and adding necessary assumptions through a revised totality
 Define times_total' : cert -> prop by
-	times_total' Cert :=
+	times_total' Cert := exists Times Plus IsNat PlusTotal TimesTotal,
 		times Times /\ plus Plus /\ is_nat IsNat /\
 		total' Plus IsNat PlusTotal /\
 		total' Times IsNat TimesTotal /\
 		prove_with_lemmas Cert TimesTotal
-			(cons_lemma (lemma (idx "plus_total") PlusTotal) nil_lemma).
+			(cons_lemma (lemma (idx z) PlusTotal) nil_lemma).
 
 Define times_det : cert -> prop by
-	times_det Cert :=
+	times_det Cert := exists Times Plus PlusDet,
 		times Times /\ plus Plus /\ deterministic Plus PlusDet /\
 		is_deterministic' Cert Times
-			(cons_lemma (lemma (idx "plus_det") PlusDet) nil_lemma).
+			(cons_lemma (lemma (idx z) PlusDet) nil_lemma).
 
 %TODO temporarily not using templates to specialize
 Define times_comm_f : bool -> prop by
-	times_comm_f F :=
+	times_comm_f F := exists Times IsNat,
 		times Times /\ is_nat IsNat /\ F =
 		(all M\ all N\ all K\ imp
-			(Times (M ++ N ++ K ++ argv)) (imp
-			(IsNat (M ++ argv)) (imp
-			(IsNat (N ++ argv)) (imp
-			(IsNat (K ++ argv))
-			(Times (N ++ M ++ K ++ argv)))))).
+			(Times (arg@ M (arg@ N (arg@ K argv)))) (imp
+			(IsNat (arg@ M argv)) (imp
+			(IsNat (arg@ N argv)) (imp
+			(IsNat (arg@ K argv))
+			(Times (arg@ N (arg@ M (arg@ K argv)))))))).
 
 Define times_comm : cert -> prop by
-	times_comm Cert :=
+	times_comm Cert := exists Times Plus IsNat TimesZero AugendNat TimesSucc' PlusDet TimesComm,
 		% Base predicates
 		times Times /\ plus Plus /\ is_nat IsNat /\
 		% Lemmas
@@ -79,10 +79,10 @@ Define times_comm : cert -> prop by
 		times_comm_f TimesComm /\
 		% Proof statement
 		prove_with_lemmas Cert TimesComm
-			(cons_lemma (lemma (idx "times_zero" ) TimesZero )
-			(cons_lemma (lemma (idx "augend_nat" ) AugendNat )
-			(cons_lemma (lemma (idx "times_succ'") TimesSucc')
-			(cons_lemma (lemma (idx "plus_det"   ) PlusDet   )
+			(cons_lemma (lemma (idx          z   ) TimesZero ) % "times_zero"
+			(cons_lemma (lemma (idx       (s z)  ) AugendNat ) % "augend_nat"
+			(cons_lemma (lemma (idx    (s (s z)) ) TimesSucc') % "ttmes_succ'"
+			(cons_lemma (lemma (idx (s (s (s z)))) PlusDet   ) % "plus_det"
                         nil_lemma)))).
 
 %times_assoc
