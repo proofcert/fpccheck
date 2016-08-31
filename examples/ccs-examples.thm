@@ -1,31 +1,31 @@
 Define mu_id_step_absurd_f : bool -> prop by
-	mu_id_step_absurd_f F :=
+	mu_id_step_absurd_f F := exists Step,
 		step Step /\ F =
 		(all A\ all Q\ (imp
-			(Step ((pmu x\ x) ++ A ++ Q ++ argv))
+			(Step (arg@ (pmu x\ x) (arg@ A (arg@ Q argv))))
 			ff)).
 
 Define mu_id_step_absurd : cert -> prop by
-	mu_id_step_absurd Cert :=
+	mu_id_step_absurd Cert := exists MuIdStepAbsurd,
 		mu_id_step_absurd_f MuIdStepAbsurd /\ prove Cert MuIdStepAbsurd.
 
 Define sim_mu_par_ext_f : bool -> prop by
-	sim_mu_par_ext_f F :=
+	sim_mu_par_ext_f F := exists Step Sim,
 		step Step /\ sim Sim /\ F =
 		(all Q\ all Q1\ (imp
-			(Step (Q ++ a ++ (par Q Q1) ++ argv))
-			(Sim ((pmu x\ out a x) ++ Q ++ argv)))).
+			(Step (arg@ Q (arg@ a (arg@ (par Q Q1) argv))))
+			(Sim (arg@ (pmu x\ out a x) (arg@ Q argv))))).
 
 Define sim_mu_par_ext : cert -> prop by
-	sim_mu_par_ext Cert :=
+	sim_mu_par_ext Cert := exists SimMuParExt,
 		sim_mu_par_ext_f SimMuParExt /\ prove Cert SimMuParExt.
 
 Define sim_mu_par_f : bool -> prop by
-	sim_mu_par_f F :=
+	sim_mu_par_f F := exists Sim,
 		sim Sim /\ F =
-		(Sim ((pmu x\ out a x) ++ (pmu x\ par (out a x) (out a x)) ++ argv)).
+		(Sim (arg@ (pmu x\ out a x) (arg@ (pmu x\ par (out a x) (out a x)) argv))).
 
 Define sim_mu_par : cert -> prop by
-	sim_mu_par Cert :=
+	sim_mu_par Cert := exists SimMuParExt SimMuPar,
 		sim_mu_par_ext_f SimMuParExt /\ sim_mu_par_f SimMuPar /\
-		prove_with_lemmas Cert SimMuPar (cons_lemma (lemma (idx "mu_par_ext") SimMuParExt) nil_lemma).
+		prove_with_lemmas Cert SimMuPar (cons_lemma (lemma (idx z) SimMuParExt) nil_lemma).

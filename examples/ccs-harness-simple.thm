@@ -7,8 +7,8 @@
 
 #assert_not mu_id_step_absurd search.
 
-#assert mu_id_step_absurd (induction 0 0 0 0 0).
+#assert mu_id_step_absurd (induction zz zz zz zz zz).
 
-#assert sim_mu_par_ext (induction 0 2 0 2 0).
+#assert sim_mu_par_ext (induction zz (ss (ss zz)) zz (ss (ss zz)) zz).
 
-#assert sim_mu_par (apply 0 2 0 2 0).
+#assert sim_mu_par (apply zz (ss (ss zz)) zz (ss (ss zz)) zz).

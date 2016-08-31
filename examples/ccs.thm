@@ -22,7 +22,7 @@ Type   pmu         (i -> i) -> i.   % (proc -> proc) -> proc
 
 Define comp : (i -> bool) -> prop by
 	comp (mu Pred\Args\
-		(some A\ some B\ (and (eq Args (A ++ B ++ argv))
+		(some A\ some B\ (and (eq Args (arg@ A (arg@ B argv)))
 		(or
 			(eq B (bar A))
 			(eq A (bar B)))))).
@@ -36,33 +36,33 @@ Define comp : (i -> bool) -> prop by
 % more cumbersome.
 Define step : (i -> bool) -> prop by
 	step (mu Pred\Args\
-		(some P\ some A\ some Q\ (and (eq Args (P ++ A ++ Q ++ argv))
+		(some P\ some A\ some Q\ (and (eq Args (arg@ P (arg@ A (arg@ Q argv))))
 		(or
 			(eq P (out A Q)) (or
 			(some P1\ some P2\ and
 				(eq P (plus P1 P2))
-				(Pred (P1 ++ A ++ Q ++ argv))) (or
+				(Pred (arg@ P1 (arg@ A (arg@ Q argv))))) (or
 			(some P1\ some P2\ and
 				(eq P (plus P1 P2))
-				(Pred (P2 ++ A ++ Q ++ argv))) (or
+				(Pred (arg@ P2 (arg@ A (arg@ Q argv))))) (or
 			(some P1\ some P2\ some Q1\ and
 				(eq P (par P1 P2)) (and
 				(eq Q (par Q1 P2))
-				(Pred (P1 ++ A ++ Q1 ++ argv)))) (or
+				(Pred (arg@ P1 (arg@ A (arg@ Q1 argv)))))) (or
 			(some P1\ some P2\ some Q2\ and
 				(eq P (par P1 P2)) (and
 				(eq Q (par P1 Q2))
-				(Pred (P2 ++ A ++ Q2 ++ argv)))) (or
+				(Pred (arg@ P2 (arg@ A (arg@ Q2 argv)))))) (or
 			(some P1\ and
 				(eq P (pmu x\ P1))
-				(Pred (((x\ P1) (pmu x\ P1)) ++ A ++ Q ++ argv)))
+				(Pred (arg@ ((x\ P1) (pmu x\ P1)) (arg@ A (arg@ Q argv)))))
 			(some P1\ some P2\ some Q1\ some Q2\ some B\ and
 				(eq P (par P1 P2)) (and
 				(eq P (par Q1 Q2)) (and
 				(eq A tau) (and
-				(Comp (A ++ B ++ argv)) (and
-				(Pred (P1 ++ A ++ Q1 ++ argv))
-				(Pred (P2 ++ A ++ Q2 ++ argv)))))))
+				(Comp (arg@ A (arg@ B argv))) (and
+				(Pred (arg@ P1 (arg@ A (arg@ Q1 argv))))
+				(Pred (arg@ P2 (arg@ A (arg@ Q2 argv)))))))))
 	)))))))))
 	:=
 	comp Comp.
