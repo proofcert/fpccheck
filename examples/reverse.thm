@@ -2,7 +2,7 @@
 
 Define reverse : (i -> bool) -> prop by
 	reverse (mu Pred\Args\
-		(some L1\ some L2\ (and (eq Args (L1 ++ L2 ++ argv))
+		(some L1\ some L2\ (and (eq Args (arg@ L1 (arg@ L2 argv)))
 		(or
 			(and
 				(eq L1 null)
@@ -10,7 +10,7 @@ Define reverse : (i -> bool) -> prop by
 			(some H\ some L1'\ (and
 				(eq L1 (cons H L1'))
 				(some L3\ and
-					(Pred (L1' ++ L3 ++ argv))
-					(Append (L3 ++ (cons H null) ++ L2 ++ argv)))))))))
+					(Pred (arg@ L1' (arg@ L3 argv)))
+					(Append (arg@ L3 (arg@ (cons H null) (arg@ L2 argv)))))))))))
 	:=
 	append Append.

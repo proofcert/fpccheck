@@ -5,4 +5,4 @@
 #include "../kernel/kernel.thm".
 #include "reverse-examples.thm".
 
-%#assert reverse_total (induction 1 1 1 1 1).
+%#assert reverse_total (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)).

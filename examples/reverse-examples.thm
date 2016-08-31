@@ -1,7 +1,7 @@
 #include "template.thm".
 
 Define reverse_total : cert -> prop by
-	reverse_total Cert :=
+	reverse_total Cert := exists Reverse IsList,
 		reverse Reverse /\ is_list IsList /\
 		is_total2 Cert Reverse IsList.
 
