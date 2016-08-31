@@ -5,14 +5,14 @@
 #include "../kernel/kernel.thm".
 #include "prog-examples.thm".
 
-#assert ctx_sum_free (induction 1 1 0 1 0).
-#assert ctx_sum_free (pair# (induction 1 1 0 1 0) (induction# 1 1 0 1 0 Idx)).
+#assert ctx_sum_free (induction (ss zz) (ss zz) zz (ss zz) zz).
+#assert ctx_sum_free (pair# (induction (ss zz) (ss zz) zz (ss zz) zz) (induction# (ss zz) (ss zz) zz (ss zz) zz Idx)).
 
-#assert sum_ctx_indep (induction 2 1 2 1 2).
-#assert sum_ctx_indep (pair# (induction 2 1 2 1 2) (induction# 2 1 2 1 2 Idx)).
+#assert sum_ctx_indep (induction (ss (ss zz)) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz))).
+#assert sum_ctx_indep (pair# (induction (ss (ss zz)) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz))) (induction# (ss (ss zz)) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz)) Idx)).
 
-#assert ctx_mult_free (induction 1 1 0 1 0).
-#assert ctx_mult_free (pair# (induction 1 1 0 1 0) (induction# 1 1 0 1 0 Idx)).
+#assert ctx_mult_free (induction (ss zz) (ss zz) zz (ss zz) zz).
+#assert ctx_mult_free (pair# (induction (ss zz) (ss zz) zz (ss zz) zz) (induction# (ss zz) (ss zz) zz (ss zz) zz Idx)).
 
-#assert mult_ctx_indep (induction 2 1 2 1 2).
-#assert mult_ctx_indep (pair# (induction 2 1 2 1 2) (induction# 2 1 2 1 2 Idx)).
+#assert mult_ctx_indep (induction (ss (ss zz)) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz))).
+#assert mult_ctx_indep (pair# (induction (ss (ss zz)) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz))) (induction# (ss (ss zz)) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz)) Idx)).

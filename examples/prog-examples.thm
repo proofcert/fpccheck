@@ -1,52 +1,52 @@
 Define ctx_sum_free_f : bool -> prop by
-	ctx_sum_free_f F :=
-		ctx Ctx /\ memb Memb /\ F =
+	ctx_sum_free_f F := exists Ctx Memb,
+		ctxt Ctx /\ memb Memb /\ F =
 		(all L\ imp
-			(Ctx (L ++ argv)) (all X\ all Y\ all Z\ imp
-			(Memb ((sumi X Y Z) ++ L ++ argv))
+			(Ctx (arg@ L argv)) (all X\ all Y\ all Z\ imp
+			(Memb (arg@ (sumi X Y Z) (arg@ L argv)))
 			ff)).
 
 Define ctx_sum_free : cert -> prop by
-	ctx_sum_free Cert :=
+	ctx_sum_free Cert := exists CtxSumFree,
 		ctx_sum_free_f CtxSumFree /\
 		prove Cert CtxSumFree.
 
 Define sum_ctx_indep_f : bool -> prop by
-	sum_ctx_indep_f F :=
-		ctx Ctx /\ seq Seq /\ F =
+	sum_ctx_indep_f F := exists Ctx Seq,
+		ctxt Ctx /\ seq Seq /\ F =
 		(all L\ all X\ all Y\ all Z\ imp
-			(Seq (L    ++ (sumi X Y Z) ++ argv)) (imp
-			(Ctx (L                    ++ argv))
-			(Seq (nili ++ (sumi X Y Z) ++ argv)))).
+			(Seq (arg@ L    (arg@ (sumi X Y Z) argv))) (imp
+			(Ctx (arg@ L                       argv))
+			(Seq (arg@ nili (arg@ (sumi X Y Z) argv))))).
 
 Define sum_ctx_indep : cert -> prop by
-	sum_ctx_indep Cert :=
+	sum_ctx_indep Cert := exists CtxSumFree SumCtxIndep,
 		ctx_sum_free_f CtxSumFree /\ sum_ctx_indep_f SumCtxIndep /\
-		prove_with_lemmas Cert SumCtxIndep (cons_lemma (lemma (idx "ctx_sum_free") CtxSumFree) nil_lemma).
+		prove_with_lemmas Cert SumCtxIndep (cons_lemma (lemma (idx z) CtxSumFree) nil_lemma).
 
 %TODO Same as above, for multiplication: refactor
 Define ctx_mult_free_f : bool -> prop by
-	ctx_mult_free_f F :=
-		ctx Ctx /\ memb Memb /\ F =
+	ctx_mult_free_f F := exists Ctx Memb,
+		ctxt Ctx /\ memb Memb /\ F =
 		(all L\ imp
-			(Ctx (L ++ argv)) (all X\ all Y\ all Z\ imp
-			(Memb ((multi X Y Z) ++ L ++ argv))
+			(Ctx (arg@ L argv)) (all X\ all Y\ all Z\ imp
+			(Memb (arg@ (multi X Y Z) (arg@ L argv)))
 			ff)).
 
 Define ctx_mult_free : cert -> prop by
-	ctx_mult_free Cert :=
+	ctx_mult_free Cert := exists CtxMultFree,
 		ctx_mult_free_f CtxMultFree /\
 		prove Cert CtxMultFree.
 
 Define mult_ctx_indep_f : bool -> prop by
-	mult_ctx_indep_f F :=
-		ctx Ctx /\ seq Seq /\ F =
+	mult_ctx_indep_f F := exists Ctx Seq,
+		ctxt Ctx /\ seq Seq /\ F =
 		(all L\ all X\ all Y\ all Z\ imp
-			(Seq (L    ++ (multi X Y Z) ++ argv)) (imp
-			(Ctx (L                     ++ argv))
-			(Seq (nili ++ (multi X Y Z) ++ argv)))).
+			(Seq (arg@ L    (arg@ (multi X Y Z) argv))) (imp
+			(Ctx (arg@ L                        argv))
+			(Seq (arg@ nili (arg@ (multi X Y Z) argv))))).
 
 Define mult_ctx_indep : cert -> prop by
-	mult_ctx_indep Cert :=
+	mult_ctx_indep Cert := exists CtxMultFree MultCtxIndep,
 		ctx_mult_free_f CtxMultFree /\ mult_ctx_indep_f MultCtxIndep /\
-		prove_with_lemmas Cert MultCtxIndep (cons_lemma (lemma (idx "ctx_mult_free") CtxMultFree) nil_lemma).
+		prove_with_lemmas Cert MultCtxIndep (cons_lemma (lemma (idx z) CtxMultFree) nil_lemma).

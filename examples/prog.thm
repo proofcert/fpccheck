@@ -15,7 +15,7 @@ Type   gcdi              i -> i -> i -> i.
 
 % Lists of atoms
 Type   nili              i.
-Type   &&                i -> i -> i.
+Type   andi              i -> i -> i.
 
 %%%%%%%%%%%%%%%%%%%
 % List membership %
@@ -23,12 +23,12 @@ Type   &&                i -> i -> i.
 
 Define memb : (i -> bool) -> prop by
 	memb (mu Pred\Args\
-		(some E\ some L\ (and (eq Args (E ++ L ++ argv))
+		(some E\ some L\ (and (eq Args (arg@ E (arg@ L argv)))
 		(or
-			(some L'\ (eq L (E && L')))
+			(some L'\ (eq L (andi E L')))
 			(some F\ some L'\ (and
-				(eq L (F && L'))
-				(Pred (E ++ L' ++ argv)))))))).
+				(eq L (andi F L'))
+				(Pred (arg@ E (arg@ L' argv))))))))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -37,15 +37,15 @@ Define memb : (i -> bool) -> prop by
 
 Define append : (i -> bool) -> prop by
 	append (mu Pred\Args\
-		(some L1\ some L2\ some L3\ (and (eq Args (L1 ++ L2 ++ L3 ++ argv))
+		(some L1\ some L2\ some L3\ (and (eq Args (arg@ L1 (arg@ L2 (arg@ L3 argv))))
 		(or
 			(and
 				(eq L1 nili)
 				(eq L2 L3))
 			(some N\ some L1'\ some L3'\ (and (and
-				(eq L1 (N && L1'))
-				(eq L3 (N && L3')))
-				(Pred (L1' ++ L2 ++ L3' ++ argv)))))))).
+				(eq L1 (andi N L1'))
+				(eq L3 (andi N L3')))
+				(Pred (arg@ L1' (arg@ L2 (arg@ L3' argv)))))))))).
 
 %%%%%%%%%%%%
 % Programs %
@@ -54,7 +54,7 @@ Define append : (i -> bool) -> prop by
 % Programs have gone from object-level formulas on atoms to sets of atoms
 Define prog : (i -> bool) -> prop by
 	prog (mu Pred\Args\
-		(some A\ some G\ (and (eq Args (A ++ G ++ argv)) (or
+		(some A\ some G\ (and (eq Args (arg@ A (arg@ G argv))) (or
 			% sumi
 			(or
 				(some N\ and
@@ -62,7 +62,7 @@ Define prog : (i -> bool) -> prop by
 					(eq G nili))
 				(some N\ some M\ some P\ and
 					(eq A (sumi (si N) M (si P)))
-					(eq G ((sumi N M P) && nili))))
+					(eq G (andi (sumi N M P) nili))))
 			% multi
 			(or
 				(some M\ and
@@ -70,21 +70,21 @@ Define prog : (i -> bool) -> prop by
 					(eq G nili))
 				(some K\ some M\ some N\ and
 					(eq A (multi (si K) M N))
-					(some X\ eq G ((multi K M X) && (sumi X M N) && nili))))
+					(some X\ eq G (andi (multi K M X) (andi (sumi X M N) nili)))))
 	)))).
 
 %%%%%%%%%%%%
 % Contexts %
 %%%%%%%%%%%%
 
-% It is critical that predicates defined in prog and ctx be mutually exclusive!
-Define ctx : (i -> bool) -> prop by
-	ctx (mu Pred\Args\
-		(some L\ (and (eq Args (L ++ argv)) (or
+% It is critical that predicates defined in prog and ctxt be mutually exclusive!
+Define ctxt : (i -> bool) -> prop by
+	ctxt (mu Pred\Args\
+		(some L\ (and (eq Args (arg@ L argv)) (or
 			(eq L nili)
 			(some X\ some Y\ some Z\ some L'\ and
-				(eq L ((gcdi X Y Z) && L'))
-				(Pred (L' ++ argv)))
+				(eq L (andi (gcdi X Y Z) L'))
+				(Pred (arg@ L' argv)))
 	)))).
 
 %%%%%%%%%%%%
@@ -95,17 +95,17 @@ Define ctx : (i -> bool) -> prop by
 % Horn-like programs; treatment is now strictly recursive
 Define seq : (i -> bool) -> prop by
 	seq (mu Pred\Args\
-		(some L\ some G\ (and (eq Args (L ++ G ++ argv)) (or
+		(some L\ some G\ (and (eq Args (arg@ L (arg@ G argv))) (or
 			(eq G nili) (or
 			(some G1\ some G2\ and
-				(eq G (G1 && G2)) (and
-				(Memb (G1 ++ L ++ argv))
-				(Pred (L ++ G2 ++ argv))))
+				(eq G (andi G1 G2)) (and
+				(Memb (arg@ G1 (arg@ L argv)))
+				(Pred (arg@ L (arg@ G2 argv)))))
 			(some G1\ some G2\ and
-				(eq G (G1 && G2)) (some L1\ and
-				(Prog (G1 ++ L1 ++ argv)) (some L2\ and
-				(Append (L ++ L1 ++ L2 ++ argv)) % Is there a "better order"?
-				(Pred (L2 ++ G2 ++ argv)))))
+				(eq G (andi G1 G2)) (some L1\ and
+				(Prog (arg@ G1 (arg@ L1 argv))) (some L2\ and
+				(Append (arg@ L (arg@ L1 (arg@ L2 argv)))) % Is there a "better order"?
+				(Pred (arg@ L2 (arg@ G2 argv))))))
 	)))))
 	:=
 	memb Memb /\ prog Prog /\ append Append.
