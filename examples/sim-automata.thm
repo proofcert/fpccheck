@@ -4,7 +4,7 @@ Type   a, b             i.
 
 Define step : (i -> bool) -> prop by
 	step (mu Pred\Args\
-		(some S0\ some T\ some S1\ (and (eq Args (S0 ++ T ++ S1 ++ argv))
+		(some S0\ some T\ some S1\ (and (eq Args (arg@ S0 (arg@ T (arg@ S1 argv))))
 		(or
 			(and (eq S0 p0) (and (eq T a) (eq S1 p0))) (or
 			(and (eq S0 p0) (and (eq T b) (eq S1 p1))) (or

@@ -2,11 +2,11 @@
 Define sim : (i -> bool) -> prop by
 	sim (nu Pred\Args\
 		% Note how the dual of mu is achieved: some vs all, and vs imp
-		(all P\ all Q\ (imp (eq Args (P ++ Q ++ argv))
+		(all P\ all Q\ (imp (eq Args (arg@ P (arg@ Q argv)))
 		(all L\ all Pn\ (imp
-			(Step (P ++ L ++ Pn ++ argv))
+			(Step (arg@ P (arg@ L (arg@ Pn argv))))
 			(some Qn\ (and
-				(Step (Q ++ L ++ Qn ++ argv))
-				(Pred (Pn ++ Qn ++ argv)))))))))
+				(Step (arg@ Q (arg@ L (arg@ Qn argv))))
+				(Pred (arg@ Pn (arg@ Qn argv))))))))))
 	:=
 	step Step.

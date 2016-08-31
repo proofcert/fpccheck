@@ -5,11 +5,11 @@
 #include "../kernel/kernel.thm".
 #include "sim-automata-examples.thm".
 
-#assert nu_trivial (apply 1 0 0 0 0).
+#assert nu_trivial (apply (ss zz) zz zz zz zz).
 
 #assert_not q0_sim_p0 search.
 
-#assert q0_sim_p0 (inductionS 1 1 1 1 1
-	(Args\ or (eq Args (q0 ++ p0 ++ argv)) (eq Args (q1 ++ p0 ++ argv)))).
+#assert q0_sim_p0 (inductionS (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)
+	(Args\ or (eq Args (arg@ q0 (arg@ p0 argv))) (eq Args (arg@ q1 (arg@ p0 argv))))).
 
-#assert_not q0_sim_p0 (induction 1 1 1 1 1).
+#assert_not q0_sim_p0 (induction (ss zz) (ss zz) (ss zz) (ss zz) (ss zz)).

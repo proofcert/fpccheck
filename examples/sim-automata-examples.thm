@@ -1,9 +1,9 @@
 Define nu_trivial : cert -> prop by
-	nu_trivial Cert :=
+	nu_trivial Cert := exists Sim,
 		sim Sim /\
-		prove Cert (imp (Sim (q0 ++ p0 ++ argv)) (Sim (q0 ++ p0 ++ argv))).
+		prove Cert (imp (Sim (arg@ q0 (arg@ p0 argv))) (Sim (arg@ q0 (arg@ p0 argv)))).
 
 Define q0_sim_p0 : cert -> prop by
-	q0_sim_p0 Cert :=
+	q0_sim_p0 Cert := exists Sim,
 		sim Sim /\
-		prove Cert (Sim (q0 ++ p0 ++ argv)).
+		prove Cert (Sim (arg@ q0 (arg@ p0 argv))).
