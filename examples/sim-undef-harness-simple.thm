@@ -5,16 +5,16 @@
 #include "../kernel/kernel.thm".
 #include "sim-undef-examples.thm".
 
-#assert sim_refl (induction 1 0 0 0 0).
-#assert sim_refl (pair# (induction 1 0 0 0 0) (induction# 1 0 0 0 0 Idx)).
-#assert sim_refl (inductionS 1 0 0 0 0
-	(Args\ some P\ some Q\ and (eq Args (P ++ Q ++ argv)) (eq P Q))).
+#assert sim_refl (induction (ss zz) zz zz zz zz).
+#assert sim_refl (pair# (induction (ss zz) zz zz zz zz) (induction# (ss zz) zz zz zz zz Idx)).
+#assert sim_refl (inductionS (ss zz) zz zz zz zz
+	(Args\ some P\ some Q\ and (eq Args (arg@ P (arg@ Q argv))) (eq P Q))).
 
-#assert sim_trans _ (induction 3 0 2 0 2).
-#assert sim_trans _ (pair# (induction 3 0 2 0 2) (induction# 3 0 2 0 2 Idx)).
-#assert sim_trans Sim (inductionS 3 0 2 0 2
-	(Args\ some P\ some Q\ some R\ and (eq Args (P ++ R ++ argv))
-		(and (Sim (P ++ Q ++ argv)) (Sim (Q ++ R ++ argv))))).
-#assert_not sim_trans Sim (inductionS 1 0 0 0 0
-	(Args\ some P\ some R\ and (eq Args (P ++ R ++ argv))
-		(some Q\ and (Sim (P ++ Q ++ argv)) (Sim (Q ++ R ++ argv))))).
+#assert sim_trans _ (induction (ss (ss (ss zz))) zz (ss (ss zz)) zz (ss (ss zz))).
+#assert sim_trans _ (pair# (induction (ss (ss (ss zz))) zz (ss (ss zz)) zz (ss (ss zz))) (induction# (ss (ss (ss zz))) zz (ss (ss zz)) zz (ss (ss zz)) Idx)).
+#assert sim_trans Sim (inductionS (ss (ss (ss zz))) zz (ss (ss zz)) zz (ss (ss zz))
+	(Args\ some P\ some Q\ some R\ and (eq Args (arg@ P (arg@ R argv)))
+		(and (Sim (arg@ P (arg@ Q argv))) (Sim (arg@ Q (arg@ R argv)))))).
+#assert_not sim_trans Sim (inductionS (ss zz) zz zz zz zz
+	(Args\ some P\ some R\ and (eq Args (arg@ P (arg@ R argv)))
+		(some Q\ and (Sim (arg@ P (arg@ Q argv))) (Sim (arg@ Q (arg@ R argv)))))).

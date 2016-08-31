@@ -1,12 +1,12 @@
 Define sim_refl : cert -> prop by
-	sim_refl Cert :=
+	sim_refl Cert := exists Sim,
 		sim Sim /\
-		prove Cert (all P\ Sim (P ++ P ++ argv)).
+		prove Cert (all P\ Sim (arg@ P (arg@ P argv))).
 
 Define sim_trans : (i -> bool) -> cert -> prop by
 	sim_trans Sim Cert :=
 		sim Sim /\
 		prove Cert (all P\ all Q\ all R\ (imp
-			(Sim (P ++ Q ++ argv)) (imp
-			(Sim (Q ++ R ++ argv))
-			(Sim (P ++ R ++ argv))))).
+			(Sim (arg@ P (arg@ Q argv))) (imp
+			(Sim (arg@ Q (arg@ R argv)))
+			(Sim (arg@ P (arg@ R argv)))))).
