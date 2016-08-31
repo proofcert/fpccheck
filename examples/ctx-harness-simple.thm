@@ -5,8 +5,8 @@
 #include "../kernel/kernel.thm".
 #include "ctx-examples.thm".
 
-#assert ctx1_struct _ _ (induction 1 1 0 1 0).
-#assert ctx1_struct _ _ (pair# (induction 1 1 0 1 0) (induction# 1 1 0 1 0 Idx)).
+#assert ctx1_struct _ _ (induction (ss zz) (ss zz) zz (ss zz) zz).
+#assert ctx1_struct _ _ (pair# (induction (ss zz) (ss zz) zz (ss zz) zz) (induction# (ss zz) (ss zz) zz (ss zz) zz Idx)).
 
-#assert ctx1_length _ (induction 1 1 2 1 2).
-#assert ctx1_length _ (pair# (induction 1 1 2 1 2) (induction# 1 1 2 1 2 Idx)).
+#assert ctx1_length _ (induction (ss zz) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz))).
+#assert ctx1_length _ (pair# (induction (ss zz) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz))) (induction# (ss zz) (ss zz) (ss (ss zz)) (ss zz) (ss (ss zz)) Idx)).

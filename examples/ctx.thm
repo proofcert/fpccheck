@@ -4,23 +4,23 @@
 % A simple context
 Define ctx1 : (i -> bool) -> prop by
 	ctx1 (mu Pred\Args\
-		(some Gamma\ (and (eq Args (Gamma ++ argv))
+		(some Gamma\ (and (eq Args (arg@ Gamma argv))
 		(or
 			(eq Gamma null)
 			(some N\ some Gamma'\ (and
 				(eq Gamma (cons N Gamma')) (and
-				(IsNat (N ++ argv))
-				(Pred (Gamma' ++ argv)))))))))
+				(IsNat (arg@ N argv))
+				(Pred (arg@ Gamma' argv)))))))))
 	:=
 	is_nat IsNat.
 
 % A relation between simple contexts
 Define ctx1_equal : (i -> bool) -> prop by
 	ctx1_equal (mu Pred\Args\
-		(some Gamma\ some Delta\ (and (eq Args (Gamma ++ Delta ++ argv))
+		(some Gamma\ some Delta\ (and (eq Args (arg@ Gamma (arg@ Delta argv)))
 		(or
 			(and (eq Gamma null) (eq Delta null))
 			(some X\ some Gamma'\ some Delta'\ (and
 				(eq Gamma (cons X Gamma')) (and
 				(eq Delta (cons X Delta'))
-				(Pred (Gamma' ++ Delta' ++ argv))))))))).
+				(Pred (arg@ Gamma' (arg@ Delta' argv)))))))))).
