@@ -5,8 +5,8 @@
 #include "../kernel/kernel.thm".
 #include "bisim-undef-examples.thm".
 
-#assert bisim_refl (induction 1 1 0 1 0).
+#assert bisim_refl (induction (ss zz) (ss zz) zz (ss zz) zz).
 
-#assert bisim_symm (induction 4 0 1 0 1).
+#assert bisim_symm (induction (ss (ss (ss (ss zz)))) zz (ss zz) zz (ss zz)).
 
-#assert bisim_trans (induction 6 0 2 0 2).
+#assert bisim_trans (induction (ss (ss (ss (ss (ss (ss zz)))))) zz (ss (ss zz)) zz (ss (ss zz))).

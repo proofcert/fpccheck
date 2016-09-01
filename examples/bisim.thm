@@ -1,16 +1,16 @@
 Define bisim : (i -> bool) -> prop by
 	bisim (nu Pred\Args\
-		(all P\ all Q\ (imp (eq Args (P ++ Q ++ argv))
+		(all P\ all Q\ (imp (eq Args (arg@ P (arg@ Q argv)))
 		(and
 			(all A\ all P1\ (imp
-				(Step (P ++ A ++ P1 ++ argv))
+				(Step (arg@ P (arg@ A (arg@ P1 argv))))
 				(some Q1\ (and
-					(Step (Q ++ A ++ Q1 ++ argv))
-					(Pred (P1 ++ Q1 ++ argv))))))
+					(Step (arg@ Q (arg@ A (arg@ Q1 argv))))
+					(Pred (arg@ P1 (arg@ Q1 argv)))))))
 			(all A\ all Q1\ (imp
-				(Step (Q ++ A ++ Q1 ++ argv))
+				(Step (arg@ Q (arg@ A (arg@ Q1 argv))))
 				(some P1\ (and
-					(Step (P ++ A ++ P1 ++ argv))
-					(Pred (P1 ++ Q1 ++ argv))))))))))
+					(Step (arg@ P (arg@ A (arg@ P1 argv))))
+					(Pred (arg@ P1 (arg@ Q1 argv)))))))))))
 	:=
 	step Step.
