@@ -17,7 +17,7 @@ Define copy_i : list_imap -> i -> i -> prop by
 % logic variables without their cases becoming catch-alls causing backtracking
 % and a multiplicity of solutions, which we don't want.
 
-Define name_mnu : string -> (i -> bool) -> prop by
-	name_mnu "times" Times := times Times ;
-	name_mnu "plus"  Plus  := plus Plus ;
-	name_mnu "nat"   IsNat := is_nat IsNat.
+%Define name_mnu : string -> (i -> bool) -> prop by %DEBUG
+%	name_mnu "times" Times := times Times ;     %DEBUG
+%	name_mnu "plus"  Plus  := plus Plus ;       %DEBUG
+%	name_mnu "nat"   IsNat := is_nat IsNat.     %DEBUG

@@ -1,6 +1,6 @@
 #include "kernel-sig.thm".
-#include "debug.thm".
-#include "debug-kernel.thm".
+%#include "debug.thm".        %DEBUG
+%#include "debug-kernel.thm". %DEBUG
 
 % Notes:
 %  - Ensure soundness of immediate induction!!
@@ -380,7 +380,8 @@ spy_async (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
 %	printstr "  Γ: " /\ print_list_ctx  Gamma /\ printstr "\n" /\                                    %DEBUG
 %	printstr "  Δ: " /\ print_list_bool Delta /\ printstr "\n" /\                                    %DEBUG
 %	printstr "  Ω: " /\ print_goal      Goal  /\ printstr "\n" /\                                    %DEBUG
-	spy_noheader (async (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
+%	spy_noheader (async (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;                      %DEBUG
+	              async (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal  ;
 
 spy_syncL (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
 %	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
@@ -390,7 +391,8 @@ spy_syncL (debug Lvl) Lambda Xi Sigma Phi Gamma Delta Goal :=
 %	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\                                     %DEBUG
 %	printstr "  Δ: " /\ print_bool     Delta /\ printstr "\n" /\                                     %DEBUG
 %	printstr "  Ω: " /\ print_goal     Goal  /\ printstr "\n" /\                                     %DEBUG
-	spy_noheader (syncL (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;
+%	spy_noheader (syncL (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal) ;                      %DEBUG
+	              syncL (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Delta Goal  ;
 
 spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 %	printstr "[" /\ print_idx Lvl /\ printstr "]\n" /\                                               %DEBUG
@@ -399,7 +401,8 @@ spy_syncR (debug Lvl) Lambda Xi Sigma Phi Gamma Goal :=
 %	printstr "  Φ: " /\ print_list_ctx Phi   /\ printstr "\n" /\                                     %DEBUG
 %	printstr "  Γ: " /\ print_list_ctx Gamma /\ printstr "\n" /\                                     %DEBUG
 %	printstr "  Ω: " /\ print_bool     Goal  /\ printstr "\n" /\                                     %DEBUG
-	spy_noheader (syncR (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Goal).
+%	spy_noheader (syncR (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Goal).                             %DEBUG
+	              syncR (debug (s Lvl)) Lambda Xi Sigma Phi Gamma Goal .
 
 %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%

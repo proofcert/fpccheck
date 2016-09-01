@@ -15,6 +15,6 @@ Define copy_i : list_imap -> i -> i -> prop by
 	%
 	copy_i Theta X U := member_imap (imap X U) Theta.
 
-Define name_mnu : string -> (i -> bool) -> prop by
-	name_mnu "reverse" Reverse := reverse Reverse ;
-	name_mnu "list"    IsList  := is_list IsList.
+%Define name_mnu : string -> (i -> bool) -> prop by     %DEBUG
+%	name_mnu "reverse" Reverse := reverse Reverse ; %DEBUG
+%	name_mnu "list"    IsList  := is_list IsList.   %DEBUG

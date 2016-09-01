@@ -11,9 +11,9 @@ Define copy_i : list_imap -> i -> i -> prop by
 	%
 	copy_i Theta X U := member_imap (imap X U) Theta.
 
-Define name_mnu : string -> (i -> bool) -> prop by
-	name_mnu "ctx"  Ctx    := ctx1 Ctx ;
-	name_mnu "memb" Member := memb Member ;
-	name_mnu "nat"  IsNat  := is_nat IsNat ;
-	name_mnu "ctx=" CtxEq  := ctx1_equal CtxEq ;
-	name_mnu "len"  Length := length Length.
+%Define name_mnu : string -> (i -> bool) -> prop by  %DEBUG
+%	name_mnu "ctx"  Ctx    := ctx1 Ctx ;         %DEBUG
+%	name_mnu "memb" Member := memb Member ;      %DEBUG
+%	name_mnu "nat"  IsNat  := is_nat IsNat ;     %DEBUG
+%	name_mnu "ctx=" CtxEq  := ctx1_equal CtxEq ; %DEBUG
+%	name_mnu "len"  Length := length Length.     %DEBUG

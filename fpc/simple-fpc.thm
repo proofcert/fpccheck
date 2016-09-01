@@ -104,7 +104,7 @@ Type   apply#       nnat -> nnat -> nnat -> nnat -> nnat -> bt -> cert.
 Type   inductionS    nnat -> nnat -> nnat -> nnat -> nnat -> (i -> bool) -> cert.
 Type   inductionS?   cert -> (i -> cert) -> (i -> bool) -> cert.
 
-#include "debug-simple-fpc.thm".
+%#include "debug-simple-fpc.thm". %DEBUG
 
 %%%%%%%%%%%%%%%%%
 % Unmarshalling %
