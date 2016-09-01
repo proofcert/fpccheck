@@ -6,7 +6,8 @@ use warnings;
 my $path = shift; # Optional, should end with / if given
 my $bedwyr = $path ? $path . "bedwyr" : "bedwyr";
 
-my @testfiles = `ls examples/*-harness*.thm`;
+my @testfiles = `ls examples/*-harness-simple.thm`;
+#my @testfiles = `ls examples/*-harness*.thm`; #TODO
 foreach my $testfile (@testfiles) {
 	chomp $testfile;
 	print "** Running test file $testfile...\n";
