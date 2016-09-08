@@ -1,0 +1,188 @@
+% Common hacky declarations
+Kind   numidx   type.
+Type   z        numidx.
+Type   s        numidx -> numidx.
+
+%%%%%%%%%%%%%%
+% Generation %
+%%%%%%%%%%%%%%
+
+% Domain-specific declarations. In particular, a generation strategy must be
+% specified, here in the form of a bound that determines the exploration
+% strategy for the state space. We envision two basic strategies: the height of
+% the derivation tree and the size of the derivation (i.e., the number of term
+% constructors utilized).
+%
+% Bounds are given using the inductive definition of natural numbers in numidx,
+% because one hack is enough, and nat requires external definitions for
+% whichever arithmetic operations used throughout.
+Kind   qbound    type.
+Type   qheight   numidx -> qbound.
+Type   qsize     numidx -> qbound.
+
+Type   qgen   qbound -> cert.
+
+%%%%%%%%%%%%
+% Checking %
+%%%%%%%%%%%%
+
+Type   qsearch   cert.
+
+%%%%%%%%%%%
+% Staging %
+%%%%%%%%%%%
+
+% Trivial, single-branch staging. Currently a simple wrapper on a pair of
+% certificates assumed to cover the generation (qgen) and checking (qsearch)
+% stages, respectively. Exhaustive search does not require a "number of tries",
+% since the generation stage determines exactly the search space to be
+% inspected.
+Type   qstart   cert -> cert -> cert.
+
+%%%%%%%%%%%%
+% Indexing %
+%%%%%%%%%%%%
+
+Type   qidx   idx.
+
+%%%%%%%%%%%
+% Helpers %
+%%%%%%%%%%%
+
+% Nothing here at the moment.
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Clerks and experts %
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Quick and dirty reuse.
+%#include "debug-simple-fpc.thm". %DEBUG
+
+Define unmarshal : cert -> cert -> prop by unmarshal C C.
+
+% member is predefined.
+
+Define releaseRExpert : cert -> cert -> prop by
+releaseRExpert qsearch qsearch.
+
+Define releaseLExpert : cert -> cert -> prop by
+releaseLExpert _ _ := false.
+
+Define decideRClerk : cert -> cert -> prop by
+decideRClerk (qgen Bound) (qgen Bound) ;
+%
+decideRClerk (qstart Gen Check) (qstart Gen Check).
+
+Define storeRClerk : cert -> cert -> prop by
+storeRClerk (qgen Bound) (qgen Bound) ;
+%
+storeRClerk (qstart Gen Check) (qstart Gen Check).
+
+Define decideLClerk' : cert -> cert -> idx -> prop by
+decideLClerk' _ _ _ := false.
+
+Define decideLClerk : cert -> cert -> idx -> prop by
+decideLClerk _ _ _ := false.
+
+Define storeLClerk : cert -> cert -> idx -> prop by
+storeLClerk _ _ _ := false.
+
+Define initLExpert : cert -> prop by
+initLExpert _ := false.
+
+Define freezeRClerk : cert -> cert -> prop by
+freezeRClerk _ _ := false.
+
+Define initRExpert : cert -> idx -> prop by
+initRExpert _ _ := false.
+
+Define freezeLClerk : cert -> cert -> idx -> prop by
+freezeLClerk _ _ _ := false.
+
+Define unfoldRClerk : cert -> cert -> prop by
+unfoldRClerk _ _ := false.
+
+Define unfoldLExpert : cert -> cert -> prop by
+unfoldLExpert _ _ := false.
+
+Define unfoldRExpert : cert -> cert -> prop by
+unfoldRExpert (qgen (qheight (s Height))) (qgen (qheight Height)) ;
+%
+unfoldRExpert qsearch qsearch.
+
+%NOTE Ensure termination!
+Define unfoldLClerk : cert -> cert -> prop by
+unfoldLClerk qsearch qsearch.
+
+Define coindClerk' : cert -> ( i -> cert ) -> prop by
+coindClerk' _ _ := false.
+
+Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+coindClerk _ _ _ _ := false.
+
+Define indClerk' : cert -> ( i -> cert ) -> prop by
+indClerk' _ _ := false.
+
+Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+indClerk _ _ _ _ := false.
+
+Define someExpert : cert -> cert -> i -> prop by
+someExpert (qgen Bound) (qgen Bound) _ ;
+%
+someExpert (qstart Gen Check) (qstart Gen Check) _ ;
+%
+someExpert qsearch qsearch _.
+
+Define allExpert : cert -> cert -> i -> prop by
+allExpert _ _ _ := false.
+
+Define someClerk : cert -> ( i -> cert ) -> prop by
+someClerk qsearch (_\ qsearch).
+
+Define allClerk : cert -> ( i -> cert ) -> prop by
+allClerk _ _ := false.
+
+Define eqExpert : cert -> prop by
+eqExpert (qgen _) ;
+%
+eqExpert qsearch.
+
+Define impExpert' : cert -> cert -> cert -> prop by
+impExpert' _ _ _ := false.
+
+Define impExpert : cert -> cert -> cert -> prop by
+impExpert _ _ _ := false.
+
+% Exhaustive exploration of the state space makes orExpert simple stuff.
+Define orExpert : cert -> cert -> choice -> prop by
+orExpert (qgen Bound) (qgen Bound) _ ;
+%
+orExpert qsearch qsearch _.
+
+Define andExpert : cert -> cert -> cert -> prop by
+andExpert (qgen (qheight Height)) (qgen (qheight Height)) (qgen (qheight Height)) ;
+%
+andExpert qsearch qsearch qsearch ;
+%
+andExpert (qstart Gen Check) Gen Check.
+
+Define ttExpert : cert -> prop by
+ttExpert _ := false.
+
+Define eqClerk : cert -> cert -> prop by
+eqClerk qsearch qsearch.
+
+Define impClerk : cert -> cert -> prop by
+impClerk qsearch qsearch.
+
+Define orClerk : cert -> cert -> cert -> prop by
+orClerk qsearch qsearch qsearch.
+
+Define andClerk : cert -> cert -> prop by
+andClerk qsearch qsearch.
+
+Define ttClerk : cert -> cert -> prop by
+ttClerk _ _ := false.
+
+Define ffClerk : cert -> prop by
+ffClerk _ := false.
