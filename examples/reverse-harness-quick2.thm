@@ -1,0 +1,18 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/quick2-fpc.thm".
+#include "reverse-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "reverse-examples.thm".
+
+#assert_not test_reverse_involutive
+	(qstart
+		(qgen (qheight (s (s z))))
+		qsearch
+	).
+
+#assert test_reverse_involutive
+	(qstart
+		(qgen (qheight (s (s (s z)))))
+		qsearch
+	).
