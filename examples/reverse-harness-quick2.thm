@@ -16,3 +16,15 @@
 		(qgen (qheight (s (s (s z)))))
 		qsearch
 	).
+
+#assert_not test_reverse_involutive
+	(qstart
+		(qgen (qsize (s (s (s (s (s z))))) z))
+		qsearch
+	).
+
+#assert test_reverse_involutive
+	(qstart
+		(qgen (qsize (s (s (s (s (s (s z)))))) z))
+		qsearch
+	).

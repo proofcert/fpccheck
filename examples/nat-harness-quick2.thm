@@ -13,3 +13,12 @@
 
 #assert exists_nat
 	(qgen (qheight (s (s z)))).
+
+#assert_not exists_nat
+	(qgen (qsize         z   z)).
+
+#assert exists_nat
+	(qgen (qsize      (s z)  z)).
+
+#assert exists_nat
+	(qgen (qsize   (s (s z)) z)).

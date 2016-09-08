@@ -18,7 +18,7 @@ Type   s        numidx -> numidx.
 % whichever arithmetic operations used throughout.
 Kind   qbound    type.
 Type   qheight   numidx -> qbound.
-Type   qsize     numidx -> qbound.
+Type   qsize     numidx -> numidx -> qbound.
 
 Type   qgen   qbound -> cert.
 
@@ -107,6 +107,7 @@ unfoldLExpert _ _ := false.
 
 Define unfoldRExpert : cert -> cert -> prop by
 unfoldRExpert (qgen (qheight (s Height))) (qgen (qheight Height)) ;
+unfoldRExpert (qgen (qsize (s In) Out)  ) (qgen (qsize In Out)  ) ;
 %
 unfoldRExpert qsearch qsearch.
 
@@ -143,7 +144,8 @@ Define allClerk : cert -> ( i -> cert ) -> prop by
 allClerk _ _ := false.
 
 Define eqExpert : cert -> prop by
-eqExpert (qgen _) ;
+eqExpert (qgen (qheight _)  ) ;
+eqExpert (qgen (qsize In In)) ;
 %
 eqExpert qsearch.
 
@@ -160,7 +162,8 @@ orExpert (qgen Bound) (qgen Bound) _ ;
 orExpert qsearch qsearch _.
 
 Define andExpert : cert -> cert -> cert -> prop by
-andExpert (qgen (qheight Height)) (qgen (qheight Height)) (qgen (qheight Height)) ;
+andExpert (qgen (qheight Height)) (qgen (qheight Height) ) (qgen (qheight Height)  ) ;
+andExpert (qgen (qsize In Out)  ) (qgen (qsize In Middle)) (qgen (qsize Middle Out)) ;
 %
 andExpert qsearch qsearch qsearch ;
 %
