@@ -1,0 +1,21 @@
+#include "insert.thm".
+
+Define copy_i : list imap -> i -> i -> prop by
+	copy_i Theta argv argv ;
+	copy_i Theta (X ++ Y) (U ++ V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	copy_i Theta zero zero ;
+	copy_i Theta (succ X) (succ U) := copy_i Theta X U ;
+	copy_i Theta null null ;
+	copy_i Theta (cons X Y) (cons U V) := copy_i Theta X U /\ copy_i Theta Y V ;
+	%
+	copy_i Theta X U := member (imap X U) Theta.
+
+Define name_mnu : string -> (i -> bool) -> prop by
+	name_mnu "insert"      Insert      := insert      Insert ;
+	name_mnu "ordered"     Ordered     := ordered     Ordered ;
+	name_mnu "ordered_bad" OrderedBad  := ordered_bad OrderedBad ;
+	name_mnu "list"        IsNatList   := is_natlist  IsNatList ;
+	name_mnu "nat"         IsNat       := is_nat      IsNat ;
+	name_mnu "<="          LessEqual   := le_nat      LessEqual ;
+	name_mnu ">"           GreaterThan := gt_nat      GreaterThan.

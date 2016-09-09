@@ -1,0 +1,220 @@
+% Common hacky declarations
+Kind   numidx   type.
+Type   z        numidx.
+Type   s        numidx -> numidx.
+
+%%%%%%%%%%%%%%
+% Generation %
+%%%%%%%%%%%%%%
+
+% Domain-specific declarations
+Kind   qform   type.
+Type   qor     nat -> nat -> qform -> qform -> qform.
+Type   qand                  qform -> qform -> qform.
+Type   qname   string -> qform.
+Type   qnone   qform.
+
+Kind   qmap   type.
+Type   qmap   string -> qform -> qmap.
+
+Type   qcert   list qmap -> list qform -> qform -> cert.
+
+%%%%%%%%%%%%
+% Checking %
+%%%%%%%%%%%%
+
+Type   qsearch   cert.
+
+%%%%%%%%%%%
+% Staging %
+%%%%%%%%%%%
+
+% Trivial, single-branch staging. Currently a simple wrapper on a pair of
+% certificates assumed to cover the generation (qcert) and checking (qsearch)
+% stages, respectively, which a hacky number to determine the number of tries
+% (this is a simple and convenient point of entry, which may conceivably be
+% extended to starting qforms with a wrapper).
+Type   qstart   numidx -> cert -> cert -> cert.
+
+%%%%%%%%%%%%
+% Indexing %
+%%%%%%%%%%%%
+
+Type   qidx   idx.
+
+%%%%%%%%%%%
+% Helpers %
+%%%%%%%%%%%
+
+% Number of attempts iterator
+Define iterate : numidx -> prop by
+iterate (s _)
+%	:= println "Try..." %DEBUG
+ ;
+iterate (s N) :=
+%	print "... left " /\ println N /\ %DEBUG
+	iterate N.
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Clerks and experts %
+%%%%%%%%%%%%%%%%%%%%%%
+
+% Quick and dirty reuse.
+#include "debug-simple-fpc.thm".
+
+Define unmarshal : cert -> cert -> prop by unmarshal C C.
+
+% member is predefined.
+
+Define releaseRExpert : cert -> cert -> prop by
+releaseRExpert qsearch qsearch.
+
+Define releaseLExpert : cert -> cert -> prop by
+releaseLExpert _ _ := false.
+
+Define decideRClerk : cert -> cert -> prop by
+decideRClerk (qcert Map Delta Goal) (qcert Map Delta Goal) ;
+%
+decideRClerk (qstart Tries Gen Check) (qstart Tries Gen Check).
+
+Define storeRClerk : cert -> cert -> prop by
+storeRClerk (qcert Map Delta Goal) (qcert Map Delta Goal) ;
+%
+storeRClerk (qstart Tries Gen Check) (qstart Tries Gen Check).
+
+Define decideLClerk' : cert -> cert -> idx -> prop by
+decideLClerk' _ _ _ := false.
+
+Define decideLClerk : cert -> cert -> idx -> prop by
+decideLClerk _ _ _ := false.
+
+Define storeLClerk : cert -> cert -> idx -> prop by
+storeLClerk _ _ _ := false.
+
+Define initLExpert : cert -> prop by
+initLExpert _ := false.
+
+Define freezeRClerk : cert -> cert -> prop by
+freezeRClerk _ _ := false.
+
+Define initRExpert : cert -> idx -> prop by
+initRExpert _ _ := false.
+
+Define freezeLClerk : cert -> cert -> idx -> prop by
+freezeLClerk _ _ _ := false.
+
+Define unfoldRClerk : cert -> cert -> prop by
+unfoldRClerk _ _ := false.
+
+Define unfoldLExpert : cert -> cert -> prop by
+unfoldLExpert _ _ := false.
+
+Define unfoldRExpert : cert -> cert -> prop by
+unfoldRExpert (qcert Map Delta qnone)        (qcert Map Delta qnone) ;
+unfoldRExpert (qcert Map Delta (qname Name)) (qcert Map Delta Form) :=
+	member (qmap Name Form) Map ;
+%
+unfoldRExpert qsearch qsearch.
+
+%NOTE Ensure termination!
+Define unfoldLClerk : cert -> cert -> prop by
+unfoldLClerk qsearch qsearch.
+
+Define coindClerk' : cert -> ( i -> cert ) -> prop by
+coindClerk' _ _ := false.
+
+Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+coindClerk _ _ _ _ := false.
+
+Define indClerk' : cert -> ( i -> cert ) -> prop by
+indClerk' _ _ := false.
+
+Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
+indClerk _ _ _ _ := false.
+
+Define someExpert : cert -> cert -> i -> prop by
+someExpert (qcert Map Delta Goal) (qcert Map Delta Goal) _ ;
+%
+someExpert (qstart Tries Gen Check) (qstart Tries Gen Check) _ ;
+%
+someExpert qsearch qsearch _.
+
+Define allExpert : cert -> cert -> i -> prop by
+allExpert _ _ _ := false.
+
+Define someClerk : cert -> ( i -> cert ) -> prop by
+someClerk qsearch (_\ qsearch).
+
+Define allClerk : cert -> ( i -> cert ) -> prop by
+allClerk _ _ := false.
+
+Define eqExpert : cert -> prop by
+eqExpert (qcert _ _ _) ;
+%
+eqExpert qsearch.
+
+Define impExpert' : cert -> cert -> cert -> prop by
+impExpert' _ _ _ := false.
+
+Define impExpert : cert -> cert -> cert -> prop by
+impExpert _ _ _ := false.
+
+% A clearer alternative (but still limited scope.)
+%Define orExpert_aux : nat -> qform -> qform -> qform -> choice -> prop by
+%orExpert_aux 0 Form _ Form left ;
+%orExpert_aux 1 _ Form Form right.
+
+% Major simplification to see if things work. Obviously inductive input of
+% numbers is a pain, and so are numeric literals working exclusively as
+% constants (defining operation tables is a possible, quadratic and very ugly
+% hack).
+Define orExpert : cert -> cert -> choice -> prop by
+orExpert (qcert Map Delta qnone)                     (qcert Map Delta qnone) _ ;
+orExpert (qcert Map Delta (qor Pr1 Pr2 Form1 Form2)) (qcert Map Delta Form)  Choice :=
+	print "Toss a coin \"0.\" or \"1.\" on (" /\
+	print Pr1 /\
+	print "," /\
+	print Pr2 /\
+	print "): " /\
+	read Random /\
+	(
+		Random = 0 /\ %Random <= Pr1 /\
+		Form = Form1 /\
+		Choice = left
+	\/
+		Random = 1 /\ %Random > Pr1 /\
+		Form = Form2 /\
+		Choice = right
+	) ;
+%
+orExpert qsearch qsearch _.
+
+Define andExpert : cert -> cert -> cert -> prop by
+andExpert (qcert Map Delta qnone)              (qcert Map Delta qnone) (qcert Map Delta qnone) ;
+andExpert (qcert Map Delta (qand Form1 Form2)) (qcert Map Delta Form1) (qcert Map Delta Form2) ;
+%
+andExpert qsearch qsearch qsearch ;
+%
+andExpert (qstart Tries Gen Check) Gen Check :=
+	iterate Tries.
+
+Define ttExpert : cert -> prop by
+ttExpert _ := false.
+
+Define eqClerk : cert -> cert -> prop by
+eqClerk qsearch qsearch.
+
+Define impClerk : cert -> cert -> prop by
+impClerk qsearch qsearch.
+
+Define orClerk : cert -> cert -> cert -> prop by
+orClerk qsearch qsearch qsearch.
+
+Define andClerk : cert -> cert -> prop by
+andClerk qsearch qsearch.
+
+Define ttClerk : cert -> cert -> prop by
+ttClerk _ _ := false.
+
+Define ffClerk : cert -> prop by
+ffClerk _ := false.

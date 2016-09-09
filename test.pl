@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -11,7 +11,12 @@ my @testfiles = `ls examples/*-harness-simple.thm`;
 foreach my $testfile (@testfiles) {
 	chomp $testfile;
 	print "** Running test file $testfile...\n";
-	system $bedwyr, "-t", "-I", $testfile;
+	if ($testfile =~ /.*-harness-quick.thm/) {
+		system "bash", "test-quick.sh", $testfile;
+	}
+	else {
+		system $bedwyr, "-t", "-I", $testfile;
+	}
 	if ($?) {
 		print "** Error in test file $testfile with $bedwyr. Aborting run.\n";
 		exit 1;

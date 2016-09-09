@@ -16,6 +16,19 @@ Define is_list : (i -> bool) -> prop by
 				(eq L (cons N L'))
 				(I (arg@ L' argv)))))))).
 
+% Possible refactoring to cover arbitrary element types (and any, with true)
+Define is_natlist : (i -> bool) -> prop by
+	is_natlist (mu Pred\Args\
+		(some L\ (and (eq Args (arg@ L argv))
+		(or
+			(eq L null)
+			(some N\ some L'\ (and
+				(eq L (cons N L')) (and
+				(IsNat (arg@ N argv))
+				(Pred (arg@ L' argv)))))))))
+	:=
+	is_nat IsNat.
+
 % Suboptimal/multi-matching when E = F
 Define memb : (i -> bool) -> prop by
 	memb (mu Pred\Args\

@@ -10,11 +10,16 @@ Define copy_i : list_imap -> i -> i -> prop by
 	copy_i Theta d d ;
 	copy_i Theta e e ;
 	copy_i Theta f f ;
+	copy_i Theta zero zero ;
+	copy_i Theta (succ X) (succ U) := copy_i Theta X U ;
 	copy_i Theta null null ;
 	copy_i Theta (cons X Y) (cons U V) := copy_i Theta X U /\ copy_i Theta Y V ;
 	%
 	copy_i Theta X U := member_imap (imap X U) Theta.
 
-%Define name_mnu : string -> (i -> bool) -> prop by     %DEBUG
-%	name_mnu "reverse" Reverse := reverse Reverse ; %DEBUG
-%	name_mnu "list"    IsList  := is_list IsList.   %DEBUG
+%Define name_mnu : string -> (i -> bool) -> prop by            %DEBUG
+%	name_mnu "reverse" Reverse   := reverse    Reverse ;   %DEBUG
+%	name_mnu "append"  Append    := append     Append ;    %DEBUG
+%	name_mnu "list"    IsList    := is_list    IsList ;    %DEBUG
+%	name_mnu "natlist" IsNatList := is_natlist IsNatList ; %DEBUG
+%	name_mnu "nat"     IsNat     := is_nat     IsNat.      %DEBUG
