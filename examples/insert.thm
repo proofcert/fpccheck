@@ -1,0 +1,46 @@
+#include "list.thm".
+
+Define ordered : (i -> bool) -> prop by
+	ordered (mu Pred\Args\ (or
+		(eq Args (null ++ argv)) (or
+		(some X\ and
+			(eq Args ((cons X null) ++ argv))
+			(IsNat (X ++ argv)))
+		(some X\ some Y\ some Rs\ and
+			(eq Args ((cons X (cons Y Rs)) ++ argv)) (and
+			(LessEqual (X ++ Y ++ argv))
+			(Pred ((cons Y Rs) ++ argv))))
+	)))
+	:=
+	is_nat IsNat /\
+	le_nat LessEqual.
+
+Define ordered_bad : (i -> bool) -> prop by
+	ordered_bad (mu Pred\Args\ (or
+		(eq Args (null ++ argv)) (or
+		(some X\ and
+			(eq Args ((cons X null) ++ argv))
+			(IsNat (X ++ argv)))
+		(some X\ some Y\ some Rs\ and
+			(eq Args ((cons X (cons Y Rs)) ++ argv)) (and
+			(LessEqual (X ++ Y ++ argv))
+			(Pred (Rs ++ argv))))
+	)))
+	:=
+	is_nat IsNat /\
+	le_nat LessEqual.
+
+Define insert : (i -> bool) -> prop by
+	insert (mu Pred\Args\ (or
+		(some X\ eq Args (X ++ null ++ (cons X null) ++ argv)) (or
+		(some X\ some Y\ some Ys\ and
+			(eq Args (X ++ (cons Y Ys) ++ (cons X (cons Y Ys)) ++ argv))
+			(LessEqual (X ++ Y ++ argv)))
+		(some X\ some Y\ some Ys\ some Rs\ and
+			(eq Args (X ++ (cons Y Ys) ++ (cons Y Rs) ++ argv)) (and
+			(GreaterThan (X ++ Y ++ argv))
+			(Pred (X ++ Ys ++ Rs ++ argv))))
+	)))
+	:=
+	le_nat LessEqual /\
+	gt_nat GreaterThan.

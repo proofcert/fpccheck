@@ -1,0 +1,30 @@
+#include "../kernel/logic.thm".
+#include "../kernel/cert-sig.thm".
+#include "../fpc/quick2-fpc.thm".
+#include "insert-examples-sig.thm".
+#include "../kernel/kernel.thm".
+#include "insert-examples.thm".
+
+#assert_not test_insert_ordered
+	(qstart
+		(qgen (qheight (s (s (s (s (s z)))))))
+		qsearch
+	).
+
+#assert test_insert_ordered_bad
+	(qstart
+		(qgen (qheight (s (s (s (s z))))))
+		qsearch
+	).
+
+#assert_not test_insert_ordered
+	(qstart
+		(qgen (qsize (s (s (s (s (s (s (s (s (s (s (s (s z)))))))))))) z))
+		qsearch
+	).
+
+#assert test_insert_ordered_bad
+	(qstart
+		(qgen (qsize (s (s (s (s (s (s (s (s (s z))))))))) z))
+		qsearch
+	).

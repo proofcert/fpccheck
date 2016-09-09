@@ -1,0 +1,24 @@
+Define test_insert_ordered_f : (i -> bool) -> bool -> prop by
+	test_insert_ordered_f Ordered F :=
+		is_natlist IsNatList /\ is_nat IsNat /\ insert Insert /\ F =
+		(some L\ some N\ some Ord\ and
+			(and
+				(IsNatList (L ++ argv))
+				(IsNat (N ++ argv)))
+			(and
+				(Ordered (L ++ argv)) (and
+				(Insert (N ++ L ++ Ord ++ argv))
+				(imp (Ordered (Ord ++ argv)) ff)))
+		).
+
+Define test_insert_ordered : cert -> prop by
+	test_insert_ordered Cert :=
+		ordered Ordered /\
+		test_insert_ordered_f Ordered F /\
+		prove Cert F.
+
+Define test_insert_ordered_bad : cert -> prop by
+	test_insert_ordered_bad Cert :=
+		ordered_bad OrderedBad /\
+		test_insert_ordered_f OrderedBad F /\
+		prove Cert F.

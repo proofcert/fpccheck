@@ -1,0 +1,8 @@
+Define exists_nat_f : bool -> prop by
+	exists_nat_f F :=
+		is_nat IsNat /\ F =
+		(some N\ IsNat (N ++ argv)).
+
+Define exists_nat : cert -> prop by
+	exists_nat Cert :=
+		exists_nat_f ExistsNat /\ prove Cert ExistsNat.
