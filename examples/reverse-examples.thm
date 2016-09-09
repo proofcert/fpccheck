@@ -6,7 +6,7 @@ Define reverse_total : cert -> prop by
 		is_total2 Cert Reverse IsList.
 
 Define test_reverse_involutive_f : bool -> prop by
-	test_reverse_involutive_f F :=
+	test_reverse_involutive_f F := exists IsNatList Reverse,
 		is_natlist IsNatList /\ reverse Reverse /\ F =
 		(some L\ some K\ and
 			(IsNatList (arg@ L argv)) (and
@@ -15,7 +15,7 @@ Define test_reverse_involutive_f : bool -> prop by
 			(imp (eq L K) ff)))).
 
 Define test_reverse_involutive : cert -> prop by
-	test_reverse_involutive Cert :=
+	test_reverse_involutive Cert := exists TestReverseInvolutive,
 		test_reverse_involutive_f TestReverseInvolutive /\
 		prove Cert TestReverseInvolutive.
 

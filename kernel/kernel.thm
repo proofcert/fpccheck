@@ -265,7 +265,7 @@ syncR Debug Lambda Xi Sigma Phi Gamma (and P Q) := exists Xi' Xi'',
 	spy_syncR Debug Lambda Xi'  Sigma Phi Gamma P /\
 	spy_syncR Debug Lambda Xi'' Sigma Phi Gamma Q ;
 
-syncR Debug Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi',
+syncR Debug Lambda Xi Sigma Phi Gamma (or P Q) := exists Xi' C,
 	orExpert Xi Xi' C /\ (
 	(C = left  /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma P) \/
 	(C = right /\ spy_syncR Debug Lambda Xi' Sigma Phi Gamma Q) ) ;

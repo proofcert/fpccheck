@@ -66,7 +66,7 @@ Define releaseRExpert : cert -> cert -> prop by
 releaseRExpert qsearch qsearch.
 
 Define releaseLExpert : cert -> cert -> prop by
-releaseLExpert _ _ := false.
+releaseLExpert X1? X2? := false.
 
 Define decideRClerk : cert -> cert -> prop by
 decideRClerk (qgen Bound) (qgen Bound) ;
@@ -79,31 +79,31 @@ storeRClerk (qgen Bound) (qgen Bound) ;
 storeRClerk (qstart Gen Check) (qstart Gen Check).
 
 Define decideLClerk' : cert -> cert -> idx -> prop by
-decideLClerk' _ _ _ := false.
+decideLClerk' X1? X2? X3? := false.
 
 Define decideLClerk : cert -> cert -> idx -> prop by
-decideLClerk _ _ _ := false.
+decideLClerk X1? X2? X3? := false.
 
 Define storeLClerk : cert -> cert -> idx -> prop by
-storeLClerk _ _ _ := false.
+storeLClerk X1? X2? X3? := false.
 
 Define initLExpert : cert -> prop by
-initLExpert _ := false.
+initLExpert X? := false.
 
 Define freezeRClerk : cert -> cert -> prop by
-freezeRClerk _ _ := false.
+freezeRClerk X1? X2? := false.
 
 Define initRExpert : cert -> idx -> prop by
-initRExpert _ _ := false.
+initRExpert X1? X2? := false.
 
 Define freezeLClerk : cert -> cert -> idx -> prop by
-freezeLClerk _ _ _ := false.
+freezeLClerk X1? X2? X3? := false.
 
 Define unfoldRClerk : cert -> cert -> prop by
-unfoldRClerk _ _ := false.
+unfoldRClerk X1? X2? := false.
 
 Define unfoldLExpert : cert -> cert -> prop by
-unfoldLExpert _ _ := false.
+unfoldLExpert X1? X2? := false.
 
 Define unfoldRExpert : cert -> cert -> prop by
 unfoldRExpert (qgen (qheight (s Height))) (qgen (qheight Height)) ;
@@ -116,50 +116,50 @@ Define unfoldLClerk : cert -> cert -> prop by
 unfoldLClerk qsearch qsearch.
 
 Define coindClerk' : cert -> ( i -> cert ) -> prop by
-coindClerk' _ _ := false.
+coindClerk' X1? X2? := false.
 
 Define coindClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
-coindClerk _ _ _ _ := false.
+coindClerk X1? X2? X3? X4? := false.
 
 Define indClerk' : cert -> ( i -> cert ) -> prop by
-indClerk' _ _ := false.
+indClerk' X1? X2? := false.
 
 Define indClerk : cert -> cert -> ( i -> cert ) -> ( i -> bool ) -> prop by
-indClerk _ _ _ _ := false.
+indClerk X1? X2? X3? X4? := false.
 
 Define someExpert : cert -> cert -> i -> prop by
-someExpert (qgen Bound) (qgen Bound) _ ;
+someExpert (qgen Bound) (qgen Bound) X ;
 %
-someExpert (qstart Gen Check) (qstart Gen Check) _ ;
+someExpert (qstart Gen Check) (qstart Gen Check) X ;
 %
-someExpert qsearch qsearch _.
+someExpert qsearch qsearch X.
 
 Define allExpert : cert -> cert -> i -> prop by
-allExpert _ _ _ := false.
+allExpert X1? X2? X3? := false.
 
 Define someClerk : cert -> ( i -> cert ) -> prop by
-someClerk qsearch (_\ qsearch).
+someClerk qsearch (x\ qsearch).
 
 Define allClerk : cert -> ( i -> cert ) -> prop by
-allClerk _ _ := false.
+allClerk X1? X2? := false.
 
 Define eqExpert : cert -> prop by
-eqExpert (qgen (qheight _)  ) ;
+eqExpert (qgen (qheight X?) ) ;
 eqExpert (qgen (qsize In In)) ;
 %
 eqExpert qsearch.
 
 Define impExpert' : cert -> cert -> cert -> prop by
-impExpert' _ _ _ := false.
+impExpert' X1? X2? X3? := false.
 
 Define impExpert : cert -> cert -> cert -> prop by
-impExpert _ _ _ := false.
+impExpert X1? X2? X3? := false.
 
 % Exhaustive exploration of the state space makes orExpert simple stuff.
 Define orExpert : cert -> cert -> choice -> prop by
-orExpert (qgen Bound) (qgen Bound) _ ;
+orExpert (qgen Bound) (qgen Bound) X ;
 %
-orExpert qsearch qsearch _.
+orExpert qsearch qsearch X.
 
 Define andExpert : cert -> cert -> cert -> prop by
 andExpert (qgen (qheight Height)) (qgen (qheight Height) ) (qgen (qheight Height)  ) ;
@@ -170,7 +170,7 @@ andExpert qsearch qsearch qsearch ;
 andExpert (qstart Gen Check) Gen Check.
 
 Define ttExpert : cert -> prop by
-ttExpert _ := false.
+ttExpert X? := false.
 
 Define eqClerk : cert -> cert -> prop by
 eqClerk qsearch qsearch.
@@ -185,7 +185,7 @@ Define andClerk : cert -> cert -> prop by
 andClerk qsearch qsearch.
 
 Define ttClerk : cert -> cert -> prop by
-ttClerk _ _ := false.
+ttClerk X1? X2? := false.
 
 Define ffClerk : cert -> prop by
-ffClerk _ := false.
+ffClerk X? := false.
